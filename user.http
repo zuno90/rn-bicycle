@@ -1,0 +1,70 @@
+# baseURL
+@baseURL = http://localhost:8000/api
+@Authorization = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjA0LCJjYXNoIjowLCJpc1ZlcmlmeSI6dHJ1ZSwibmFtZSI6bnVsbCwicGhvbmVOdW1iZXIiOiIrODQzMjc0NzYzODEiLCJhZGRyZXNzIjpudWxsLCJyb2xlIjoiVXNlciIsInBvaW50IjowLCJjcmVhdGVBdCI6IjIwMjMtMDktMTBUMDQ6NDM6NTMuMzU4WiIsImlhdCI6MTY5NDMyMzQ0NiwiZXhwIjoxNjk0NDA5ODQ2fQ.OZM0xV9oWxlpSMs9CPySjkHkvuqTKiniNAFpch712rw
+
+###
+# Fetch Info User
+GET  {{ baseURL }}/fetch-me
+Authorization: Bearer {{ Authorization }}
+
+###
+# Get User By Id
+GET {{ baseURL }}/user/204
+Content-Type: application/json
+
+###
+# User Verify OTP
+POST {{ baseURL }}/user/verify-otp
+Content-Type: application/json
+
+{
+    "phoneNumber": "+84327476381",
+	"code": "4925"
+}
+
+###
+# User Resend OTP
+POST {{ baseURL }}/user/resend-otp
+Content-Type: application/json
+
+{
+    "phoneNumber": "0327476381",
+}
+
+###
+# User forgot password
+POST {{ baseURL }}/user/forgot-password
+Content-Type: application/json
+
+{
+    "phoneNumber": "0327476381",
+}
+
+###
+# User change password
+POST {{ baseURL }}/user/change-password
+Content-Type: application/json
+
+{
+    "phoneNumber": "0327476381",
+    "password": "123456",
+}
+
+###
+# User change password
+PUT {{ baseURL }}/user/204
+Content-Type: application/json
+Authorization: Bearer {{ Authorization }}
+
+{
+    "name": "Pha"
+}
+
+###
+# User change password
+DELETE  {{ baseURL }}/user/204
+Content-Type: application/json
+
+{
+    "phoneNumber": "0327476381",
+}

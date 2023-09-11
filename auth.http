@@ -1,0 +1,32 @@
+# baseURL
+@baseURL = http://gate.mamonhoalu.online/api
+
+###
+# User Signup
+POST {{ baseURL }}/signup
+Content-Type: application/json
+
+{
+    "phoneNumber": "0327476381",
+	"password": "123456"
+}
+
+###
+# User Signin
+POST {{ baseURL }}/signin
+Content-Type: application/json
+
+{
+    "phoneNumber": "0327476381",
+	"password": "123456"
+}
+
+###
+# User Logout
+POST {{ baseURL }}/logout
+Content-Type: application/json
+
+{
+    "email": "admin",
+	"password": "admin@123"
+}

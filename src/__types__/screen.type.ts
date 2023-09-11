@@ -1,4 +1,5 @@
 export enum EScreen {
-  Home = "Home",
   Auth = "Auth",
+  Home = "Home",
+  Loading = "Loading",
 }

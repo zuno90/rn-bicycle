@@ -1,43 +1,58 @@
-import { ArrowBackIcon, Button, Center, FormControl, Input, Stack, Text, VStack } from "native-base"
+import { Button, Center, FormControl, Icon, Input, Stack, Text, VStack } from "native-base"
 import { useForm, Controller, SubmitHandler } from "react-hook-form"
 import { EAuth } from "../../__types__"
-import { allowOnlyNumber } from "../../utils/helper.util"
+import { allowOnlyNumber, fetchPost } from "../../utils/helper.util"
+import LinearGradient from "react-native-linear-gradient"
+import AntIcon from "react-native-vector-icons/AntDesign"
+import FaIcon from "react-native-vector-icons/FontAwesome"
+import { config } from "../../utils/config.util"
 
 const ForgotPassword: React.FC = ({ navigation }: any) => {
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<{ phone: string }>()
+  } = useForm<{ phoneNumber: string }>()
 
-  const onSubmit: SubmitHandler<{ phone: string }> = (data) => {
-    console.log(data, 345345345)
+  const onForgotPasswordSubmit: SubmitHandler<{ phoneNumber: string }> = async (data) => {
+    const res = await fetchPost(`${config.endpoint}/user/forgot-password`, JSON.stringify(data))
+    console.log(res, 5656)
+    if (res.success) {
+      return navigation.navigate(EAuth.VerifyOtp, {
+        from: EAuth.ForgotPassword,
+        phone: data.phoneNumber,
+      })
+    }
   }
 
   return (
     <>
-      <Stack flex={1} mx={5} space={10} safeArea>
+      <Stack flex={1} m={5} space={5} safeAreaTop>
         <VStack space={4}>
-          <ArrowBackIcon size="8" />
-          <Text fontSize="3xl">Quên mật khẩu?</Text>
-          <Text fontSize="xl">Nhập số điện thoại</Text>
+          <Icon as={FaIcon} name="chevron-left" size={30} onPress={() => navigation.goBack()} />
+          <Text fontSize="3xl" fontWeight="bold">
+            Quên mật khẩu?
+          </Text>
+          <Text fontSize="lg">Nhập số điện thoại</Text>
         </VStack>
-
-        <Stack space={5} alignItems="center">
-          <FormControl isRequired isInvalid={"phone" in errors}>
+        <Stack space={4} alignItems="center">
+          <FormControl isRequired isInvalid={"phoneNumber" in errors}>
             <Controller
-              name="phone"
+              name="phoneNumber"
               defaultValue=""
-              rules={{ required: "Phone is required" }}
+              rules={{
+                required: true,
+                pattern: /^(?:\+\d{1,3})?[ -]?\(?\d{3}\)?[ -]?\d{3}[ -]?\d{4}$/,
+              }}
               control={control}
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
-                  // w={{ base: "80%", md: "25%" }}
                   p={4}
                   size={5}
                   color="muted.400"
                   rounded="full"
-                  InputLeftElement={<ArrowBackIcon ml="2" />}
+                  keyboardType="numeric"
+                  InputLeftElement={<Icon as={AntIcon} name="user" ml={4} />}
                   placeholder="Số điện thoại"
                   onBlur={onBlur}
                   onChangeText={(v) => onChange(allowOnlyNumber(v))}
@@ -46,23 +61,26 @@ const ForgotPassword: React.FC = ({ navigation }: any) => {
               )}
             />
           </FormControl>
-          {errors.phone && (
-            <Text alignSelf="flex-start" ml={5} color="red.700">
-              {errors.phone?.message}
-            </Text>
-          )}
-          <Button
-            onPress={handleSubmit(onSubmit)}
-            w="100%"
-            h="50px"
-            bgColor="yellow.500"
-            rounded="full"
-            _pressed={{ bgColor: "yellow.600" }}
-          >
-            <Text fontSize="lg">Gửi mã</Text>
-          </Button>
-        </Stack>
 
+          <LinearGradient
+            colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
+            style={{
+              width: "100%",
+              borderRadius: 100,
+            }}
+          >
+            <Button
+              variant="outline"
+              h="50px"
+              _pressed={{ bgColor: "yellow.400" }}
+              onPress={handleSubmit(onForgotPasswordSubmit)}
+            >
+              <Text fontSize="lg" fontWeight="semibold">
+                Gửi mã
+              </Text>
+            </Button>
+          </LinearGradient>
+        </Stack>
         <Center>
           <Text>
             Chưa có tài khoản?{" "}
@@ -72,7 +90,7 @@ const ForgotPassword: React.FC = ({ navigation }: any) => {
           </Text>
         </Center>
       </Stack>
-      <Stack justifyContent="end" alignItems="center" safeAreaBottom>
+      <Stack alignItems="center" safeAreaBottom>
         <Text>Hotline hỗ trợ: 1900 8558 68</Text>
         <Text>
           Fanpage:{" "}

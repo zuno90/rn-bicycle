@@ -1,81 +1,60 @@
 import React from "react"
-import { Icon, Text, VStack, Input, Stack, Button, Center, FormControl, HStack } from "native-base"
-import { EAuth } from "../../__types__"
-import LinearGradient from "react-native-linear-gradient"
+import { Stack, VStack, Icon, FormControl, Input, HStack, Center, Text, Button } from "native-base"
 import { useForm, Controller, SubmitHandler } from "react-hook-form"
+import LinearGradient from "react-native-linear-gradient"
+import { EAuth } from "../../__types__"
 import AntIcon from "react-native-vector-icons/AntDesign"
 import FaIcon from "react-native-vector-icons/FontAwesome"
 import FatherIcon from "react-native-vector-icons/Feather"
 import OctIcon from "react-native-vector-icons/Octicons"
 import MatIcon from "react-native-vector-icons/MaterialIcons"
 import {
-  allowOnlyNumber,
-  containsLowerCase,
   containsNumbers,
-  containsSpecialChar,
   containsUpperCase,
+  containsLowerCase,
+  containsSpecialChar,
   fetchPost,
 } from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
 
-type TSignup = {
-  phoneNumber: string
+type TNewPassword = {
   password: string
+  confirmPassword: string
 }
 
-const Signup: React.FC = ({ navigation }: any) => {
+const NewPassword: React.FC = ({ route, navigation }: any) => {
+  const { phone } = route.params
   const [showPass, setShowPass] = React.useState(false)
   const {
     control,
     watch,
+    getValues,
     handleSubmit,
     formState: { errors },
-  } = useForm<TSignup>()
+  } = useForm<TNewPassword>()
 
-  const onSignup: SubmitHandler<TSignup> = async (data) => {
-    console.log(data)
-    const res = await fetchPost(`${config.endpoint}/signup`, JSON.stringify(data))
-    console.log(res)
+  const onSubmit: SubmitHandler<TNewPassword> = async (data) => {
+    const payload = { phoneNumber: phone, password: data.password }
+    const res = await fetchPost(`${config.endpoint}/user/change-password`, JSON.stringify(payload))
     if (res.success)
-      return navigation.navigate(EAuth.VerifyOtp, { from: EAuth.Signup, phone: data.phoneNumber })
+      return navigation.navigate(EAuth.Success, {
+        to: EAuth.Signin,
+        des: "Bạn đã tạo mật khẩu thành công!",
+        btn: "Quay lại đăng nhập",
+      })
   }
 
   return (
     <>
-      <Stack flex={1} m={5} space={8} safeAreaTop>
+      <Stack flex={1} m={5} space={5} safeAreaTop>
         <VStack space={4}>
-          <Icon as={FaIcon} name="chevron-left" size={30} onPress={() => navigation.goBack()} />
+          {/* <Icon as={FaIcon} name="chevron-left" size={30} onPress={() => navigation.goBack()} /> */}
           <Text fontSize="3xl" fontWeight="bold">
-            Tạo tài khoản
+            Tạo mật khẩu mới
           </Text>
-          <Text fontSize="lg">Nhập số điện thoại</Text>
+          <Text fontSize="lg">Mật khẩu mới không được trùng với mật khẩu cũ</Text>
         </VStack>
         <Stack space={4} alignItems="center">
-          <FormControl isRequired isInvalid={"phoneNumber" in errors}>
-            <Controller
-              name="phoneNumber"
-              defaultValue=""
-              rules={{
-                required: true,
-                pattern: /^(?:\+\d{1,3})?[ -]?\(?\d{3}\)?[ -]?\d{3}[ -]?\d{4}$/,
-              }}
-              control={control}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  p={4}
-                  size={5}
-                  color="muted.400"
-                  rounded="full"
-                  keyboardType="numeric"
-                  InputLeftElement={<Icon as={AntIcon} name="user" ml={4} />}
-                  placeholder="Số điện thoại"
-                  onBlur={onBlur}
-                  onChangeText={(v) => onChange(allowOnlyNumber(v))}
-                  value={value}
-                />
-              )}
-            />
-          </FormControl>
           <FormControl isRequired isInvalid={"password" in errors}>
             <Controller
               name="password"
@@ -107,7 +86,41 @@ const Signup: React.FC = ({ navigation }: any) => {
                       onPress={() => setShowPass(!showPass)}
                     />
                   }
-                  placeholder="Mật khẩu"
+                  placeholder="Mật khẩu mới"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
+            />
+          </FormControl>
+          <FormControl isRequired isInvalid={"confirmPassword" in errors}>
+            <Controller
+              name="confirmPassword"
+              defaultValue=""
+              rules={{
+                required: true,
+                minLength: 6,
+                validate: (v) => v === getValues("password"),
+              }}
+              control={control}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  type={showPass ? "text" : "password"}
+                  p={4}
+                  size={5}
+                  color="muted.400"
+                  rounded="full"
+                  InputLeftElement={<Icon as={FatherIcon} name="lock" ml={4} />}
+                  InputRightElement={
+                    <Icon
+                      as={MatIcon}
+                      name={showPass ? "visibility" : "visibility-off"}
+                      mr={4}
+                      onPress={() => setShowPass(!showPass)}
+                    />
+                  }
+                  placeholder="Xác nhận mật khẩu"
                   onBlur={onBlur}
                   onChangeText={onChange}
                   value={value}
@@ -161,24 +174,16 @@ const Signup: React.FC = ({ navigation }: any) => {
           >
             <Button
               variant="outline"
-              onPress={handleSubmit(onSignup)}
+              onPress={handleSubmit(onSubmit)}
               h="50px"
               _pressed={{ bgColor: "yellow.400" }}
             >
               <Text fontSize="lg" fontWeight="semibold">
-                Đăng kí
+                Xác nhận
               </Text>
             </Button>
           </LinearGradient>
         </Stack>
-        <Center>
-          <Text>
-            Đã có tài khoản?{" "}
-            <Text onPress={() => navigation.navigate(EAuth.Signin)} color="blue.600" underline>
-              Đăng nhập
-            </Text>
-          </Text>
-        </Center>
       </Stack>
       <Stack alignItems="center" safeAreaBottom>
         <Text>Hotline hỗ trợ: 1900 8558 68</Text>
@@ -193,4 +198,4 @@ const Signup: React.FC = ({ navigation }: any) => {
   )
 }
 
-export default Signup
+export default NewPassword
