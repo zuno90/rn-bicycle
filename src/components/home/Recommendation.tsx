@@ -1,7 +1,7 @@
-import { Stack, HStack, Heading, Text } from "native-base"
 import React from "react"
+import { Stack, HStack, Heading, Text } from "native-base"
 import Grid from "../useable/Grid"
-import ProductDetail from "./ProductDetail"
+import Product from "../product/Product"
 
 const Recommendation: React.FC = () => {
   return (
@@ -15,7 +15,7 @@ const Recommendation: React.FC = () => {
       <Grid rows={1} columns={3}>
         {[...Array(2)].map((_, index) => (
           <React.Fragment key={index}>
-            <ProductDetail />
+            <Product />
           </React.Fragment>
         ))}
       </Grid>

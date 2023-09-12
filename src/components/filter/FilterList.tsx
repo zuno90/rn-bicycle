@@ -15,6 +15,7 @@ import LinearGradient from "react-native-linear-gradient"
 import FeaIcon from "react-native-vector-icons/Feather"
 import { allowOnlyNumber } from "../../utils/helper.util"
 import React from "react"
+import { cateList, sizeList } from "../../utils/config.util"
 
 type TShowFilter = { closeFilter: () => void }
 
@@ -212,18 +213,5 @@ const FilterList: React.FC<TShowFilter> = ({ closeFilter }) => {
     </>
   )
 }
-
-const cateList = [
-  { value: "all", title: "Tất cả" },
-  { value: "xeleonui", title: "Xe leo núi" },
-  { value: "xediahinh", title: "Xe địa hình" },
-  { value: "xecu", title: "Xe cũ" },
-]
-
-const sizeList = [
-  { value: "xl", title: "Đại (XL)" },
-  { value: "l", title: "Lớn (L)" },
-  { value: "m", title: "Trung (M)" },
-]
 
 export default FilterList

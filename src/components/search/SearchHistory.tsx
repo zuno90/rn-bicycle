@@ -23,7 +23,7 @@ const SearchHistory: React.FC = () => {
   }
 
   return (
-    <Box h="100%" p={4} bgColor="white" borderTopColor="gray.800">
+    <Box p={4}>
       <HStack justifyContent="space-between" alignItems="center">
         <Heading>Lịch sử</Heading>
         <Text fontSize="sm" color="yellow.400" onPress={removeHistoryAll}>

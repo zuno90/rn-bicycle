@@ -1,9 +1,15 @@
 import { Box, AspectRatio, Stack, Heading, HStack, Image, Text, Icon, Button } from "native-base"
+import LinearGradient from "react-native-linear-gradient"
 import AntIcon from "react-native-vector-icons/AntDesign"
 
-const ProductDetail: React.FC = () => {
+const Product: React.FC = () => {
+
+  const handleAddToCart = () => {}
+
+  const handleBuyNow = () => {}
+
   return (
-    <Box maxW="47%" rounded="lg" overflow="hidden" borderColor="coolGray.300" borderWidth={1}>
+    <Box maxW="49%" rounded="lg" overflow="hidden" borderColor="yellow.300" borderWidth={1}>
       <Box>
         <AspectRatio w="100%" ratio={1 / 1}>
           <Image
@@ -37,8 +43,36 @@ const ProductDetail: React.FC = () => {
           </Text>
         </HStack>
       </Stack>
+      <Box maxW="52%">
+        <Button.Group isAttached>
+          <Button
+            w="full"
+            variant="outline"
+            bgColor="yellow.100"
+            borderColor="yellow.300"
+            onPress={handleAddToCart}
+          >
+            <Text fontSize={8} fontWeight="semibold">
+              Thêm vào giỏ
+            </Text>
+          </Button>
+          <LinearGradient
+            colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
+            style={{
+              width: "100%",
+              borderRadius: 100,
+            }}
+          >
+            <Button variant="none" _pressed={{ bgColor: "yellow.600" }} onPress={handleBuyNow}>
+              <Text fontSize={8} fontWeight="semibold">
+                Mua ngay
+              </Text>
+            </Button>
+          </LinearGradient>
+        </Button.Group>
+      </Box>
     </Box>
   )
 }
 
-export default ProductDetail
+export default Product

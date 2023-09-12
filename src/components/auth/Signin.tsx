@@ -144,7 +144,7 @@ const Signin: React.FC = ({ navigation }: any) => {
             }}
           >
             <Button
-              variant="outline"
+              variant="none"
               onPress={handleSubmit(onSignin)}
               h="50px"
               _pressed={{ bgColor: "yellow.600" }}

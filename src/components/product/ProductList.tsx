@@ -4,7 +4,7 @@ import SearchBar from "../search/SearchBar"
 import Grid from "../useable/Grid"
 import FeaIcon from "react-native-vector-icons/Feather"
 import FilterBtn from "../filter/FilterBtn"
-const ProductDetail = React.lazy(() => import("./ProductDetail"))
+const ProductDetail = React.lazy(() => import("./Product"))
 
 const ProductList: React.FC = ({ route, navigation }: any) => {
   const { from, title } = route.params

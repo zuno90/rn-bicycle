@@ -126,7 +126,7 @@ const VerifyOtp: React.FC = ({ route, navigation }: any) => {
           }}
         >
           <Button
-            variant="outline"
+            variant="none"
             onPress={handleSubmit(onVerify)}
             h="50px"
             _pressed={{ bgColor: "yellow.400" }}

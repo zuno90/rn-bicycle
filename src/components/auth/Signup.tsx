@@ -160,7 +160,7 @@ const Signup: React.FC = ({ navigation }: any) => {
             }}
           >
             <Button
-              variant="outline"
+              variant="none"
               onPress={handleSubmit(onSignup)}
               h="50px"
               _pressed={{ bgColor: "yellow.400" }}

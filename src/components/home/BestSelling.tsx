@@ -3,7 +3,7 @@ import { HStack, Heading, Stack, Text } from "native-base"
 import Grid from "../useable/Grid"
 import { EHome } from "../../__types__"
 import { useNavigation } from "@react-navigation/native"
-const ProductDetail = React.lazy(() => import("./ProductDetail"))
+const Product = React.lazy(() => import("../product/Product"))
 
 const BestSelling: React.FC = () => {
   const navigation = useNavigation<any>()
@@ -29,7 +29,7 @@ const BestSelling: React.FC = () => {
         {[...Array(2)].map((_, index) => (
           <React.Fragment key={index}>
             <React.Suspense>
-              <ProductDetail />
+              <Product />
             </React.Suspense>
           </React.Fragment>
         ))}

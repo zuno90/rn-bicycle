@@ -23,7 +23,7 @@ const SearchBar: React.FC = () => {
   }
 
   return (
-    <Stack>
+    <Stack safeAreaTop>
       <HStack m={5} justifyContent="space-around" alignItems="center">
         {open && <Icon as={AntIcon} name="arrowleft" size={30} onPress={closeSearchHistory} />}
         <Controller
@@ -32,6 +32,7 @@ const SearchBar: React.FC = () => {
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
+              ref={searchInputRef}
               p={2}
               ml={open ? 8 : 0}
               mr={8}
@@ -45,7 +46,6 @@ const SearchBar: React.FC = () => {
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
-              ref={searchInputRef}
               onFocus={openSearchHistory}
             />
           )}

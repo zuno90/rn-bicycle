@@ -40,7 +40,7 @@ const InitAuth = ({ navigation }: any) => {
           }}
         >
           <Button
-            variant="outline"
+            variant="none"
             h="50px"
             _pressed={{ bgColor: "yellow.400" }}
             onPress={() => navigation.navigate(EAuth.Signup)}

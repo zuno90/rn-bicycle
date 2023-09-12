@@ -1,4 +1,4 @@
-import { Flex } from "native-base"
+import { Box, Flex } from "native-base"
 import React from "react"
 
 type TGrid = {
@@ -9,9 +9,9 @@ type TGrid = {
 
 const Grid: React.FC<TGrid> = ({ children, ...props }) => {
   return (
-    <Flex direction="row" wrap="wrap" gap={5}>
+    <Box flex={1} flexDirection="row" justifyContent="space-between" alignItems="center">
       {children}
-    </Flex>
+    </Box>
   )
 }
 
