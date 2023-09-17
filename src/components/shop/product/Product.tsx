@@ -9,8 +9,8 @@ const Product: React.FC<any> = ({ navigation, data }) => {
 
   return (
     <Box
-      w="48%"
-      maxW="50%"
+      w="49.5%"
+      maxW="49.5%"
       h={290}
       maxH={350}
       rounded="lg"
@@ -18,6 +18,7 @@ const Product: React.FC<any> = ({ navigation, data }) => {
       borderWidth={1}
       overflow="hidden"
       justifyContent="flex-end"
+      my={0.5}
     >
       <AspectRatio ratio={16 / 9}>
         <Image source={{ uri: data?.images[0] }} resizeMode="cover" alt="product-image" />

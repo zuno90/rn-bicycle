@@ -35,6 +35,13 @@ export const cateList = [
   { value: "xe-cu", title: "Xe cũ" },
 ]
 
+export const brandList = [
+  { value: "martin", title: "Martin" },
+  { value: "honda", title: "Honda" },
+  { value: "yamaha", title: "Yamaha" },
+  { value: "suzuki", title: "Suzuki" },
+]
+
 export const sizeList = [
   { value: "xl", title: "Size XL - Cỡ đại" },
   { value: "l", title: "Size L - Cỡ lớn" },

@@ -7,12 +7,10 @@ import {
   Heading,
   Icon,
   Image,
-  View,
   ScrollView,
   Stack,
   Text,
   VStack,
-  Select,
   Checkbox,
 } from "native-base"
 import CartIcon from "./CartIcon"
@@ -21,14 +19,15 @@ import { colorList, config, sizeList } from "../../../utils/config.util"
 import { EHome, IProductCart } from "../../../__types__"
 import LinearGradient from "react-native-linear-gradient"
 import FaIcon from "react-native-vector-icons/FontAwesome"
-import MaCoIcon from "react-native-vector-icons/MaterialCommunityIcons"
 import AntIcon from "react-native-vector-icons/AntDesign"
 import { fetchGet, formatNumber } from "../../../utils/helper.util"
+
+const BestSelling = React.lazy(() => import("../../home/BestSelling"))
 
 const ConfirmModal = React.lazy(() => import("../../useable/ConfirmModal"))
 
 const Cart: React.FC = ({ navigation }: any) => {
-  const [carts, setCarts] = React.useState<IProductCart[] | []>([])
+  const [carts, setCarts] = React.useState<IProductCart[] | any>([])
   const localCart = localGet(config.cache.cartList)
 
   const getCart = async () => {
@@ -64,7 +63,7 @@ const Cart: React.FC = ({ navigation }: any) => {
 
   return (
     <>
-      <HStack justifyContent="space-between" alignItems="center" px={5} safeAreaTop>
+      <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
         <Icon as={FaIcon} name="chevron-left" size={30} onPress={() => navigation.goBack()} />
         <Text fontSize="3xl" fontWeight="bold">
           Giỏ hàng
@@ -72,32 +71,38 @@ const Cart: React.FC = ({ navigation }: any) => {
         <CartIcon />
       </HStack>
 
-      {!carts ? (
-        <VStack flex={1} justifyContent="center" alignItems="center" px={5} space={4}>
-          <HStack space={4}>
-            <Icon as={MaCoIcon} name="cart-remove" size={30} />
-            <Text fontSize="xl">Giỏ hàng trống</Text>
-          </HStack>
-          <LinearGradient
-            colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
-            style={{
-              width: "100%",
-              borderRadius: 100,
-              marginTop: 10,
-            }}
-          >
-            <Button
-              variant="none"
-              h="50px"
-              _pressed={{ bgColor: "yellow.600" }}
-              onPress={() => navigation.navigate(EHome.InitHome)}
-            >
-              <Text fontSize="lg" fontWeight="semibold">
-                Về trang chủ
-              </Text>
-            </Button>
-          </LinearGradient>
-        </VStack>
+      {carts ? (
+        <ScrollView>
+          <Box bgColor="white">
+            <VStack justifyContent="space-between" alignItems="center" p={5} space={2}>
+              <Heading fontSize="xl">Giỏ hàng trống</Heading>
+              <Text fontSize="md">Tiếp tục khám phá các sản phẩm của chúng tôi</Text>
+              <LinearGradient
+                colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
+                style={{
+                  width: "100%",
+                  borderRadius: 100,
+                  marginTop: 10,
+                }}
+              >
+                <Button
+                  variant="none"
+                  h={50}
+                  _pressed={{ bgColor: "yellow.600" }}
+                  onPress={() => navigation.navigate(EHome.InitHome)}
+                >
+                  <Text fontSize="lg" fontWeight="semibold">
+                    Tiếp tục mua sắm
+                  </Text>
+                </Button>
+              </LinearGradient>
+            </VStack>
+            <Divider my={8} thickness={4} />
+            <Box mx={1} pb={5} bgColor="white">
+              <BestSelling />
+            </Box>
+          </Box>
+        </ScrollView>
       ) : (
         <>
           <ScrollView>

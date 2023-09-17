@@ -3,14 +3,14 @@ import { HStack, Heading, ScrollView, Stack, Text } from "native-base"
 import SearchBar from "../search/SearchBar"
 import Grid from "../../useable/Grid"
 import FilterBtn from "../filter/FilterBtn"
-import FooterMenu from "../../home/FooterMenu"
 import { EHome, EProductList } from "../../../__types__"
 import { useIsFocused } from "@react-navigation/native"
 import { fetchGet } from "../../../utils/helper.util"
 import { config } from "../../../utils/config.util"
 
 const SkeletonLoading = React.lazy(() => import("../../useable/SkeletonLoading"))
-const Product = React.lazy(async () => await import("./Product"))
+const Product = React.lazy(() => import("./Product"))
+const FooterMenu = React.lazy(() => import("../../home/FooterMenu"))
 
 const ProductList: React.FC = ({ route, navigation }: any) => {
   const { from, title, slug, search, filter } = route.params
@@ -61,29 +61,27 @@ const ProductList: React.FC = ({ route, navigation }: any) => {
     <>
       <SearchBar />
       <ScrollView bgColor="white">
-        <Stack p={5}>
-          <Stack space={4}>
-            <HStack justifyContent="space-between" alignItems="center">
-              {from === EProductList.Search ? (
-                <Text>
-                  {products && products.length
-                    ? `Kết quả tìm kiếm "${search}"`
-                    : `Không có sản phẩm phù hợp với từ khoá "${search}"`}
-                </Text>
-              ) : (
-                <Heading size="md">{title}</Heading>
-              )}
-              <FilterBtn />
-            </HStack>
-            <Grid rows={1} columns={2}>
-              {products.length > 0 &&
-                products.map((item, index) => (
-                  <React.Suspense key={index} fallback={<SkeletonLoading />}>
-                    <Product data={item} />
-                  </React.Suspense>
-                ))}
-            </Grid>
-          </Stack>
+        <Stack mx={1} py={5} space={4}>
+          <HStack mx={4} justifyContent="space-between" alignItems="center">
+            {from === EProductList.Search ? (
+              <Text>
+                {products && products.length
+                  ? `Kết quả tìm kiếm "${search}"`
+                  : `Không có sản phẩm phù hợp với từ khoá "${search}"`}
+              </Text>
+            ) : (
+              <Heading size="md">{title}</Heading>
+            )}
+            <FilterBtn />
+          </HStack>
+          <Grid rows={1} columns={2}>
+            {products.length > 0 &&
+              products.map((item, index) => (
+                <React.Suspense key={index} fallback={<SkeletonLoading />}>
+                  <Product data={item} />
+                </React.Suspense>
+              ))}
+          </Grid>
         </Stack>
       </ScrollView>
       <FooterMenu currentScreen={EHome.Cart} />

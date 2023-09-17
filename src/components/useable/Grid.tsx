@@ -15,7 +15,6 @@ const Grid: React.FC<TGrid> = ({ children, ...props }) => {
       justifyContent="space-between"
       alignItems="center"
       w="full"
-      gap={2}
     >
       {children}
     </Box>

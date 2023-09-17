@@ -7,7 +7,7 @@ import { fetchGet } from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
 
 const SkeletonLoading = React.lazy(() => import("../useable/SkeletonLoading"))
-const Product = React.lazy(async () => await import("../shop/product/Product"))
+const Product = React.lazy( () =>  import("../shop/product/Product"))
 
 const BestSelling: React.FC = () => {
   const navigation = useNavigation<any>()
@@ -23,8 +23,8 @@ const BestSelling: React.FC = () => {
   }, [])
 
   return (
-    <Stack space={6}>
-      <HStack justifyContent="space-between" alignItems="center">
+    <Stack space={4}>
+      <HStack mx={4} justifyContent="space-between" alignItems="center">
         <Heading size="md">Sản phẩm bán chạy</Heading>
         <Text
           fontSize="sm"
