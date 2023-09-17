@@ -24,6 +24,7 @@ export default function App() {
         },
       },
     },
+    config: {},
   })
   return (
     <NavigationContainer>

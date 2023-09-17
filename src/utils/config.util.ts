@@ -9,50 +9,42 @@ export const config = {
   },
 }
 
-export const categories = [
+export const SECTIONS = [
   {
-    id: 1,
-    value: "leonui",
-    title: "Leo núi",
+    title: "Ngành hàng",
+    value: "category",
   },
   {
-    id: 2,
-    value: "leonui",
-    title: "Leo núi",
+    title: "Size",
+    value: "size",
   },
   {
-    id: 3,
-    value: "leonui",
-    title: "Leo núi",
+    title: "Màu",
+    value: "color",
   },
   {
-    id: 4,
-    value: "leonui",
-    title: "Leo núi",
-  },
-  {
-    id: 5,
-    value: "all",
-    title: "Tất cả",
+    title: "Giá",
+    value: "price",
   },
 ]
 
 export const cateList = [
   { value: "all", title: "Tất cả" },
-  { value: "xeleonui", title: "Xe leo núi" },
-  { value: "xediahinh", title: "Xe địa hình" },
-  { value: "xecu", title: "Xe cũ" },
+  { value: "xe-leo-nui", title: "Xe leo núi" },
+  { value: "xe-dia-hinh", title: "Xe địa hình" },
+  { value: "xe-cu", title: "Xe cũ" },
 ]
 
 export const sizeList = [
-  { value: "xl", title: "Đại (XL)" },
-  { value: "l", title: "Lớn (L)" },
-  { value: "m", title: "Trung (M)" },
+  { value: "xl", title: "Size XL - Cỡ đại" },
+  { value: "l", title: "Size L - Cỡ lớn" },
+  { value: "m", title: "Size M - Cỡ trung" },
+  { value: "s", title: "Size S - Cỡ nhỏ" },
 ]
 
 export const colorList = [
-  { value: "gray", title: "Xám" },
-  { value: "white", title: "Trắng" },
-  { value: "black", title: "Đen" },
-  { value: "red", title: "Đỏ" },
+  { value: "#5177ff'", title: "Xanh" },
+  { value: "#ffffff", title: "Trắng" },
+  { value: "#000000", title: "Đen" },
+  { value: "#ff0000", title: "Đỏ" },
 ]

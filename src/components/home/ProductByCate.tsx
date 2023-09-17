@@ -1,19 +1,24 @@
 import React from "react"
 import { Stack, HStack, Heading, Text } from "native-base"
-import Grid from "../useable/Grid"
 import { useNavigation } from "@react-navigation/native"
 import { EHome, EProductList, IProduct } from "../../__types__"
+import Grid from "../useable/Grid"
 import { fetchGet } from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
 
 const SkeletonLoading = React.lazy(() => import("../useable/SkeletonLoading"))
 const Product = React.lazy(async () => await import("../shop/product/Product"))
 
-const Recommendation: React.FC = () => {
+type TProductByCate = {
+  currentCate: { name: string; value: string }
+}
+
+const ProductByCate: React.FC<TProductByCate> = ({ currentCate: { name, value } }) => {
   const navigation = useNavigation<any>()
   const [products, setProducts] = React.useState<IProduct[]>([])
+
   const getProducts = async () => {
-    const res = await fetchGet(`${config.endpoint}/products`)
+    const res = await fetchGet(`${config.endpoint}/category/${value}`)
     if (res.success) return setProducts(res.data.products)
   }
 
@@ -24,14 +29,15 @@ const Recommendation: React.FC = () => {
   return (
     <Stack space={6}>
       <HStack justifyContent="space-between" alignItems="center">
-        <Heading size="md">Dành cho bạn</Heading>
+        <Heading size="md">{name}</Heading>
         <Text
           fontSize="sm"
           color="yellow.400"
           onPress={() =>
             navigation.navigate(EHome.ProductList, {
-              from: EProductList.Recommendation,
-              title: "Dành cho bạn",
+              from: EProductList.Category,
+              title: name,
+              slug: value,
             })
           }
         >
@@ -52,4 +58,4 @@ const Recommendation: React.FC = () => {
   )
 }
 
-export default Recommendation
+export default ProductByCate

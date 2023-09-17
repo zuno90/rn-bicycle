@@ -4,12 +4,19 @@ import React from "react"
 type TGrid = {
   rows?: number
   columns: number
-  children: React.ReactElement[]
+  children: React.ReactElement[] | React.ReactNode
 }
 
 const Grid: React.FC<TGrid> = ({ children, ...props }) => {
   return (
-    <Box flex={1} flexDirection="row" justifyContent="space-between" alignItems="center">
+    <Box
+      flexDirection="row"
+      flexWrap="wrap"
+      justifyContent="space-between"
+      alignItems="center"
+      w="full"
+      gap={2}
+    >
       {children}
     </Box>
   )

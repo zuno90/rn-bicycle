@@ -6,7 +6,7 @@ import useAuth from "../../context/AuthProvider"
 const Success: React.FC = ({ route, navigation }: any) => {
   const { to, des, btn } = route.params
 
-  const { checkAuth } = useAuth()
+  const {  checkAuth } = useAuth()
 
   const handleDirectBtn = async () => {
     await checkAuth()
@@ -15,7 +15,7 @@ const Success: React.FC = ({ route, navigation }: any) => {
 
   return (
     <>
-      <Stack flex={1} mx={5} my={10} space={10} safeArea>
+      <Stack flex={1} mx={5} my={10} space={10} safeAreaTop>
         <VStack space={4} alignItems="center">
           <Img source={require("../../../public/success.png")} size={200} alt="success" />
           <Text fontSize="3xl" fontWeight="bold">
@@ -42,15 +42,6 @@ const Success: React.FC = ({ route, navigation }: any) => {
             </Text>
           </Button>
         </LinearGradient>
-      </Stack>
-      <Stack justifyContent="end" alignItems="center" safeAreaBottom>
-        <Text>Hotline hỗ trợ: 1900 8558 68</Text>
-        <Text>
-          Fanpage:{" "}
-          <Text color="blue.500" underline>
-            www.facebook.vuongdo
-          </Text>
-        </Text>
       </Stack>
     </>
   )

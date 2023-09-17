@@ -1,7 +1,7 @@
 import { Stack, Text } from "native-base"
 import { ActivityIndicator } from "react-native"
 
-const Loading: React.FC = () => {
+const LoadingScreen: React.FC = () => {
   return (
     <Stack flex={1} justifyContent="center" alignItems="center">
       <ActivityIndicator animating={true} />
@@ -10,4 +10,4 @@ const Loading: React.FC = () => {
   )
 }
 
-export default Loading
+export default LoadingScreen

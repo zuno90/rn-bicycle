@@ -6,12 +6,13 @@ import LinearGradient from "react-native-linear-gradient"
 import AntIcon from "react-native-vector-icons/AntDesign"
 import FaIcon from "react-native-vector-icons/FontAwesome"
 import { config } from "../../utils/config.util"
+import { HideOnKeyboard } from "react-native-hide-onkeyboard"
 
 const ForgotPassword: React.FC = ({ navigation }: any) => {
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { isSubmitting, errors },
   } = useForm<{ phoneNumber: string }>()
 
   const onForgotPasswordSubmit: SubmitHandler<{ phoneNumber: string }> = async (data) => {
@@ -35,7 +36,7 @@ const ForgotPassword: React.FC = ({ navigation }: any) => {
           </Text>
           <Text fontSize="lg">Nhập số điện thoại</Text>
         </VStack>
-        <Stack space={4} alignItems="center">
+        <Stack space={8} alignItems="center">
           <FormControl isRequired isInvalid={"phoneNumber" in errors}>
             <Controller
               name="phoneNumber"
@@ -51,6 +52,7 @@ const ForgotPassword: React.FC = ({ navigation }: any) => {
                   size={5}
                   color="muted.400"
                   rounded="full"
+                  _focus={{ borderColor: "yellow.400", bgColor: "white" }}
                   keyboardType="numeric"
                   InputLeftElement={<Icon as={AntIcon} name="user" ml={4} />}
                   placeholder="Số điện thoại"
@@ -74,6 +76,8 @@ const ForgotPassword: React.FC = ({ navigation }: any) => {
               h="50px"
               _pressed={{ bgColor: "yellow.400" }}
               onPress={handleSubmit(onForgotPasswordSubmit)}
+              isLoading={isSubmitting}
+              isDisabled={isSubmitting}
             >
               <Text fontSize="lg" fontWeight="semibold">
                 Gửi mã
@@ -90,15 +94,17 @@ const ForgotPassword: React.FC = ({ navigation }: any) => {
           </Text>
         </Center>
       </Stack>
-      <Stack alignItems="center" safeAreaBottom>
-        <Text>Hotline hỗ trợ: 1900 8558 68</Text>
-        <Text>
-          Fanpage:{" "}
-          <Text color="blue.500" underline>
-            www.facebook.vuongdo
+      <HideOnKeyboard>
+        <Stack alignItems="center" my={5}>
+          <Text>Hotline hỗ trợ: 1900 8558 68</Text>
+          <Text>
+            Fanpage:{" "}
+            <Text color="blue.500" underline>
+              www.facebook.vuongdo
+            </Text>
           </Text>
-        </Text>
-      </Stack>
+        </Stack>
+      </HideOnKeyboard>
     </>
   )
 }

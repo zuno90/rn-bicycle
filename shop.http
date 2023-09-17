@@ -1,0 +1,181 @@
+# baseURL
+# @baseURL = https://gate.mamnonhoalu.online/api
+@baseURL = http://localhost:8000/api
+
+@Authorization = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjA0LCJjYXNoIjowLCJpc1ZlcmlmeSI6dHJ1ZSwibmFtZSI6bnVsbCwicGhvbmVOdW1iZXIiOiIrODQzMjc0NzYzODEiLCJhZGRyZXNzIjpudWxsLCJyb2xlIjoiVXNlciIsInBvaW50IjowLCJjcmVhdGVBdCI6IjIwMjMtMDktMTBUMDQ6NDM6NTMuMzU4WiIsImlhdCI6MTY5NDMyMzQ0NiwiZXhwIjoxNjk0NDA5ODQ2fQ.OZM0xV9oWxlpSMs9CPySjkHkvuqTKiniNAFpch712rw
+
+###
+# Get all categories
+GET  {{ baseURL }}/categories
+Content-Type: application/json
+
+###
+# Get category by slug
+GET {{ baseURL }}/category/xe-leo-nui?page=0
+Content-Type: application/json
+
+###
+# Create category
+POST {{ baseURL }}/category
+Content-Type: application/json
+
+{
+    "name": "Xe thể thao",
+    "slug": "xe-the-thao"
+}
+
+###
+# Update category by slug
+PUT {{ baseURL }}/category/xe-the-thao
+Content-Type: application/json
+
+{
+    "name": "Xe thể thao 1",
+    "slug": "xe-the-thao-1"
+}
+
+###
+# Delete category by slug
+DELETE {{ baseURL }}/category/xe-the-thao-1
+Content-Type: application/json
+
+###
+# Get all product
+GET {{ baseURL }}/products?category=%5B%222%22%2C%20%223%22%5D&color=%5B%22%23ffffff%22%2C%20%22%23bbbdbf%22%5D&size=%5B%22s%22%2C%20%22l%22%5D&fromPrice=100000&toPrice=4000000&page=1
+# GET {{ baseURL }}/products?category=1&page=3&limit=5
+Content-Type: application/json
+
+###
+# Get all product by name
+GET {{ baseURL }}/product?name=An%20do
+Content-Type: application/json
+
+###
+# Get product by slug
+GET {{ baseURL }}/product/xe-dap-địa-hình-nhap-khau-tu-Trung-Quốc-ma-DEZDB
+# Content-Type: application/json
+
+# ###
+# # Create product
+# POST {{ baseURL }}/product
+# Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="files"; filename="nodejs.png"
+# Content-Type: image/png
+
+# > ./nodejs.png
+
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="name"
+
+# xe dap abcd
+
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="slug"
+
+# mtb-gammax-26-kunfeng-1-0-21s-2020
+
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="price"
+
+# 2600000
+
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="discount"
+
+# 40
+
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="size"
+
+# ["s", "l"]
+
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="color"
+
+# ["#ff0000", "#ffffff"]
+
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="sold"
+
+# 2500
+
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="inventory"
+
+# 400
+
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="detail"
+
+# Xe đạp địa hình sở hữu thiết kế khỏe khoắn, đường nét mạnh mẽ với khung sườn nhỏ gọn kết hợp cùng logo cách điệu đẹp mắt, là phương tiện phù hợp để bạn dùng khi leo núi, đi phượt, vượt địa hình hay đơn giản là dùng khi tập thể thao hằng ngày. Mẫu xe có nhiều phiên bản màu (còn hàng tùy theo khu vực và thời điểm). Bài viết sử dụng phiên bản màu xám để minh họa.
+
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="categoryId"
+
+# 1
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+# ###
+# # Update product
+# PUT {{ baseURL }}/product/mtb-gammax-26-kunfeng-1-0-21s-2020
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="files"; filename="test-upload.jpg"
+Content-Type: image/jpeg
+
+@ ./bicycle.jpg
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="name"
+
+Xe Đạp Địa Hình Superme
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="slug"
+
+xe-dap-dia-hinh-superme
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="price"
+
+5000000
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="discount"
+
+40
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="size"
+
+["s", "l"]
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="color"
+
+["#ff0000", "#ffffff"]
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="sold"
+
+2500
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="inventory"
+
+400
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="detail"
+
+Xe đạp địa hình sở hữu thiết kế khỏe khoắn, đường nét mạnh mẽ với khung sườn nhỏ gọn kết hợp cùng logo cách điệu đẹp mắt, là phương tiện phù hợp để bạn dùng khi leo núi, đi phượt, vượt địa hình hay đơn giản là dùng khi tập thể thao hằng ngày. Mẫu xe có nhiều phiên bản màu (còn hàng tùy theo khu vực và thời điểm). Bài viết sử dụng phiên bản màu xám để minh họa.
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="categoryId"
+
+1
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+###

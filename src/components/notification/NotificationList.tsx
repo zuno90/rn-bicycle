@@ -1,20 +1,10 @@
 import React from "react"
-import {
-  Box,
-  Stack,
-  HStack,
-  Heading,
-  Icon,
-  Image,
-  Text,
-  Divider,
-  useToast,
-  Slide,
-} from "native-base"
+import { Box, HStack, Heading, Icon, Image, Text, useToast } from "native-base"
 import Clipboard from "@react-native-clipboard/clipboard"
 import IonIcon from "react-native-vector-icons/Ionicons"
-import AntIcon from "react-native-vector-icons/AntDesign"
-import FeaIcon from "react-native-vector-icons/Feather"
+import { EToastType } from "../../__types__/toast.type"
+
+const Toast = React.lazy(() => import("../useable/Toast"))
 
 const NotificationList: React.FC<{ type: string }> = ({ type }) => {
   return (
@@ -47,7 +37,12 @@ const MyVoucher = () => {
   const toast = useToast()
   return (
     <>
-      <Image source={require("../../../public/home-banner.jpeg")} size={20} alt="noti-img" />
+      <Image
+        source={require("../../../public/home-banner.jpeg")}
+        size={20}
+        alignSelf="center"
+        alt="noti-img"
+      />
       <Box flex={1} gap={2}>
         <Heading size="sm">VOUCHER HOT GIẢM 50%</Heading>
         <HStack justifyContent="space-between">
@@ -62,67 +57,15 @@ const MyVoucher = () => {
                 toast.show({
                   id: "copytoclipboard",
                   placement: "top",
+                  duration: 1500,
                   render: () => (
-                    // <Slide in={true} placement="left">
-                    //   <Box
-                    //     w="90%"
-                    //     position="absolute"
-                    //     top={5}
-                    //     left={0}
-                    //     mx="4"
-                    //     p={2}
-                    //     zIndex={1}
-                    //     rounded="md"
-                    //     bgColor="yellow.400"
-                    //     flexDir="row"
-                    //     justifyContent="space-between"
-                    //     alignItems="center"
-                    //   >
-                    //     <HStack alignItems="center" space={4}>
-                    //       <Icon as={AntIcon} name="checkcircle" size={5} color="white" />
-                    //       <Text color="white">Đã sao chép</Text>
-                    //     </HStack>
-
-                    //     <HStack space={2}>
-                    //       <Divider orientation="vertical" h="auto" bg="white" />
-                    //       <Icon
-                    //         as={FeaIcon}
-                    //         name="x"
-                    //         size={5}
-                    //         color="white"
-                    //         onPress={() => toast.close("copytoclipboard")}
-                    //       />
-                    //     </HStack>
-                    //   </Box>
-                    // </Slide>
-
-                    <Stack justifyContent="flex-start" alignItems="center">
-                      <Box
-                        w="80%"
-                        p={3}
-                        zIndex={1}
-                        rounded="md"
-                        bgColor="yellow.400"
-                        flexDir="row"
-                        justifyContent="space-between"
-                        alignItems="center"
-                      >
-                        <HStack alignItems="center" space={4}>
-                          <Icon as={AntIcon} name="checkcircle" size={5} color="white" />
-                          <Text color="white">Đã sao chép</Text>
-                        </HStack>
-                        <HStack space={2}>
-                          <Divider orientation="vertical" h="auto" bg="white" />
-                          <Icon
-                            as={FeaIcon}
-                            name="x"
-                            size={5}
-                            color="white"
-                            onPress={() => toast.close("copytoclipboard")}
-                          />
-                        </HStack>
-                      </Box>
-                    </Stack>
+                    <React.Suspense>
+                      <Toast
+                        type={EToastType.noti}
+                        content="Đã sao chép"
+                        close={() => toast.close("copytoclipboard")}
+                      />
+                    </React.Suspense>
                   ),
                 })
             }}

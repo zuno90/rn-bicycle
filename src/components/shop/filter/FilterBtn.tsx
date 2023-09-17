@@ -1,7 +1,8 @@
 import { Text, Icon, Slide, Box, HStack, Pressable, Stack } from "native-base"
 import React from "react"
 import FeaIcon from "react-native-vector-icons/Feather"
-import FilterList from "./FilterList"
+
+const FilterList = React.lazy(() => import("./FilterList"))
 
 const FilterBtn: React.FC = () => {
   const [showFilter, setShowFilter] = React.useState<boolean>(false)
@@ -18,8 +19,10 @@ const FilterBtn: React.FC = () => {
         </HStack>
       </Pressable>
 
-      <Slide in={showFilter} placement="bottom">
-        <FilterList closeFilter={() => setShowFilter(false)} />
+      <Slide in={showFilter} duration={200} placement="top">
+        <React.Suspense>
+          <FilterList closeFilter={() => setShowFilter(false)} />
+        </React.Suspense>
       </Slide>
     </>
   )

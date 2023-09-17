@@ -1,8 +1,9 @@
 import React from "react"
 import { HStack, Box, Divider, Text, Button, ScrollView } from "native-base"
-import CartIcon from "../cart/CartIcon"
+import CartIcon from "../shop/cart/CartIcon"
 import NotificationList from "./NotificationList"
 import FooterMenu from "../home/FooterMenu"
+import { useIsFocused } from "@react-navigation/native"
 
 const tabs = [
   { value: "notification", title: "Thông báo của tôi" },
@@ -11,6 +12,8 @@ const tabs = [
 
 const Notification: React.FC<any> = ({ route, navigation }) => {
   const [selected, setSelected] = React.useState<string>(tabs[0].value)
+
+  React.useEffect(() => {}, [useIsFocused()])
 
   return (
     <>
@@ -40,11 +43,9 @@ const Notification: React.FC<any> = ({ route, navigation }) => {
           </Button>
         ))}
       </HStack>
+      <Divider />
       <ScrollView bgColor="white">
-        <Box>
-          <Divider />
-          <NotificationList type={selected} />
-        </Box>
+        <NotificationList type={selected} />
       </ScrollView>
       <FooterMenu currentScreen={route.name} />
     </>
