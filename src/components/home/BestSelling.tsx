@@ -28,7 +28,7 @@ const BestSelling: React.FC = () => {
         <Heading size="md">Sản phẩm bán chạy</Heading>
         <Text
           fontSize="sm"
-          color="yellow.400"
+          color="#966216"
           onPress={() =>
             navigation.navigate(EHome.ProductList, {
               from: EProductList.BestSelling,

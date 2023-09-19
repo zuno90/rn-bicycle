@@ -50,7 +50,7 @@ export const sizeList = [
 ]
 
 export const colorList = [
-  { value: "#5177ff'", title: "Xanh" },
+  { value: "#5177ff", title: "Xanh" },
   { value: "#ffffff", title: "Trắng" },
   { value: "#000000", title: "Đen" },
   { value: "#ff0000", title: "Đỏ" },

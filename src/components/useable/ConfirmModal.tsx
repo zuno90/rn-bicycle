@@ -1,5 +1,6 @@
-import { Modal, ScrollView, Text, Button, Heading, Box, Stack, VStack, HStack } from "native-base"
+import { Modal, Text, Button, Heading, Box, HStack, Icon } from "native-base"
 import { Dispatch, SetStateAction } from "react"
+import MateIcon from "react-native-vector-icons/MaterialIcons"
 
 type TModal = {
   isOpen: boolean
@@ -13,7 +14,7 @@ const ConfirmModal: React.FC<TModal> = ({ isOpen, onClose, removeItem, title, de
   return (
     <Modal isOpen={isOpen} size="md">
       <Modal.Content>
-        <Modal.CloseButton onPress={() => onClose(false)} />
+        <Modal.CloseButton as={MateIcon} name="highlight-remove" onPress={() => onClose(false)} />
         <Modal.Body>
           <Box alignItems="center" py={2} gap={4}>
             <Heading>{title}</Heading>
@@ -23,8 +24,8 @@ const ConfirmModal: React.FC<TModal> = ({ isOpen, onClose, removeItem, title, de
                 w="50%"
                 rounded="full"
                 variant="outline"
-                borderColor="yellow.400"
-                _text={{ color: "yellow.400", fontWeight: "semibold" }}
+                borderColor="zuno"
+                _text={{ color: "zuno", fontWeight: "semibold" }}
                 onPress={() => {
                   removeItem()
                   onClose(false)
@@ -35,7 +36,7 @@ const ConfirmModal: React.FC<TModal> = ({ isOpen, onClose, removeItem, title, de
               <Button
                 w="50%"
                 rounded="full"
-                bgColor="yellow.400"
+                bgColor="zuno"
                 _text={{ fontWeight: "semibold" }}
                 onPress={() => onClose(false)}
               >

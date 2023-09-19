@@ -7,7 +7,7 @@ import { brandList, config } from "../../../utils/config.util"
 import { fetchGet } from "../../../utils/helper.util"
 
 const SkeletonLoading = React.lazy(() => import("../../useable/SkeletonLoading"))
-const Product = React.lazy( () =>  import("../product/Product"))
+const Product = React.lazy(() => import("../product/Product"))
 const FooterMenu = React.lazy(() => import("../../home/FooterMenu"))
 
 const Category: React.FC<any> = ({ route, navigation }) => {
@@ -34,13 +34,10 @@ const Category: React.FC<any> = ({ route, navigation }) => {
   return (
     <>
       <SearchBar />
-      <ScrollView bgColor="white">
-        <Stack mx={1} py={5} space={4}>
-          <Heading mx={4} size="md">
-            {title}
-          </Heading>
+      <ScrollView>
+        <Stack p={5} bgColor="white" space={4}>
+          <Heading size="md">{title}</Heading>
           <Box
-            mx={4}
             minH={120}
             flexDir="row"
             flexWrap="wrap"
@@ -65,6 +62,8 @@ const Category: React.FC<any> = ({ route, navigation }) => {
                 </Box>
               ))}
           </Box>
+        </Stack>
+        <Box mx={1} pb={5} bgColor="white">
           <Grid rows={1} columns={2}>
             {products.length > 0 &&
               products.map((item, index) => (
@@ -73,7 +72,7 @@ const Category: React.FC<any> = ({ route, navigation }) => {
                 </React.Suspense>
               ))}
           </Grid>
-        </Stack>
+        </Box>
       </ScrollView>
       <FooterMenu currentScreen={EHome.Cart} />
     </>

@@ -6,7 +6,7 @@ import useAuth from "../../context/AuthProvider"
 const Success: React.FC = ({ route, navigation }: any) => {
   const { to, des, btn } = route.params
 
-  const {  checkAuth } = useAuth()
+  const { checkAuth } = useAuth()
 
   const handleDirectBtn = async () => {
     await checkAuth()
@@ -32,7 +32,7 @@ const Success: React.FC = ({ route, navigation }: any) => {
           }}
         >
           <Button
-            variant="none"
+            variant="unstyle"
             onPress={handleDirectBtn}
             h="50px"
             _pressed={{ bgColor: "yellow.400" }}

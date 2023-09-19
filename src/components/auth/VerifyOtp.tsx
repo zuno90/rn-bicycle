@@ -1,5 +1,5 @@
 import React from "react"
-import { Stack, VStack, Text, Button, FormControl, useToast } from "native-base"
+import { Stack, VStack, Text, Button, FormControl, useToast, Pressable } from "native-base"
 import { Controller, SubmitHandler, useForm } from "react-hook-form"
 import OTPTextView from "react-native-otp-textinput"
 import LinearGradient from "react-native-linear-gradient"
@@ -145,7 +145,7 @@ const VerifyOtp: React.FC = ({ route, navigation }: any) => {
         ) : (
           <Text>
             Bạn chưa nhận được mã?{" "}
-            <Text onPress={handleSubmit(onResend)} color="blue.500" underline>
+            <Text color="blue.500" underline onPress={onResend}>
               Gửi lại
             </Text>
           </Text>
@@ -156,7 +156,7 @@ const VerifyOtp: React.FC = ({ route, navigation }: any) => {
           style={{ width: "100%", borderRadius: 100 }}
         >
           <Button
-            variant="none"
+            variant="unstyle"
             onPress={async () => {
               const ok = await trigger("otp", { shouldFocus: true })
               if (!ok) return showToast(errors.otp?.message ?? "Bad input!")

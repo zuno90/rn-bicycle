@@ -11,15 +11,6 @@ import LoadingScreen from "../screens/LoadingScreen"
 const Stack = createNativeStackNavigator()
 
 const MainLayout: React.FC = () => {
-  React.useEffect(
-    () =>
-      LogBox.ignoreLogs([
-        "In React 18, SSRProvider is not necessary and is a noop. You can remove it from your app.",
-        "VirtualizedLists should never be nested",
-      ]),
-    []
-  )
-
   const {
     isLoading,
     auth: { isAuth, user },

@@ -15,7 +15,7 @@ import {
 } from "native-base"
 import CartIcon from "./CartIcon"
 import { localGet, localSet } from "../../../utils/storage.util"
-import { colorList, config, sizeList } from "../../../utils/config.util"
+import { config } from "../../../utils/config.util"
 import { EHome, IProductCart } from "../../../__types__"
 import LinearGradient from "react-native-linear-gradient"
 import FaIcon from "react-native-vector-icons/FontAwesome"
@@ -23,7 +23,6 @@ import AntIcon from "react-native-vector-icons/AntDesign"
 import { fetchGet, formatNumber } from "../../../utils/helper.util"
 
 const BestSelling = React.lazy(() => import("../../home/BestSelling"))
-
 const ConfirmModal = React.lazy(() => import("../../useable/ConfirmModal"))
 
 const Cart: React.FC = ({ navigation }: any) => {
@@ -32,14 +31,16 @@ const Cart: React.FC = ({ navigation }: any) => {
 
   const getCart = async () => {
     const res = await fetchGet(`${config.endpoint}/user/get-carts`, {
-      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+      // Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
     })
     if (res.success) return res.data
   }
   React.useEffect(() => {
-    ;(async function () {
+    const getCarts = async () => {
       setCarts(localCart ? JSON.parse(localCart) : await getCart())
-    })()
+    }
+    getCarts()
+    console.log(carts)
   }, [])
 
   const [deleteModal, setDeleteModal] = React.useState<{ id: number; isOpen: boolean }>({
@@ -71,7 +72,7 @@ const Cart: React.FC = ({ navigation }: any) => {
         <CartIcon />
       </HStack>
 
-      {carts ? (
+      {!carts || !carts.length ? (
         <ScrollView>
           <Box bgColor="white">
             <VStack justifyContent="space-between" alignItems="center" p={5} space={2}>
@@ -86,7 +87,7 @@ const Cart: React.FC = ({ navigation }: any) => {
                 }}
               >
                 <Button
-                  variant="none"
+                  variant="unstyle"
                   h={50}
                   _pressed={{ bgColor: "yellow.600" }}
                   onPress={() => navigation.navigate(EHome.InitHome)}
@@ -127,79 +128,61 @@ const Cart: React.FC = ({ navigation }: any) => {
                         alt="cart-prod"
                       />
                       <Box flex={1} gap={2}>
-                        <Heading fontSize="sm">{cart.name}</Heading>
-                        <HStack justifyContent="space-between">
-                          {/* <Select
-                          minW="50%"
-                          h="auto"
-                          dropdownIcon={<Icon as={FaIcon} name="check" mr={2} size={4} />}
-                          accessibilityLabel="Màu"
-                          placeholder={cart.color}
-                          selectedValue={color}
-                          _selectedItem={{
-                            endIcon: <Icon as={FaIcon} name="check" color="yellow.400" size={4} />,
-                          }}
-                          onValueChange={(colorValue) => setColor(colorValue)}
-                        >
-                          {colorList.map((color, index) => (
-                            <Select.Item key={index} label={color.title} value={color.value} />
-                          ))}
-                        </Select>
-                        <Select
-                          minW="50%"
-                          h="auto"
-                          dropdownIcon={<Icon as={FaIcon} name="check" mr={2} size={4} />}
-                          accessibilityLabel="Size"
-                          placeholder={cart.size}
-                          selectedValue={size}
-                          _selectedItem={{
-                            endIcon: <Icon as={FaIcon} name="check" color="yellow.400" size={4} />,
-                          }}
-                          onValueChange={(sizeValue) => setSize(sizeValue)}
-                        >
-                          {sizeList.map((size, index) => (
-                            <Select.Item key={index} label={size.title} value={size.value} />
-                          ))}
-                        </Select> */}
+                        <HStack justifyContent="space-between" alignItems="center">
+                          <Heading fontSize="sm">{cart.name}</Heading>
+                          <Icon
+                            as={AntIcon}
+                            name="delete"
+                            size={4}
+                            onPress={() => setDeleteModal({ id: cart.id, isOpen: true })}
+                          />
                         </HStack>
                         <Text color="red.500" fontWeight="semibold">
                           đ {formatNumber(cart.price)}
                         </Text>
                       </Box>
-                      <VStack justifyContent="space-between" alignItems="flex-end">
-                        <Icon
-                          as={AntIcon}
-                          name="delete"
-                          size={4}
-                          onPress={() => setDeleteModal({ id: cart.id, isOpen: true })}
-                        />
-                        <Button.Group isAttached size={5} borderLeftRadius={100}>
-                          <Button
-                            onPress={() =>
-                              quantity > 1
-                                ? setQuantity(quantity - 1)
-                                : setDeleteModal({ id: cart.id, isOpen: true })
-                            }
-                            _text={{ color: "white", fontWeight: "bold" }}
-                            bgColor="gray.300"
-                            _pressed={{ bgColor: "gray.400" }}
-                          >
-                            -
-                          </Button>
-                          <Button bgColor="gray.300" _text={{ color: "white", fontWeight: "bold" }}>
-                            {quantity.toString()}
-                          </Button>
-                          <Button
-                            onPress={() => setQuantity(quantity + 1)}
-                            _text={{ color: "white", fontWeight: "bold" }}
-                            bgColor="gray.300"
-                            _pressed={{ bgColor: "gray.400" }}
-                          >
-                            +
-                          </Button>
-                        </Button.Group>
-                      </VStack>
                     </HStack>
+                    <HStack ml={6} alignItems="center" space={4}>
+                      <Button variant="solid" size="xs" bgColor="zuno" rounded="lg">
+                        <Text color="white" fontSize="xs" fontWeight="bold">
+                          Size {cart.size}
+                        </Text>
+                      </Button>
+                      <Button variant="solid" size="xs" bgColor="zuno" rounded="lg">
+                        <Text color="white" fontSize="xs" fontWeight="bold">
+                          Màu {cart.color}
+                        </Text>
+                      </Button>
+                      <Button.Group isAttached rounded="full" size={8}>
+                        <Button
+                          onPress={() =>
+                            quantity > 1
+                              ? setQuantity(quantity - 1)
+                              : setDeleteModal({ id: cart.id, isOpen: true })
+                          }
+                          bgColor="black"
+                          _text={{ color: "white", fontSize: "lg", fontWeight: "bold" }}
+                          _pressed={{ bgColor: "zuno" }}
+                        >
+                          -
+                        </Button>
+                        <Button
+                          bgColor="black"
+                          _text={{ color: "white", fontSize: "lg", fontWeight: "bold" }}
+                        >
+                          {quantity.toString()}
+                        </Button>
+                        <Button
+                          onPress={() => setQuantity(quantity + 1)}
+                          bgColor="black"
+                          _text={{ color: "white", fontSize: "lg", fontWeight: "bold" }}
+                          _pressed={{ bgColor: "zuno" }}
+                        >
+                          +
+                        </Button>
+                      </Button.Group>
+                    </HStack>
+
                     {index + 1 < carts.length && (
                       <Stack py={5}>
                         <Divider />
@@ -246,7 +229,7 @@ const Cart: React.FC = ({ navigation }: any) => {
                 marginTop: 10,
               }}
             >
-              <Button variant="none" h={50} _pressed={{ bgColor: "yellow.600" }}>
+              <Button variant="unstyle" h={50} _pressed={{ bgColor: "yellow.600" }}>
                 <Text fontSize="lg" fontWeight="semibold">
                   Thanh toán
                 </Text>

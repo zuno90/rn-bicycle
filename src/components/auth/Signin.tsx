@@ -38,9 +38,8 @@ const Signin: React.FC = ({ navigation }: any) => {
   } = useForm<TSignin>()
 
   const onSignin: SubmitHandler<TSignin> = async (data) => {
-    console.log(data)
     const res = await fetchPost(`${config.endpoint}/signin`, JSON.stringify(data))
-    console.log(res, 4545)
+    console.log(res)
     if (res.success)
       return navigation.navigate(EAuth.VerifyOtp, { from: EAuth.Signin, phone: data.phoneNumber })
     setErrMas(res.message)
@@ -160,7 +159,7 @@ const Signin: React.FC = ({ navigation }: any) => {
               }}
             >
               <Button
-                variant="none"
+                variant="unstyle"
                 onPress={handleSubmit(onSignin)}
                 h="50px"
                 _pressed={{ bgColor: "yellow.600" }}

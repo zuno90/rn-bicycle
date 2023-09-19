@@ -16,8 +16,7 @@ import LinearGradient from "react-native-linear-gradient"
 import RangeSlider from "rn-range-slider"
 import AntIcon from "react-native-vector-icons/AntDesign"
 import FeaIcon from "react-native-vector-icons/Feather"
-import { SECTIONS, cateList, colorList, config, sizeList } from "../../../utils/config.util"
-import { fetchGet } from "../../../utils/helper.util"
+import { SECTIONS, cateList, colorList, sizeList } from "../../../utils/config.util"
 import { useIsFocused, useNavigation } from "@react-navigation/native"
 import { EHome, EProductList } from "../../../__types__"
 
@@ -78,7 +77,7 @@ const FilterList: React.FC<TShowFilter> = ({ closeFilter }) => {
             style={{ width: "100%", borderRadius: 100 }}
           >
             <Button
-              variant="none"
+              variant="unstyle"
               h="50px"
               _pressed={{ bgColor: "yellow.400" }}
               onPress={methods.handleSubmit(onFilterSubmit)}

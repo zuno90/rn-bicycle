@@ -1,5 +1,5 @@
-import { Link, Pressable } from "native-base"
-import { Linking, Alert, Platform } from "react-native"
+import { Link } from "native-base"
+import { Linking } from "react-native"
 import Svg, { Path } from "react-native-svg"
 
 const PhoneCallBtn: React.FC = () => {

@@ -32,10 +32,10 @@ const Notification: React.FC<any> = ({ route, navigation }) => {
             rounded="full"
             px={6}
             variant="outline"
-            borderColor="yellow.400"
-            bgColor={selected === tab.value ? "yellow.400" : "transparent"}
+            borderColor="#966216"
+            bgColor={selected === tab.value ? "#966216" : "transparent"}
             _text={{
-              color: selected === tab.value ? "white" : "yellow.400",
+              color: selected === tab.value ? "white" : "#966216",
               fontWeight: selected === tab.value ? "semibold" : "medium",
             }}
           >

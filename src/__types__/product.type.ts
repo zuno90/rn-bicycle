@@ -1,3 +1,5 @@
+import { ICategory } from "./category.type"
+
 export interface IProduct {
   id: number
   name: string
@@ -10,7 +12,7 @@ export interface IProduct {
   discount: number
   inventory: number
   sold: number
-  categoryId: number
+  category: ICategory
   createAt: Date
   updateAt: Date
 }
@@ -18,11 +20,11 @@ export interface IProduct {
 export interface IProductCart {
   id: number
   name: string
-  slug?: string
+  slug: string
   color: string
   size: string
-  image?: string
+  image: string
   price: number
-  discount?: number
+  discount: number
   quantity: number
 }

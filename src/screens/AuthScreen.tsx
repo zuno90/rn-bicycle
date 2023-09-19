@@ -42,7 +42,7 @@ const InitAuth = ({ navigation }: any) => {
             }}
           >
             <Button
-              variant="none"
+              variant="unstyle"
               h="50px"
               _pressed={{ bgColor: "yellow.400" }}
               onPress={() => {

@@ -1,5 +1,5 @@
-import { Text, Icon, Slide, Box, HStack, Pressable, Stack } from "native-base"
 import React from "react"
+import { Text, Icon, Slide, HStack, Pressable } from "native-base"
 import FeaIcon from "react-native-vector-icons/Feather"
 
 const FilterList = React.lazy(() => import("./FilterList"))

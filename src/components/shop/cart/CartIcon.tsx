@@ -1,6 +1,6 @@
 import React from "react"
 import { useNavigation } from "@react-navigation/native"
-import { VStack, Badge, Icon, Pressable, Box, Text } from "native-base"
+import { VStack, Icon, Pressable, Box, Text } from "native-base"
 import FeaIcon from "react-native-vector-icons/Feather"
 import { EHome } from "../../../__types__"
 import { localGet } from "../../../utils/storage.util"

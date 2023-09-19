@@ -12,6 +12,9 @@ import { AuthProvider } from "./src/context/AuthProvider"
 
 export default function App() {
   const theme = extendTheme({
+    colors: {
+      zuno: "#966216",
+    },
     components: {
       Text: {
         baseStyle: {

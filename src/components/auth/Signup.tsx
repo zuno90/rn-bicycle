@@ -175,7 +175,7 @@ const Signup: React.FC = ({ navigation }: any) => {
               }}
             >
               <Button
-                variant="none"
+                variant="unstyle"
                 onPress={handleSubmit(onSignup)}
                 h="50px"
                 isLoading={isSubmitting}

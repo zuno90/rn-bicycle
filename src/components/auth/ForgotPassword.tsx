@@ -72,7 +72,7 @@ const ForgotPassword: React.FC = ({ navigation }: any) => {
             }}
           >
             <Button
-              variant="none"
+              variant="unstyle"
               h="50px"
               _pressed={{ bgColor: "yellow.400" }}
               onPress={handleSubmit(onForgotPasswordSubmit)}

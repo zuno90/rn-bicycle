@@ -1,4 +1,6 @@
-import { useToast } from "native-base"
+import { IProductCart } from "../__types__"
+import { config } from "./config.util"
+import { localGet, localSet } from "./storage.util"
 
 export const allowOnlyNumber = (value: string) => {
   return value.replace(/[^0-9]/g, "")
@@ -28,6 +30,16 @@ export const containsSpecialChar = (str: string) => {
 export const formatNumber = (x: number) => {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
 }
+
+export const addToCart = (prod: IProductCart) => {
+  const cartList = localGet(config.cache.cartList)
+  console.log(typeof cartList, "list cart")
+  // localSet(config.cache.cartList, JSON.stringify(prod))
+}
+
+export const removeCartItem = () => {}
+
+export const removeAllCart = () => {}
 
 export const fetchGet = async (url: string, header?: any) => {
   try {

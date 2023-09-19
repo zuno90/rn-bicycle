@@ -1,8 +1,10 @@
 import React from "react"
-import { Box, HStack, Image, Text, Button, Stack, AspectRatio } from "native-base"
-import { IProduct } from "../../../__types__"
+import { Box, HStack, Image, Text, Button, AspectRatio, Pressable } from "native-base"
+import { EHome, IProduct } from "../../../__types__"
+import { useNavigation } from "@react-navigation/native"
 
-const Product: React.FC<any> = ({ navigation, data }) => {
+const Product: React.FC<any> = ({ data }) => {
+  const navigation = useNavigation<any>()
   const handleAddToCart = () => {}
 
   const handleBuyNow = () => {}
@@ -20,10 +22,18 @@ const Product: React.FC<any> = ({ navigation, data }) => {
       justifyContent="flex-end"
       my={0.5}
     >
-      <AspectRatio ratio={16 / 9}>
-        <Image source={{ uri: data?.images[0] }} resizeMode="cover" alt="product-image" />
-      </AspectRatio>
-      {data?.discount && (
+      <Pressable
+        onPress={() =>
+          navigation.navigate(EHome.ProductDetail, {
+            slug: data?.slug,
+          })
+        }
+      >
+        <AspectRatio ratio={16 / 9}>
+          <Image source={{ uri: data.images[0] }} resizeMode="cover" alt="product-image" />
+        </AspectRatio>
+      </Pressable>
+      {data?.discount ? (
         <Button
           roundedTopLeft="lg"
           bgColor="yellow.100"
@@ -34,11 +44,20 @@ const Product: React.FC<any> = ({ navigation, data }) => {
           py={1}
           _text={{ color: "red.500", fontSize: "xs" }}
         >
-          {`-${data?.discount}%`}
+          {`-${data.discount} %`}
         </Button>
-      )}
+      ) : null}
       <Box p={2} gap={1.5}>
-        <Text fontWeight="semibold">{data?.name}</Text>
+        <Text
+          fontWeight="semibold"
+          onPress={() =>
+            navigation.navigate(EHome.ProductDetail, {
+              slug: data?.slug,
+            })
+          }
+        >
+          {data?.name}
+        </Text>
         <Text fontSize="xs" color="red.500">
           {data?.price}
         </Text>
