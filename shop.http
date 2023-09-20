@@ -1,59 +1,105 @@
 # baseURL
 # @baseURL = https://gate.mamnonhoalu.online/api
-@baseURL = http://localhost:8000/api
+@baseURL = https://gate.mamnonhoalu.online/api
 
 @Authorization = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjA0LCJjYXNoIjowLCJpc1ZlcmlmeSI6dHJ1ZSwibmFtZSI6bnVsbCwicGhvbmVOdW1iZXIiOiIrODQzMjc0NzYzODEiLCJhZGRyZXNzIjpudWxsLCJyb2xlIjoiVXNlciIsInBvaW50IjowLCJjcmVhdGVBdCI6IjIwMjMtMDktMTBUMDQ6NDM6NTMuMzU4WiIsImlhdCI6MTY5NDMyMzQ0NiwiZXhwIjoxNjk0NDA5ODQ2fQ.OZM0xV9oWxlpSMs9CPySjkHkvuqTKiniNAFpch712rw
 
-###
+#-----------------------------------CATEGORY
+
 # Get all categories
 GET  {{ baseURL }}/categories
 Content-Type: application/json
-
 ###
-# Get category by slug
-GET {{ baseURL }}/category/xe-leo-nui?page=0
-Content-Type: application/json
 
-###
-# Create category
-POST {{ baseURL }}/category
-Content-Type: application/json
-
-{
-    "name": "Xe thể thao",
-    "slug": "xe-the-thao"
-}
-
-###
-# Update category by slug
-PUT {{ baseURL }}/category/xe-the-thao
-Content-Type: application/json
-
-{
-    "name": "Xe thể thao 1",
-    "slug": "xe-the-thao-1"
-}
-
-###
-# Delete category by slug
-DELETE {{ baseURL }}/category/xe-the-thao-1
-Content-Type: application/json
-
-###
-# Get all product
-GET {{ baseURL }}/products?category=%5B%222%22%2C%20%223%22%5D&color=%5B%22%23ffffff%22%2C%20%22%23bbbdbf%22%5D&size=%5B%22s%22%2C%20%22l%22%5D&fromPrice=100000&toPrice=4000000&page=1
-# GET {{ baseURL }}/products?category=1&page=3&limit=5
-Content-Type: application/json
-
-###
-# Get all product by name
-GET {{ baseURL }}/product?name=An%20do
-Content-Type: application/json
-
-###
-# Get product by slug
-GET {{ baseURL }}/product/xe-dap-địa-hình-nhap-khau-tu-Trung-Quốc-ma-DEZDB
+# # Get detail category by slug category
+# GET  {{ baseURL }}/category/xe-dia-hinh
 # Content-Type: application/json
+# ###
+
+# # Create category
+# POST {{ baseURL }}/category
+# Content-Type: application/json
+
+# {
+#     "name": "Xe thể thao",
+#     "slug": "xe-the-thao"
+# }
+
+# ###
+# # Update category by slug
+# PUT {{ baseURL }}/category/xe-the-thao
+# Content-Type: application/json
+
+# {
+#     "name": "Xe thể thao 1",
+#     "slug": "xe-the-thao-1"
+# }
+
+# ###
+# # Delete category by slug
+# DELETE {{ baseURL }}/category/xe-the-thao-1
+# Content-Type: application/json
+# ###
+
+#-----------------------------------SUBCATEGORY
+
+# Get all subCategories by slug category
+GET  {{ baseURL }}/sub-categories/xe-dia-hinh
+Content-Type: application/json
+###
+
+# # Get detail subCategory by slug subCategory
+# GET {{ baseURL }}/sub-category/trek-bikes
+# Content-Type: application/json
+# ###
+
+#-----------------------------------COLOR
+GET  {{ baseURL }}/colors
+Content-Type: application/json
+###
+
+# GET  {{ baseURL }}/color/%23ffffff
+# Content-Type: application/json
+# ###
+
+#-----------------------------------SIZE
+GET  {{ baseURL }}/sizes
+Content-Type: application/json
+###
+
+# GET  {{ baseURL }}/size/m
+# Content-Type: application/json
+# ###
+
+#-----------------------------------PRODUCT
+
+# Get all products by filter
+GET {{ baseURL }}/products?category=%5B%22xe-the-thao%22%2C%20%22xe-dia-hinh%22%2C%20%22xe-cu%22%5D&color=%5B%5D&fromPrice=0&toPrice=20000000
+Content-Type: application/json
+###
+
+# Get products by slug category
+GET {{ baseURL }}/products/category/xe-the-thao
+Content-Type: application/json
+###
+
+# Get products by slug subcategory of slug category
+GET {{ baseURL }}/products/xe-the-thao/bmc-switzerland
+Content-Type: application/json
+###
+
+# Get products related by id
+GET {{ baseURL }}/products/related?id=51
+Content-Type: application/json
+###
+
+# Get all product by name (search live)
+GET {{ baseURL }}/products/search?name=An%20do
+Content-Type: application/json
+###
+
+# Get detail product by slug product
+GET {{ baseURL }}/product/Xe-dap-the-thao-nhap-khau-tu-Dan-Mach-ma-7B3TKRLQPM
 
 # ###
 # # Create product

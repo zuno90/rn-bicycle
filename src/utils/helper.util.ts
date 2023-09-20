@@ -31,10 +31,24 @@ export const formatNumber = (x: number) => {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
 }
 
+export const deduplicateArray = (arr: any[], key: string) => {
+  const seen = new Set()
+  const newArr = arr.filter((item) => {
+    const value = key ? item[key] : item
+    if (seen.has(value)) return false // Skip duplicates
+    seen.add(value)
+    return true // Keep unique items
+  })
+  return newArr
+}
+
 export const addToCart = (prod: IProductCart) => {
-  const cartList = localGet(config.cache.cartList)
-  console.log(typeof cartList, "list cart")
-  // localSet(config.cache.cartList, JSON.stringify(prod))
+  const cartList = <Array<IProductCart>>JSON.parse(localGet(config.cache.cartList))
+  const index = cartList.map((v) => v.id).findIndex((id) => id === prod.id)
+  if (index < 0) cartList.push(prod)
+  else cartList[index].quantity += prod.quantity
+
+  localSet(config.cache.cartList, JSON.stringify(cartList))
 }
 
 export const removeCartItem = () => {}

@@ -3,7 +3,7 @@ import { Box, HStack, Image, Text, Button, AspectRatio, Pressable } from "native
 import { EHome, IProduct } from "../../../__types__"
 import { useNavigation } from "@react-navigation/native"
 
-const Product: React.FC<any> = ({ data }) => {
+const Product: React.FC<IProduct | null> = ({ data }) => {
   const navigation = useNavigation<any>()
   const handleAddToCart = () => {}
 
@@ -25,7 +25,8 @@ const Product: React.FC<any> = ({ data }) => {
       <Pressable
         onPress={() =>
           navigation.navigate(EHome.ProductDetail, {
-            slug: data?.slug,
+            id: data.id,
+            slug: data.slug,
           })
         }
       >
@@ -52,22 +53,23 @@ const Product: React.FC<any> = ({ data }) => {
           fontWeight="semibold"
           onPress={() =>
             navigation.navigate(EHome.ProductDetail, {
-              slug: data?.slug,
+              id: data.id,
+              slug: data.slug,
             })
           }
         >
-          {data?.name}
+          {data.name}
         </Text>
         <Text fontSize="xs" color="red.500">
-          {data?.price}
+          {data.price}
         </Text>
 
         <HStack justifyContent="space-between" alignItems="center">
           <Text fontSize="xs" strikeThrough>
-            {data?.price * (1 + data?.discount / 100)}
+            {data.price * (1 + data.discount / 100)}
           </Text>
           <Text fontSize={8} color="yellow.700">
-            Đã bán {data?.sold}
+            Đã bán {data.sold}
           </Text>
         </HStack>
       </Box>

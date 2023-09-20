@@ -23,7 +23,7 @@ const SearchBar: React.FC = () => {
   const [debouncedLSearch] = useDebounce(lSearch, 500)
 
   const handleLiveSearch = async () => {
-    const res = await fetchGet(`${config.endpoint}/product?name=${debouncedLSearch}`)
+    const res = await fetchGet(`${config.endpoint}/products/search?name=${debouncedLSearch}`)
     if (res.success) setLSearchList(res.data.products)
   }
 

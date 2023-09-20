@@ -20,7 +20,7 @@ const AccordionItem: React.FC<AccordionItemPros> = ({ children, title, showIcon 
             as={FeaIcon}
             name={expanded ? "minus" : "plus"}
             size={6}
-            color="yellow.400"
+            color="zuno"
             onPress={() => setExpanded(!expanded)}
           />
         )}

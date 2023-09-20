@@ -59,14 +59,25 @@ const InitHome = ({ route, navigation }: any) => {
   ]
   // localSet(config.cache.cartList, JSON.stringify(carts))
 
-  const [categories, setCategories] = React.useState<ICategory[]>([])
   const getCategories = async () => {
     const res = await fetchGet(`${config.endpoint}/categories`)
-    if (res.success) setCategories(res.data.categories)
+    if (res.success) localSet(config.cache.catelist, JSON.stringify(res.data.categories))
+  }
+  // const getSubcategories = async () => {
+  //   const res = await fetchGet(`${config.endpoint}/sizes`)
+  //   if (res.success) localSet(config.cache.sizelist, JSON.stringify(res.data.sizes))
+  // }
+  const getSizes = async () => {
+    const res = await fetchGet(`${config.endpoint}/sizes`)
+    if (res.success) localSet(config.cache.sizelist, JSON.stringify(res.data.sizes))
+  }
+  const getColors = async () => {
+    const res = await fetchGet(`${config.endpoint}/colors`)
+    if (res.success) localSet(config.cache.colorlist, JSON.stringify(res.data.colors))
   }
 
   React.useEffect(() => {
-    getCategories()
+    Promise.all([getCategories(), getSizes(), getColors()])
   }, [useIsFocused()])
 
   return (

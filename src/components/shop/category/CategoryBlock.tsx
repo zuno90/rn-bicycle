@@ -3,12 +3,12 @@ import { Box, Pressable, Text } from "native-base"
 import Svg, { Path } from "react-native-svg"
 import { fetchGet } from "../../../utils/helper.util"
 import { config } from "../../../utils/config.util"
-import { EHome } from "../../../__types__"
+import { EHome, ICategory } from "../../../__types__"
 import { useNavigation } from "@react-navigation/native"
 
 const CategoryBlock: React.FC<any> = () => {
   const navigation = useNavigation<any>()
-  const [categories, setCategories] = React.useState<any>([])
+  const [categories, setCategories] = React.useState<ICategory[]>([])
   const getCategories = async () => {
     const res = await fetchGet(`${config.endpoint}/categories`)
     if (res.success) setCategories(res.data.categories)

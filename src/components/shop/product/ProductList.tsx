@@ -1,21 +1,22 @@
 import React from "react"
 import { HStack, Heading, ScrollView, Stack, Text } from "native-base"
 import SearchBar from "../search/SearchBar"
-import Grid from "../../useable/Grid"
+
 import FilterBtn from "../filter/FilterBtn"
-import { EHome, EProductList } from "../../../__types__"
+import { EHome, EProductList, IProduct } from "../../../__types__"
 import { useIsFocused } from "@react-navigation/native"
 import { fetchGet } from "../../../utils/helper.util"
 import { config } from "../../../utils/config.util"
 
+const Grid = React.lazy(() => import("../../useable/Grid"))
 const SkeletonLoading = React.lazy(() => import("../../useable/SkeletonLoading"))
 const Product = React.lazy(() => import("./Product"))
 const FooterMenu = React.lazy(() => import("../../home/FooterMenu"))
 
-const ProductList: React.FC = ({ route, navigation }: any) => {
+const ProductList: React.FC = ({ route }: any) => {
   const { from, title, slug, search, filter } = route.params
 
-  const [products, setProducts] = React.useState([])
+  const [products, setProducts] = React.useState<IProduct[]>([])
 
   React.useEffect(() => {
     const getProducts = async () => {
@@ -74,14 +75,15 @@ const ProductList: React.FC = ({ route, navigation }: any) => {
             )}
             <FilterBtn />
           </HStack>
-          <Grid rows={1} columns={2}>
-            {products.length > 0 &&
-              products.map((item, index) => (
-                <React.Suspense key={index} fallback={<SkeletonLoading />}>
-                  <Product data={item} />
-                </React.Suspense>
-              ))}
-          </Grid>
+          {products.length > 0 && (
+            <React.Suspense fallback={<SkeletonLoading />}>
+              <Grid rows={1} columns={2}>
+                {products.map((item, index) => (
+                  <Product key={index} data={item} />
+                ))}
+              </Grid>
+            </React.Suspense>
+          )}
         </Stack>
       </ScrollView>
       <FooterMenu currentScreen={EHome.Cart} />

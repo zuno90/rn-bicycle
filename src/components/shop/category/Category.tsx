@@ -1,7 +1,7 @@
 import React from "react"
 import SearchBar from "../search/SearchBar"
-import { Stack, Heading, ScrollView, Text, Box, Pressable } from "native-base"
-import { EHome } from "../../../__types__"
+import { Stack, Heading, ScrollView, Text, Box, Pressable, Image, AspectRatio } from "native-base"
+import { EHome, IProduct, ISubCategory } from "../../../__types__"
 import Grid from "../../useable/Grid"
 import { brandList, config } from "../../../utils/config.util"
 import { fetchGet } from "../../../utils/helper.util"
@@ -12,23 +12,29 @@ const FooterMenu = React.lazy(() => import("../../home/FooterMenu"))
 
 const Category: React.FC<any> = ({ route, navigation }) => {
   const { title, slug } = route.params
-  const [currentBrand, setCurrentBrand] = React.useState<string | null>(null)
-  const [products, setProducts] = React.useState([])
 
-  const getSubCates = async () => {}
+  const [currentBrand, setCurrentBrand] = React.useState<string | null>(null)
+  const [subCates, setSubCates] = React.useState<ISubCategory[]>([])
+  const [products, setProducts] = React.useState<IProduct[]>([])
+
+  const getSubCates = async () => {
+    const res = await fetchGet(`${config.endpoint}/sub-categories/${slug}`)
+    console.log(res.data.subCategories[0].thumbnail)
+    if (res.success) setSubCates(res.data.subCategories)
+  }
 
   const getProductBySubCate = async (brand?: string | null) => {
     if (!brand) {
-      const res = await fetchGet(`${config.endpoint}/products`)
+      const res = await fetchGet(`${config.endpoint}/products/category/${slug}`)
       if (res.success) return setProducts(res.data.products)
     } else {
-      const res = await fetchGet(`${config.endpoint}/category/xe-leo-nui`)
+      const res = await fetchGet(`${config.endpoint}/products/${slug}/${currentBrand}`)
       if (res.success) return setProducts(res.data.products)
     }
   }
 
   React.useEffect(() => {
-    getProductBySubCate(currentBrand)
+    Promise.all([getProductBySubCate(currentBrand), getSubCates()])
   }, [currentBrand])
 
   return (
@@ -44,8 +50,8 @@ const Category: React.FC<any> = ({ route, navigation }) => {
             justifyContent="space-between"
             alignItems="center"
           >
-            {brandList.length > 0 &&
-              brandList.map((item, index) => (
+            {subCates.length > 0 &&
+              subCates.map((item, index) => (
                 <Box
                   key={index}
                   flexDir="column"
@@ -55,10 +61,20 @@ const Category: React.FC<any> = ({ route, navigation }) => {
                   my={2}
                   gap={2}
                 >
-                  <Pressable onPress={() => setCurrentBrand(item.value)}>
-                    <Box size={24} bgColor="gray.300" rounded="lg" />
+                  <Pressable onPress={() => setCurrentBrand(item.slug)}>
+                    <Box size={24} borderWidth={1} borderColor="muted.400" rounded="lg">
+                      <AspectRatio ratio={1 / 1}>
+                        <Image
+                          source={{ uri: item.thumbnail }}
+                          resizeMode="contain"
+                          alt="sub-cate-img"
+                        />
+                      </AspectRatio>
+                    </Box>
                   </Pressable>
-                  <Text fontSize="xs">{item.title}</Text>
+                  <Text fontSize="xs" isTruncated ellipsizeMode="tail">
+                    {item.name}
+                  </Text>
                 </Box>
               ))}
           </Box>

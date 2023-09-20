@@ -2,8 +2,15 @@ import { VStack, Skeleton, Box } from "native-base"
 
 const SkeletonLoading: React.FC = () => {
   return (
-    <Box w="100%" overflow="hidden" flexDir="row" justifyContent="space-between">
-      {[...Array(2)].map((_, index) => (
+    <Box
+      w="100%"
+      overflow="hidden"
+      flexDir="row"
+      flexWrap="wrap"
+      justifyContent="space-around"
+      alignItems="center"
+    >
+      {[...Array(4)].map((_, index) => (
         <VStack
           key={index}
           w="47%"

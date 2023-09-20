@@ -16,9 +16,10 @@ import LinearGradient from "react-native-linear-gradient"
 import RangeSlider from "rn-range-slider"
 import AntIcon from "react-native-vector-icons/AntDesign"
 import FeaIcon from "react-native-vector-icons/Feather"
-import { SECTIONS, cateList, colorList, sizeList } from "../../../utils/config.util"
+import { SECTIONS, cateList, colorList, config, sizeList } from "../../../utils/config.util"
 import { useIsFocused, useNavigation } from "@react-navigation/native"
 import { EHome, EProductList } from "../../../__types__"
+import { localGet } from "../../../utils/storage.util"
 
 const AccordionItem = React.lazy(() => import("../../useable/Accordion"))
 
@@ -33,11 +34,13 @@ type TFilterInput = {
 
 const FilterList: React.FC<TShowFilter> = ({ closeFilter }) => {
   const navigation = useNavigation<any>()
+
   const methods = useForm<TFilterInput>({
     defaultValues: { category: [], size: [], color: [], price: { l: 100000, h: 15000000 } },
   })
 
   const onFilterSubmit: SubmitHandler<TFilterInput> = async (data) => {
+    console.log(data)
     closeFilter()
     navigation.navigate(EHome.ProductList, {
       from: EProductList.Filter,
@@ -49,7 +52,7 @@ const FilterList: React.FC<TShowFilter> = ({ closeFilter }) => {
   return (
     <>
       <Box flexDir="column" justifyContent="space-between" bgColor="white" w="full" h="full">
-        <Box p={5} bgColor="yellow.400" safeAreaTop>
+        <Box p={5} bgColor="muted.200" safeAreaTop>
           <HStack justifyContent="space-between" alignItems="center">
             <Icon as={FeaIcon} name="x" size={8} onPress={closeFilter} />
             <Heading>Chọn danh mục</Heading>
@@ -95,19 +98,22 @@ const FilterList: React.FC<TShowFilter> = ({ closeFilter }) => {
 const WrapBox = ({ value }: { value: string }) => {
   const { control, watch, setValue, getValues } = useFormContext()
 
+  const categories = JSON.parse(localGet(config.cache.catelist) as string)
+  const sizes = JSON.parse(localGet(config.cache.sizelist) as string)
+  const colors = JSON.parse(localGet(config.cache.colorlist) as string)
+
   let list: any
   switch (value) {
     case "category":
-      list = { type: value, data: cateList }
+      list = { type: value, data: categories }
       break
     case "size":
-      list = { type: value, data: sizeList }
+      list = { type: value, data: sizes }
       break
     case "color":
-      list = { type: value, data: colorList }
+      list = { type: value, data: colors }
       break
     default:
-      list = null
       break
   }
 
@@ -125,13 +131,14 @@ const WrapBox = ({ value }: { value: string }) => {
 
   const handleSetValue = (type: string, value: string) => {
     const state = getValues(type)
-    if (type === "category") {
-      if (value === "all") setValue(type, ["all"], { shouldDirty: true })
-      else {
-        if (state.includes("all")) setValue(type, [value], { shouldDirty: true })
-        else toggleState(type, value, state)
-      }
-    } else toggleState(type, value, state)
+    toggleState(type, value, state)
+    // if (type === "category") {
+    //   if (value === "all") setValue(type, ["all"], { shouldDirty: true })
+    //   else {
+    //     if (state.includes("all")) setValue(type, [value], { shouldDirty: true })
+    //     else toggleState(type, value, state)
+    //   }
+    // } else toggleState(type, value, state)
   }
 
   const handleChangePrice = (l: number, h: number) => {
@@ -165,7 +172,7 @@ const WrapBox = ({ value }: { value: string }) => {
                   renderRail={() => (
                     <Divider thickness={5} borderLeftRadius={5} borderRightRadius={5} />
                   )}
-                  renderRailSelected={() => <Divider thickness={7} bgColor="yellow.400" />}
+                  renderRailSelected={() => <Divider thickness={7} bgColor="zuno" />}
                   renderLabel={(number) => (
                     <Text fontSize="2xs" color="green.400">
                       {number}
@@ -185,11 +192,14 @@ const WrapBox = ({ value }: { value: string }) => {
         <Box>
           <Divider my={2} />
           {list.data.map((item: any, index: number) => (
-            <Pressable key={index} onPress={() => handleSetValue(list?.type, item.value)}>
+            <Pressable
+              key={index}
+              onPress={() => handleSetValue(list?.type, item.value ?? item.slug)}
+            >
               <HStack justifyContent="space-between" alignItems="center">
-                <Text>{item.title}</Text>
-                {watch(list?.type).includes(item.value) && (
-                  <Icon as={AntIcon} name="checkcircle" color="yellow.400" />
+                <Text>{item.title ?? item.name}</Text>
+                {watch(list?.type).includes(item.value ?? item.slug) && (
+                  <Icon as={AntIcon} name="checkcircle" color="zuno" />
                 )}
               </HStack>
             </Pressable>

@@ -1,4 +1,4 @@
-import { Box, Divider, Pressable, ScrollView, Text } from "native-base"
+import { Box, Divider, Pressable, Text } from "native-base"
 
 type TData = { data: any }
 

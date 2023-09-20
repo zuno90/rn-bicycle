@@ -22,15 +22,17 @@ import FeaIcon from "react-native-vector-icons/Feather"
 import MateComIcon from "react-native-vector-icons/MaterialCommunityIcons"
 import AntIcon from "react-native-vector-icons/AntDesign"
 import { EToastType, IProduct, IProductCart } from "../../../__types__"
-import { addToCart, fetchGet, formatNumber } from "../../../utils/helper.util"
-import { colorList, config, sizeList } from "../../../utils/config.util"
+import { addToCart, deduplicateArray, fetchGet, formatNumber } from "../../../utils/helper.util"
+import { config } from "../../../utils/config.util"
 import LinearGradient from "react-native-linear-gradient"
-import Grid from "../../useable/Grid"
+
 import { FormProvider, useForm, useFormContext } from "react-hook-form"
 import { useIsFocused } from "@react-navigation/native"
 import PhoneCallBtn from "../../useable/PhoneCallBtn"
+import { localGet } from "../../../utils/storage.util"
 
 const Toast = React.lazy(() => import("../../useable/Toast"))
+const Grid = React.lazy(() => import("../../useable/Grid"))
 const Product = React.lazy(() => import("./Product"))
 const SkeletonLoading = React.lazy(() => import("../../useable/SkeletonLoading"))
 
@@ -38,18 +40,22 @@ type TFilterModal = {
   isOpen: boolean
   type: string
   title: string
-  data: string[]
+  data: any[]
+  list: any[]
 }
 
 type TProductAttr = {
-  size: string
-  color: string
+  sizes: string
+  colors: string
   quantity: number
 }
 
 const ProductDetail: React.FC<any> = ({ route, navigation }) => {
-  const { slug } = route.params
+  const { id, slug } = route.params
   const toast = useToast()
+
+  const sizes = JSON.parse(localGet(config.cache.sizelist) as string)
+  const colors = JSON.parse(localGet(config.cache.colorlist) as string)
 
   const [product, setProduct] = React.useState<IProduct>()
   const [isSeeMore, setIsSeeMore] = React.useState<boolean>(false)
@@ -57,16 +63,18 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
 
   const getProduct = async () => {
     const res = await fetchGet(`${config.endpoint}/product/${slug}`)
+    // console.log(res.data.product.productItem)
     if (res.success) setProduct(res.data.product)
   }
 
   const getRelatedProducts = async () => {
-    const res = await fetchGet(`${config.endpoint}/products`)
+    const res = await fetchGet(`${config.endpoint}/products/related?id=${id}`)
     if (res.success) setRelatedProduct(res.data.products)
   }
 
   React.useEffect(() => {
     Promise.all([getProduct(), getRelatedProducts()])
+    console.log("vooooo")
   }, [useIsFocused()])
 
   // CART HANDLE
@@ -75,22 +83,16 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
     type: "",
     title: "",
     data: [],
+    list: [],
   })
 
   const methods = useForm<TProductAttr>({
-    defaultValues: { size: "", color: "", quantity: 1 },
+    defaultValues: { sizes: "", colors: "", quantity: 1 },
   })
 
   const handleAddToCart = (data: TProductAttr) => {
-    try {
-      if (data.color === "" || data.size === "" || data.quantity < 0)
-        throw new Error("Lỗi thêm sản phẩm!")
-      const { id, name, slug, images, price, discount } = product as IProduct
-      const cartItem = { id, name, slug, image: images[0], price, discount, ...data }
-      console.log(cartItem)
-      addToCart(cartItem)
-    } catch (error: any) {
-      toast.show({
+    if (data.colors === "" || data.sizes === "" || data.quantity < 0) {
+      return toast.show({
         id: "addtocart",
         placement: "top",
         duration: 1500,
@@ -98,13 +100,18 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
           <React.Suspense>
             <Toast
               type={EToastType.err}
-              content={error.message}
+              content="Lỗi thêm sản phẩm!"
               close={() => toast.close("addtocart")}
             />
           </React.Suspense>
         ),
       })
     }
+
+    const { id, name, slug, images, price, discount } = product as IProduct
+    const cartItem = { id, name, slug, image: images[0], price, discount, ...data }
+    console.log(cartItem, 4444)
+    addToCart(cartItem)
   }
 
   return (
@@ -131,7 +138,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
               </HStack>
             </HStack>
             <Stack p={5} bgColor="white" space={4}>
-              <Text>{product.category.name}</Text>
+              <Text>{product.category?.name}</Text>
               <Heading fontSize="lg">{product.name}</Heading>
               <HStack justifyContent="space-between" alignItems="center">
                 <VStack space={2}>
@@ -164,10 +171,10 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                   variant="outline"
                   size="xs"
                   rounded="lg"
-                  borderColor={methods.getValues("size") === "" ? "zuno" : "none"}
-                  bgColor={methods.getValues("size") === "" ? "transparent" : "zuno"}
+                  borderColor={methods.getValues("sizes") === "" ? "zuno" : "none"}
+                  bgColor={methods.getValues("sizes") === "" ? "transparent" : "zuno"}
                   rightIcon={
-                    methods.getValues("size") === "" ? (
+                    methods.getValues("sizes") === "" ? (
                       <Icon as={MateComIcon} name="plus" size={6} color="zuno" />
                     ) : (
                       <></>
@@ -176,28 +183,33 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                   onPress={() =>
                     setShowFilter({
                       isOpen: true,
-                      type: "size",
+                      type: "sizes",
                       title: "Chọn size",
-                      data: product.size,
+                      data: product.productItem
+                        ? deduplicateArray(product.productItem, "size").map((v) => v.size)
+                        : [],
+                      list: sizes,
                     })
                   }
                 >
                   <Text
                     fontSize="xs"
                     fontWeight="bold"
-                    color={methods.getValues("size") === "" ? "zuno" : "white"}
+                    color={methods.getValues("sizes") === "" ? "zuno" : "white"}
                   >
-                    Size {sizeList.filter((v) => v.value === methods.getValues("size"))[0]?.title}
+                    {methods.getValues("sizes") === "" && "Size"}
+                    {sizes.length > 0 &&
+                      sizes.filter((v: any) => v.value === methods.getValues("sizes"))[0]?.title}
                   </Text>
                 </Button>
                 <Button
                   variant="outline"
                   size="xs"
                   rounded="lg"
-                  borderColor={methods.getValues("color") === "" ? "zuno" : "none"}
-                  bgColor={methods.getValues("color") === "" ? "transparent" : "zuno"}
+                  borderColor={methods.getValues("colors") === "" ? "zuno" : "none"}
+                  bgColor={methods.getValues("colors") === "" ? "transparent" : "zuno"}
                   rightIcon={
-                    methods.getValues("color") === "" ? (
+                    methods.getValues("colors") === "" ? (
                       <Icon as={MateComIcon} name="plus" size={6} color="zuno" />
                     ) : (
                       <></>
@@ -206,18 +218,23 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                   onPress={() =>
                     setShowFilter({
                       isOpen: true,
-                      type: "color",
+                      type: "colors",
                       title: "Chọn màu",
-                      data: product.color,
+                      data: product.productItem
+                        ? deduplicateArray(product.productItem, "color").map((v) => v.color)
+                        : [],
+                      list: colors,
                     })
                   }
                 >
                   <Text
                     fontSize="xs"
                     fontWeight="bold"
-                    color={methods.getValues("color") === "" ? "zuno" : "white"}
+                    color={methods.getValues("colors") === "" ? "zuno" : "white"}
                   >
-                    Màu {colorList.filter((v) => v.value === methods.getValues("color"))[0]?.title}
+                    Màu{" "}
+                    {colors.length > 0 &&
+                      colors.filter((v: any) => v.value === methods.getValues("colors"))[0]?.title}
                   </Text>
                 </Button>
                 <Button.Group isAttached rounded="full" size={8}>
@@ -275,6 +292,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                 resizeMode="cover"
                 alt="shop-banner"
               />
+
               {!isSeeMore ? (
                 <Pressable onPress={() => setIsSeeMore(true)}>
                   <LinearGradient
@@ -305,16 +323,12 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                 <Heading size="md" mx={4}>
                   Sản phẩm tương tự
                 </Heading>
-                <Grid rows={1} columns={2}>
-                  {relatedProduct.length > 0 &&
-                    relatedProduct.map((item, index) => (
-                      <React.Fragment key={index}>
-                        <React.Suspense fallback={<SkeletonLoading />}>
-                          <Product data={item} />
-                        </React.Suspense>
-                      </React.Fragment>
-                    ))}
-                </Grid>
+                <React.Suspense fallback={<SkeletonLoading />}>
+                  <Grid rows={1} columns={2}>
+                    {relatedProduct.length > 0 &&
+                      relatedProduct.map((item, index) => <Product key={index} data={item} />)}
+                  </Grid>
+                </React.Suspense>
               </Stack>
             </Box>
           </ScrollView>
@@ -335,6 +349,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                 {formatNumber(product.price)}
               </Heading>
             </VStack>
+
             <Button
               rounded="full"
               px={6}
@@ -345,6 +360,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
             >
               Thêm vào giỏ
             </Button>
+
             <LinearGradient
               colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
               style={{ borderRadius: 100 }}
@@ -355,11 +371,14 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
             </LinearGradient>
           </Box>
           {/* </View> */}
-          <Slide in={showFilter.isOpen} duration={200} placement="top">
-            <FormProvider {...methods}>
-              <ProductSelect showFilter={showFilter} setShowFilter={setShowFilter} />
-            </FormProvider>
-          </Slide>
+
+          {showFilter.isOpen && (
+            <Slide in={showFilter.isOpen} duration={200} placement="top">
+              <FormProvider {...methods}>
+                <ProductSelect showFilter={showFilter} setShowFilter={setShowFilter} />
+              </FormProvider>
+            </Slide>
+          )}
           {/* button call */}
           <Box position="absolute" right={2} bottom={24} opacity={80} safeAreaBottom>
             <PhoneCallBtn />
@@ -371,25 +390,13 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
 }
 
 const ProductSelect = ({ showFilter, setShowFilter }: any) => {
-  const { type, title, data } = showFilter
-  console.log(data, 444)
+  const { type, title, data, list } = showFilter
+
   const { watch, setValue, getValues } = useFormContext()
 
   const handleSetValue = (type: string, value: string) => {
     const state = getValues(type)
     if (value !== state) setValue(type, value, { shouldDirty: true })
-  }
-
-  let list: any[] = []
-  switch (type) {
-    case "size":
-      list = sizeList
-      break
-    case "color":
-      list = colorList
-      break
-    default:
-      break
   }
 
   return (
@@ -413,17 +420,18 @@ const ProductSelect = ({ showFilter, setShowFilter }: any) => {
 
         <Divider />
         <Box flex={1} p={8} gap={2} justifyContent="flex-start">
-          {data.map((item: any, index: number) => (
-            <React.Fragment key={index}>
-              <Pressable onPress={() => handleSetValue(type, item)}>
-                <HStack justifyContent="space-between" alignItems="center">
-                  <Text>{list?.filter((ele: any) => ele.value === item)[0].title}</Text>
-                  {watch(type) === item && <Icon as={AntIcon} name="checkcircle" color="zuno" />}
-                </HStack>
-              </Pressable>
-              {data.length - index === 1 ? null : <Divider my={2} />}
-            </React.Fragment>
-          ))}
+          {data.length > 0 &&
+            data.map((item: any, index: number) => (
+              <React.Fragment key={index}>
+                <Pressable onPress={() => handleSetValue(type, item)}>
+                  <HStack justifyContent="space-between" alignItems="center">
+                    <Text>{list.filter((ele: any) => ele.value === item)[0]?.title}</Text>
+                    {watch(type) === item && <Icon as={AntIcon} name="checkcircle" color="zuno" />}
+                  </HStack>
+                </Pressable>
+                {data.length - index === 1 ? null : <Divider my={2} />}
+              </React.Fragment>
+            ))}
         </Box>
 
         <Box px={10} py={5} safeAreaBottom>
@@ -435,7 +443,9 @@ const ProductSelect = ({ showFilter, setShowFilter }: any) => {
               variant="unstyle"
               h="50px"
               _pressed={{ bgColor: "zuno" }}
-              onPress={() => setShowFilter({ isOpen: false, type: "", title: "", data: [] })}
+              onPress={() =>
+                setShowFilter({ isOpen: false, type: "", title: "", data: [], list: [] })
+              }
             >
               <Text fontSize="lg" fontWeight="semibold">
                 Xác nhận

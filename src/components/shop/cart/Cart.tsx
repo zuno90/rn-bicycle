@@ -21,13 +21,17 @@ import LinearGradient from "react-native-linear-gradient"
 import FaIcon from "react-native-vector-icons/FontAwesome"
 import AntIcon from "react-native-vector-icons/AntDesign"
 import { fetchGet, formatNumber } from "../../../utils/helper.util"
+import LoadingScreen from "../../../screens/LoadingScreen"
 
 const BestSelling = React.lazy(() => import("../../home/BestSelling"))
 const ConfirmModal = React.lazy(() => import("../../useable/ConfirmModal"))
 
 const Cart: React.FC = ({ navigation }: any) => {
+  const [isLoading, setIsLoading] = React.useState<boolean>(true)
   const [carts, setCarts] = React.useState<IProductCart[] | any>([])
-  const localCart = localGet(config.cache.cartList)
+  const localCart = JSON.parse(localGet(config.cache.cartList) as string)
+  const sizes = JSON.parse(localGet(config.cache.sizelist) as string)
+  const colors = JSON.parse(localGet(config.cache.colorlist) as string)
 
   const getCart = async () => {
     const res = await fetchGet(`${config.endpoint}/user/get-carts`, {
@@ -36,22 +40,19 @@ const Cart: React.FC = ({ navigation }: any) => {
     if (res.success) return res.data
   }
   React.useEffect(() => {
-    const getCarts = async () => {
-      setCarts(localCart ? JSON.parse(localCart) : await getCart())
-    }
+    const getCarts = async () =>
+      setCarts(localCart && localCart.length > 0 ? localCart : await getCart())
+
     getCarts()
-    console.log(carts)
+    setIsLoading(false)
   }, [])
 
   const [deleteModal, setDeleteModal] = React.useState<{ id: number; isOpen: boolean }>({
     id: 9999,
     isOpen: false,
   })
-
+  console.log(carts, 555)
   // attribute states
-  const [select, setSelect] = React.useState([])
-  const [color, setColor] = React.useState<string>("")
-  const [size, setSize] = React.useState<string>("")
   const [quantity, setQuantity] = React.useState<number>(1)
 
   const removeItem = (id: number) => {
@@ -71,8 +72,9 @@ const Cart: React.FC = ({ navigation }: any) => {
         </Text>
         <CartIcon />
       </HStack>
-
-      {!carts || !carts.length ? (
+      {isLoading ? (
+        <LoadingScreen />
+      ) : !carts || !carts.length ? (
         <ScrollView>
           <Box bgColor="white">
             <VStack justifyContent="space-between" alignItems="center" p={5} space={2}>
@@ -129,7 +131,7 @@ const Cart: React.FC = ({ navigation }: any) => {
                       />
                       <Box flex={1} gap={2}>
                         <HStack justifyContent="space-between" alignItems="center">
-                          <Heading fontSize="sm">{cart.name}</Heading>
+                          <Heading fontSize="xs">{cart.name}</Heading>
                           <Icon
                             as={AntIcon}
                             name="delete"
@@ -143,14 +145,17 @@ const Cart: React.FC = ({ navigation }: any) => {
                       </Box>
                     </HStack>
                     <HStack ml={6} alignItems="center" space={4}>
-                      <Button variant="solid" size="xs" bgColor="zuno" rounded="lg">
-                        <Text color="white" fontSize="xs" fontWeight="bold">
-                          Size {cart.size}
+                      <Button maxW="1/3" variant="solid" size="xs" bgColor="zuno" rounded="lg">
+                        <Text color="white" fontSize="xs" fontWeight="bold" isTruncated>
+                          {sizes.length > 0 &&
+                            sizes.filter((v: any) => v.value === cart.sizes)[0]?.title}
                         </Text>
                       </Button>
-                      <Button variant="solid" size="xs" bgColor="zuno" rounded="lg">
-                        <Text color="white" fontSize="xs" fontWeight="bold">
-                          Màu {cart.color}
+                      <Button maxW="1/3" variant="solid" size="xs" bgColor="zuno" rounded="lg">
+                        <Text color="white" fontSize="xs" fontWeight="bold" isTruncated>
+                          Màu{" "}
+                          {colors.length > 0 &&
+                            colors.filter((v: any) => v.value === cart.colors)[0]?.title}
                         </Text>
                       </Button>
                       <Button.Group isAttached rounded="full" size={8}>
@@ -170,7 +175,7 @@ const Cart: React.FC = ({ navigation }: any) => {
                           bgColor="black"
                           _text={{ color: "white", fontSize: "lg", fontWeight: "bold" }}
                         >
-                          {quantity.toString()}
+                          {quantity}
                         </Button>
                         <Button
                           onPress={() => setQuantity(quantity + 1)}

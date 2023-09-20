@@ -6,6 +6,10 @@ export const config = {
     searchHistory: "search.history",
     cartList: "cart.list",
     payCartList: "paycart.list",
+    catelist: "cate.list",
+    subcatelist: "subcate.list",
+    sizelist: "size.list",
+    colorlist: "color.list",
   },
 }
 
