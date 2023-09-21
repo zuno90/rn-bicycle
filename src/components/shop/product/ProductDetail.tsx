@@ -152,6 +152,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
               <HStack justifyContent="space-between" alignItems="center">
                 <VStack space={2}>
                   <Heading fontSize="lg" color="red.500">
+                    <Text underline>đ</Text>
                     {formatNumber(product.price)}
                   </Heading>
                   <HStack alignItems="center" space={2}>
@@ -169,7 +170,9 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                         - {product.discount} %
                       </Text>
                     </Box>
-                    <Text>{formatNumber(product.price * (1 + product.discount / 100))}</Text>
+                    <Text strikeThrough>
+                      đ{formatNumber(product.price * (1 + product.discount / 100))}
+                    </Text>
                   </HStack>
                 </VStack>
                 <Icon as={MateComIcon} name="facebook-messenger" color="zuno" size={10} />
@@ -355,13 +358,13 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
             <VStack>
               <Text>Giá</Text>
               <Heading fontSize="lg" color="red.500">
+                <Text underline>đ</Text>
                 {formatNumber(product.price)}
               </Heading>
             </VStack>
 
             <Button
               rounded="full"
-              px={6}
               variant="outline"
               borderColor="zuno"
               _text={{ color: "black", fontWeight: "bold" }}
@@ -376,7 +379,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
               colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
               style={{ borderRadius: 100 }}
             >
-              <Button rounded="full" px={6} variant="unstyled">
+              <Button rounded="full" variant="unstyled">
                 Mua ngay
               </Button>
             </LinearGradient>

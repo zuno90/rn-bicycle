@@ -37,7 +37,7 @@ const Category: React.FC<any> = ({ route }) => {
     Promise.all([getProductBySubCate(currentBrand), getSubCates()])
   }, [currentBrand])
 
-  const _width = squareWH(0.2)
+  const _width = squareWH(0.22)
 
   return (
     <>
@@ -45,13 +45,7 @@ const Category: React.FC<any> = ({ route }) => {
       <ScrollView>
         <Stack p={5} bgColor="white" space={4}>
           <Heading size="md">{title}</Heading>
-          <Box
-            minH={120}
-            flexDir="row"
-            flexWrap="wrap"
-            justifyContent="space-between"
-            alignItems="center"
-          >
+          <Box flexDir="row" flexWrap="wrap" justifyContent="space-between" alignItems="center">
             {subCates.length > 0 &&
               subCates.map((item, index) => (
                 <Box

@@ -190,7 +190,7 @@ const WrapBox = ({ value }: { value: string }) => {
           </HStack>
         </>
       ) : (
-        <Box>
+        <Box gap={2}>
           <Divider my={2} />
           {list.data.map((item: any, index: number) => (
             <Pressable

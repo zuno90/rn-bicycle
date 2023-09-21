@@ -22,12 +22,12 @@ const Recommendation: React.FC = () => {
   }, [])
 
   return (
-    <Stack mt={5} space={4}>
+    <Stack mt={5} space={{ base: 4 }}>
       <HStack mx={4} justifyContent="space-between" alignItems="center">
         <Heading size="md">Dành cho bạn</Heading>
         <Text
           fontSize="sm"
-          color="yellow.400"
+          color="zuno"
           onPress={() =>
             navigation.navigate(EHome.ProductList, {
               from: EProductList.Recommendation,

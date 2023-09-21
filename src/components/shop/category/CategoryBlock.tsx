@@ -18,7 +18,7 @@ const CategoryBlock: React.FC = () => {
     getCategories()
   }, [])
 
-  const _width = squareWH(0.2)
+  const _width = squareWH(0.23)
 
   return (
     <Box

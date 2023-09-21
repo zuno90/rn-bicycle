@@ -13,13 +13,13 @@ const AccordionItem: React.FC<AccordionItemPros> = ({ children, title, showIcon 
 
   return (
     <Box>
-      <HStack justifyContent="space-between" alignItems="center">
+      <HStack justifyContent="space-between" alignItems="center" space={5}>
         <Heading fontSize="sm">{title}</Heading>
         {showIcon && (
           <Icon
             as={FeaIcon}
             name={expanded ? "minus" : "plus"}
-            size={6}
+            size={{ base: 6 }}
             color="zuno"
             onPress={() => setExpanded(!expanded)}
           />

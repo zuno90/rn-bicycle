@@ -1,14 +1,11 @@
 import React from "react"
-import { Box, HStack, Image, Text, Button, AspectRatio, Pressable, Center } from "native-base"
+import { Box, HStack, Image, Text, Button, AspectRatio, Pressable, Heading } from "native-base"
 import { EHome, IProduct } from "../../../__types__"
 import { useNavigation } from "@react-navigation/native"
-import { HEIGHT, formatNumber, squareWH } from "../../../utils/helper.util"
+import { formatNumber, squareWH } from "../../../utils/helper.util"
 
 const Product: React.FC<{ data: IProduct }> = ({ data }) => {
   const navigation = useNavigation<any>()
-  const handleAddToCart = () => {}
-
-  const handleBuyNow = () => {}
 
   const _width = squareWH(0.5)
 
@@ -42,7 +39,7 @@ const Product: React.FC<{ data: IProduct }> = ({ data }) => {
           />
         </AspectRatio>
       </Pressable>
-      {data?.discount ? (
+      {data.discount && (
         <Button
           roundedTopLeft="lg"
           bgColor="yellow.100"
@@ -55,18 +52,12 @@ const Product: React.FC<{ data: IProduct }> = ({ data }) => {
         >
           {`-${data.discount} %`}
         </Button>
-      ) : null}
-      <Box
-        px={2}
-        py={4}
-        // h={HEIGHT * 0.2}
-        // maxH={HEIGHT * 0.4}
-        flexDir="column"
-        justifyContent="flex-end"
-        gap={1.5}
-      >
+      )}
+      <Box px={2} py={4} flexDir="column" justifyContent="flex-end" gap={1.5}>
         <Text
           fontWeight="semibold"
+          numberOfLines={3}
+          ellipsizeMode="tail"
           onPress={() =>
             navigation.navigate(EHome.ProductDetail, {
               id: data.id,
@@ -76,13 +67,14 @@ const Product: React.FC<{ data: IProduct }> = ({ data }) => {
         >
           {data.name}
         </Text>
-        <Text fontSize="xs" color="red.500">
+        <Heading fontSize="sm" color="red.500">
+          <Text underline>đ</Text>
           {formatNumber(data.price)}
-        </Text>
+        </Heading>
 
         <HStack justifyContent="space-between" alignItems="center">
           <Text fontSize="xs" strikeThrough>
-            {formatNumber(data.price * (1 + data.discount / 100))}
+            đ{formatNumber(data.price * (1 + data.discount / 100))}
           </Text>
           <Text fontSize={8} color="yellow.700">
             Đã bán {data.sold}
