@@ -2,7 +2,7 @@ import React from "react"
 import { Box, Button, Heading, Image, ScrollView, Stack, VStack } from "native-base"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { EHome, EScreen, ICategory } from "../__types__"
-import { fetchGet, fetchPost } from "../utils/helper.util"
+import { fetchGet, fetchPost, squareWH } from "../utils/helper.util"
 import { localDel, localGet, localSet } from "../utils/storage.util"
 import useAuth from "../context/AuthProvider"
 import { config } from "../utils/config.util"
@@ -80,6 +80,8 @@ const InitHome = ({ route, navigation }: any) => {
     Promise.all([getCategories(), getSizes(), getColors()])
   }, [useIsFocused()])
 
+  const _width = squareWH(1)
+
   return (
     <>
       <SearchBar />
@@ -88,24 +90,29 @@ const InitHome = ({ route, navigation }: any) => {
           <Image
             source={require("../../public/child.jpg")}
             alignSelf="center"
-            rounded="lg"
-            w="full"
-            h={200}
+            rounded="xl"
+            w={_width}
+            h={_width / 2}
             resizeMode="cover"
             alt="shop-banner"
           />
-          <Button onPress={handleLogout}>LOGOUT</Button>
+          {/* <Button onPress={handleLogout}>LOGOUT</Button>
           <Button colorScheme="warning" onPress={() => navigation.navigate(EHome.Voucher)}>
             VOUCHER
-          </Button>
+          </Button> */}
           {/* <SkeletonLoading /> */}
-          <VStack space={2}>
-            <Heading size="md">Danh mục sản phẩm</Heading>
-            <CategoryBlock />
-          </VStack>
+
           {/* component adding */}
         </Stack>
-        <Box mx={1} pb={5} bgColor="white">
+        <VStack bgColor="white" space={{ base: 3 }}>
+          <Heading size="md" mx={{ base: 5 }}>
+            Danh mục sản phẩm
+          </Heading>
+          <Box mx={2}>
+            <CategoryBlock />
+          </Box>
+        </VStack>
+        <Box mx={1} pt={{ base: 3 }} pb={5} bgColor="white">
           <React.Suspense fallback={<SkeletonLoading />}>
             <BestSelling />
           </React.Suspense>

@@ -16,10 +16,11 @@ import LinearGradient from "react-native-linear-gradient"
 import RangeSlider from "rn-range-slider"
 import AntIcon from "react-native-vector-icons/AntDesign"
 import FeaIcon from "react-native-vector-icons/Feather"
-import { SECTIONS, cateList, colorList, config, sizeList } from "../../../utils/config.util"
-import { useIsFocused, useNavigation } from "@react-navigation/native"
+import { SECTIONS, config } from "../../../utils/config.util"
+import { useNavigation } from "@react-navigation/native"
 import { EHome, EProductList } from "../../../__types__"
 import { localGet } from "../../../utils/storage.util"
+import { formatNumber } from "../../../utils/helper.util"
 
 const AccordionItem = React.lazy(() => import("../../useable/Accordion"))
 
@@ -80,7 +81,7 @@ const FilterList: React.FC<TShowFilter> = ({ closeFilter }) => {
             style={{ width: "100%", borderRadius: 100 }}
           >
             <Button
-              variant="unstyle"
+              variant="unstyled"
               h="50px"
               _pressed={{ bgColor: "yellow.400" }}
               onPress={methods.handleSubmit(onFilterSubmit)}
@@ -174,8 +175,8 @@ const WrapBox = ({ value }: { value: string }) => {
                   )}
                   renderRailSelected={() => <Divider thickness={7} bgColor="zuno" />}
                   renderLabel={(number) => (
-                    <Text fontSize="2xs" color="green.400">
-                      {number}
+                    <Text fontSize="2xs" color="green.400" mb={3}>
+                      {formatNumber(number)}
                     </Text>
                   )}
                   onValueChanged={handleChangePrice}

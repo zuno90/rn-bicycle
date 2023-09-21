@@ -73,6 +73,7 @@ const VerifyOtp: React.FC = ({ route, navigation }: any) => {
       `${config.endpoint}/user/resend-otp`,
       JSON.stringify({ phoneNumber: phone })
     )
+    if (res.success) setIsExpired(false)
     console.log(res, "resend otp")
   }
 
@@ -156,7 +157,7 @@ const VerifyOtp: React.FC = ({ route, navigation }: any) => {
           style={{ width: "100%", borderRadius: 100 }}
         >
           <Button
-            variant="unstyle"
+            variant="unstyled"
             onPress={async () => {
               const ok = await trigger("otp", { shouldFocus: true })
               if (!ok) return showToast(errors.otp?.message ?? "Bad input!")

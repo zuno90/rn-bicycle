@@ -30,8 +30,8 @@ export interface IProductCart {
   id: number
   name: string
   slug: string
-  color: string
-  size: string
+  colors: string
+  sizes: string
   image: string
   price: number
   discount: number

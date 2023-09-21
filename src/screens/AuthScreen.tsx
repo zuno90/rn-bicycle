@@ -1,5 +1,5 @@
 import React from "react"
-import { Stack, Button, Image as Img, Text, VStack, Box } from "native-base"
+import { Stack, Button, Image as Img, Text, VStack, Box, Center, View } from "native-base"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import Signup from "../components/auth/Signup"
 import Signin from "../components/auth/Signin"
@@ -9,101 +9,78 @@ import NewPassword from "../components/auth/NewPassword"
 import VerifyOtp from "../components/auth/VerifyOtp"
 import LinearGradient from "react-native-linear-gradient"
 import Success from "../components/auth/Success"
+import { squareWH } from "../utils/helper.util"
 
 const InitAuth = ({ navigation }: any) => {
+  const _width = squareWH(1)
   return (
-    <Box flex={1} bgColor="white">
-      <Stack flex={1} m={5}>
+    <View h="full" bgColor="white">
+      <Box mx={{ base: 5, lg: 20 }} safeAreaTop>
         <Img
           source={require("../../public/home-banner.png")}
-          size="lg"
+          size={{ base: 24, lg: 48 }}
           resizeMode="contain"
           alt="home-banner"
         />
+      </Box>
+      <Box alignItems="center">
         <Img
           source={require("../../public/home-banner.png")}
-          w="100%"
-          h="40%"
+          w="80%"
+          h={{ base: _width, lg: _width / 1.2 }}
           resizeMode="contain"
-          alignSelf="center"
-          alt="home-banner"
+          alt="home-banner-lg"
         />
-
-        <VStack space={4} alignItems="center">
+      </Box>
+      <VStack
+        mx={{ base: 5, lg: 20 }}
+        space={{ base: 4 }}
+        bgColor="white"
+        alignItems="center"
+        safeAreaBottom
+      >
+        <VStack>
           <Text fontSize="3xl" fontWeight="bold">
             Xe đạp Vương Phát
           </Text>
           <Text fontSize="lg">An tâm mua sắm không lo về giá!</Text>
-          <LinearGradient
-            colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
-            style={{
-              width: "100%",
-              borderRadius: 100,
-            }}
-          >
-            <Button
-              variant="unstyle"
-              h="50px"
-              _pressed={{ bgColor: "yellow.400" }}
-              onPress={() => {
-                navigation.navigate(EAuth.Signup)
-              }}
-            >
-              <Text fontSize="lg" fontWeight="semibold">
-                Đăng kí
-              </Text>
-            </Button>
-          </LinearGradient>
+        </VStack>
+        <LinearGradient
+          colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
+          style={{ width: "100%", borderRadius: 100 }}
+        >
           <Button
-            variant="outline"
-            w="100%"
-            h="50px"
-            rounded="full"
-            borderColor="yellow.400"
+            variant="unstyled"
+            h={50}
+            _pressed={{ bgColor: "yellow.400" }}
             onPress={() => {
-              navigation.navigate(EAuth.Signin)
+              navigation.navigate(EAuth.Signup)
             }}
           >
             <Text fontSize="lg" fontWeight="semibold">
-              Đăng nhập
+              Đăng kí
             </Text>
           </Button>
-          <Text alignSelf="center" underline>
-            Bỏ qua
+        </LinearGradient>
+        <Button
+          variant="outline"
+          w="100%"
+          h="50px"
+          rounded="full"
+          borderColor="yellow.400"
+          onPress={() => {
+            navigation.navigate(EAuth.Signin)
+          }}
+        >
+          <Text fontSize="lg" fontWeight="semibold">
+            Đăng nhập
           </Text>
-          <Button
-            colorScheme="blue"
-            onPress={() => navigation.navigate(EAuth.VerifyOtp, { phone: "test" })}
-          >
-            VER
-          </Button>
-        </VStack>
-
-        {/*
-    <Button
-      colorScheme="blue"
-      onPress={() =>
-        navigation.navigate(EAuth.NewPassword, {
-          phone: "test",
-        })
-      }
-    >
-      new password
-    </Button>
-    <Button
-      colorScheme="green"
-      onPress={() =>
-        navigation.navigate(EAuth.Success, {
-          type: EScreen.Home,
-          des: "title test",
-          btn: "Bắt đầu mua sắm",
-        })
-      }
-    >
-      success
-    </Button> */}
-      </Stack>
-    </Box>
+        </Button>
+        <Text alignSelf="center" underline>
+          Bỏ qua
+        </Text>
+      </VStack>
+    </View>
   )
 }
 

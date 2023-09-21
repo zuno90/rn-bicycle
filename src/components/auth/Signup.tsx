@@ -54,7 +54,7 @@ const Signup: React.FC = ({ navigation }: any) => {
 
   return (
     <>
-      <ScrollView>
+      <ScrollView bgColor="white">
         <Stack flex={1} m={5} space={4} safeAreaTop>
           <VStack space={4}>
             <Icon as={FaIcon} name="chevron-left" size={30} onPress={() => navigation.goBack()} />
@@ -131,41 +131,43 @@ const Signup: React.FC = ({ navigation }: any) => {
               />
             </FormControl>
 
-            <VStack space={1} alignSelf="flex-start" ml={5}>
-              <Text fontSize="xs">Mật khẩu phải có ít nhất 6 kí tự bao gồm:</Text>
-              <HStack alignItems="center" space={4}>
-                {containsUpperCase(watch("password")) ? (
-                  <Icon as={AntIcon} name="checkcircle" color="green.500" />
-                ) : (
-                  <Icon as={OctIcon} name="x-circle" color="red.500" />
-                )}
-                <Text fontSize="xs">Chữ cái viết hoa</Text>
-              </HStack>
-              <HStack alignItems="center" space={4}>
-                {containsLowerCase(watch("password")) ? (
-                  <Icon as={AntIcon} name="checkcircle" color="green.500" />
-                ) : (
-                  <Icon as={OctIcon} name="x-circle" color="red.500" />
-                )}
-                <Text fontSize="xs">Chữ cái viết thường</Text>
-              </HStack>
-              <HStack alignItems="center" space={4}>
-                {containsNumbers(watch("password")) ? (
-                  <Icon as={AntIcon} name="checkcircle" color="green.500" />
-                ) : (
-                  <Icon as={OctIcon} name="x-circle" color="red.500" />
-                )}
-                <Text fontSize="xs">Số</Text>
-              </HStack>
-              <HStack alignItems="center" space={4}>
-                {containsSpecialChar(watch("password")) ? (
-                  <Icon as={AntIcon} name="checkcircle" color="green.500" />
-                ) : (
-                  <Icon as={OctIcon} name="x-circle" color="red.500" />
-                )}
-                <Text fontSize="xs">Ký tự đặc biệt</Text>
-              </HStack>
-            </VStack>
+            {watch("password") && (
+              <VStack space={1} alignSelf="flex-start" ml={5}>
+                <Text fontSize="xs">Mật khẩu phải có ít nhất 6 kí tự bao gồm:</Text>
+                <HStack alignItems="center" space={4}>
+                  {containsUpperCase(watch("password")) ? (
+                    <Icon as={AntIcon} name="checkcircle" color="green.500" />
+                  ) : (
+                    <Icon as={OctIcon} name="x-circle" color="red.500" />
+                  )}
+                  <Text fontSize="xs">Chữ cái viết hoa</Text>
+                </HStack>
+                <HStack alignItems="center" space={4}>
+                  {containsLowerCase(watch("password")) ? (
+                    <Icon as={AntIcon} name="checkcircle" color="green.500" />
+                  ) : (
+                    <Icon as={OctIcon} name="x-circle" color="red.500" />
+                  )}
+                  <Text fontSize="xs">Chữ cái viết thường</Text>
+                </HStack>
+                <HStack alignItems="center" space={4}>
+                  {containsNumbers(watch("password")) ? (
+                    <Icon as={AntIcon} name="checkcircle" color="green.500" />
+                  ) : (
+                    <Icon as={OctIcon} name="x-circle" color="red.500" />
+                  )}
+                  <Text fontSize="xs">Số</Text>
+                </HStack>
+                <HStack alignItems="center" space={4}>
+                  {containsSpecialChar(watch("password")) ? (
+                    <Icon as={AntIcon} name="checkcircle" color="green.500" />
+                  ) : (
+                    <Icon as={OctIcon} name="x-circle" color="red.500" />
+                  )}
+                  <Text fontSize="xs">Ký tự đặc biệt</Text>
+                </HStack>
+              </VStack>
+            )}
 
             <LinearGradient
               colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
@@ -175,7 +177,7 @@ const Signup: React.FC = ({ navigation }: any) => {
               }}
             >
               <Button
-                variant="unstyle"
+                variant="unstyled"
                 onPress={handleSubmit(onSignup)}
                 h="50px"
                 isLoading={isSubmitting}
@@ -199,7 +201,7 @@ const Signup: React.FC = ({ navigation }: any) => {
         </Stack>
       </ScrollView>
       <HideOnKeyboard>
-        <Stack alignItems="center" my={5}>
+        <Stack bgColor="white" alignItems="center" py={5}>
           <Text>Hotline hỗ trợ: 1900 8558 68</Text>
           <Text>
             Fanpage:{" "}

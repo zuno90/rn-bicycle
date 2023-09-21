@@ -1,6 +1,11 @@
+import { Dimensions } from "react-native"
 import { IProductCart } from "../__types__"
 import { config } from "./config.util"
 import { localGet, localSet } from "./storage.util"
+
+// width - height
+export const WIDTH = Dimensions.get("screen").width
+export const HEIGHT = Dimensions.get("screen").height
 
 export const allowOnlyNumber = (value: string) => {
   return value.replace(/[^0-9]/g, "")
@@ -42,19 +47,32 @@ export const deduplicateArray = (arr: any[], key: string) => {
   return newArr
 }
 
+export const getCart = () => {
+  const c = localGet(config.cache.cartList)
+  return c ? JSON.parse(c) : []
+}
+
 export const addToCart = (prod: IProductCart) => {
-  const cartList = <Array<IProductCart>>JSON.parse(localGet(config.cache.cartList))
-  const index = cartList.map((v) => v.id).findIndex((id) => id === prod.id)
+  const cartList = getCart()
+  const index = cartList.map((v: IProductCart) => v.id).findIndex((id: number) => id === prod.id)
   if (index < 0) cartList.push(prod)
   else cartList[index].quantity += prod.quantity
 
   localSet(config.cache.cartList, JSON.stringify(cartList))
 }
 
-export const removeCartItem = () => {}
+export const removeCartItem = (id: number) => {
+  const cartList = getCart()
+  cartList.filter((v: IProductCart) => v.id !== id)
+}
 
 export const removeAllCart = () => {}
 
+export const squareWH = (ratio: number) => {
+  return WIDTH * ratio
+}
+
+// API CALL
 export const fetchGet = async (url: string, header?: any) => {
   try {
     const r = await fetch(url, {

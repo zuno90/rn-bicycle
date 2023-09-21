@@ -3,14 +3,14 @@ import SearchBar from "../search/SearchBar"
 import { Stack, Heading, ScrollView, Text, Box, Pressable, Image, AspectRatio } from "native-base"
 import { EHome, IProduct, ISubCategory } from "../../../__types__"
 import Grid from "../../useable/Grid"
-import { brandList, config } from "../../../utils/config.util"
-import { fetchGet } from "../../../utils/helper.util"
+import { config } from "../../../utils/config.util"
+import { fetchGet, squareWH } from "../../../utils/helper.util"
 
 const SkeletonLoading = React.lazy(() => import("../../useable/SkeletonLoading"))
 const Product = React.lazy(() => import("../product/Product"))
 const FooterMenu = React.lazy(() => import("../../home/FooterMenu"))
 
-const Category: React.FC<any> = ({ route, navigation }) => {
+const Category: React.FC<any> = ({ route }) => {
   const { title, slug } = route.params
 
   const [currentBrand, setCurrentBrand] = React.useState<string | null>(null)
@@ -37,6 +37,8 @@ const Category: React.FC<any> = ({ route, navigation }) => {
     Promise.all([getProductBySubCate(currentBrand), getSubCates()])
   }, [currentBrand])
 
+  const _width = squareWH(0.2)
+
   return (
     <>
       <SearchBar />
@@ -55,14 +57,14 @@ const Category: React.FC<any> = ({ route, navigation }) => {
                 <Box
                   key={index}
                   flexDir="column"
-                  w="24.5%"
+                  maxW="24.5%"
                   overflow="hidden"
                   alignItems="center"
                   my={2}
                   gap={2}
                 >
                   <Pressable onPress={() => setCurrentBrand(item.slug)}>
-                    <Box size={24} borderWidth={1} borderColor="muted.400" rounded="lg">
+                    <Box w={_width} h={_width} borderWidth={1} borderColor="muted.400" rounded="lg">
                       <AspectRatio ratio={1 / 1}>
                         <Image
                           source={{ uri: item.thumbnail }}

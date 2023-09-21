@@ -30,9 +30,9 @@ const ProductList: React.FC = ({ route }: any) => {
           if (resRecommendation.success) return setProducts(resRecommendation.data.products)
           break
         case EProductList.Search:
-          const searchRes = await fetchGet(
-            `${config.endpoint}/product?name=${encodeURIComponent(search)}`
-          )
+          console.log(`${config.endpoint}/products/search?name=${search}`, "ko encode")
+          const searchRes = await fetchGet(`${config.endpoint}/products/search?name=${encodeURIComponent(search)}`)
+          console.log(searchRes.data)
           if (searchRes.success) setProducts(searchRes.data.products)
           break
         case EProductList.Category:

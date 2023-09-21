@@ -186,7 +186,7 @@ const NewPassword: React.FC = ({ route, navigation }: any) => {
               }}
             >
               <Button
-                variant="unstyle"
+                variant="unstyled"
                 onPress={handleSubmit(onSubmit)}
                 h="50px"
                 _pressed={{ bgColor: "yellow.400" }}

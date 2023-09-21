@@ -1,26 +1,28 @@
 import React from "react"
-import { Box, HStack, Image, Text, Button, AspectRatio, Pressable } from "native-base"
+import { Box, HStack, Image, Text, Button, AspectRatio, Pressable, Center } from "native-base"
 import { EHome, IProduct } from "../../../__types__"
 import { useNavigation } from "@react-navigation/native"
+import { HEIGHT, formatNumber, squareWH } from "../../../utils/helper.util"
 
-const Product: React.FC<IProduct | null> = ({ data }) => {
+const Product: React.FC<{ data: IProduct }> = ({ data }) => {
   const navigation = useNavigation<any>()
   const handleAddToCart = () => {}
 
   const handleBuyNow = () => {}
 
+  const _width = squareWH(0.5)
+
   return (
     <Box
-      w="49.5%"
-      maxW="49.5%"
-      h={290}
-      maxH={350}
+      w={_width * 0.97}
+      maxW={_width}
+      maxH={_width * 2}
       rounded="lg"
       borderColor="yellow.400"
       borderWidth={1}
       overflow="hidden"
-      justifyContent="flex-end"
-      my={0.5}
+      justifyContent="space-between"
+      my={1}
     >
       <Pressable
         onPress={() =>
@@ -30,8 +32,14 @@ const Product: React.FC<IProduct | null> = ({ data }) => {
           })
         }
       >
-        <AspectRatio ratio={16 / 9}>
-          <Image source={{ uri: data.images[0] }} resizeMode="cover" alt="product-image" />
+        <AspectRatio ratio={1 / 1}>
+          <Image
+            source={{ uri: data.images[0] }}
+            maxW={_width}
+            maxH={_width}
+            resizeMode="contain"
+            alt="product-image"
+          />
         </AspectRatio>
       </Pressable>
       {data?.discount ? (
@@ -48,7 +56,15 @@ const Product: React.FC<IProduct | null> = ({ data }) => {
           {`-${data.discount} %`}
         </Button>
       ) : null}
-      <Box p={2} gap={1.5}>
+      <Box
+        px={2}
+        py={4}
+        // h={HEIGHT * 0.2}
+        // maxH={HEIGHT * 0.4}
+        flexDir="column"
+        justifyContent="flex-end"
+        gap={1.5}
+      >
         <Text
           fontWeight="semibold"
           onPress={() =>
@@ -61,12 +77,12 @@ const Product: React.FC<IProduct | null> = ({ data }) => {
           {data.name}
         </Text>
         <Text fontSize="xs" color="red.500">
-          {data.price}
+          {formatNumber(data.price)}
         </Text>
 
         <HStack justifyContent="space-between" alignItems="center">
           <Text fontSize="xs" strikeThrough>
-            {data.price * (1 + data.discount / 100)}
+            {formatNumber(data.price * (1 + data.discount / 100))}
           </Text>
           <Text fontSize={8} color="yellow.700">
             Đã bán {data.sold}

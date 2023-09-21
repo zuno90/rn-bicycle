@@ -1,12 +1,12 @@
 import React from "react"
-import { Box, Pressable, Text } from "native-base"
+import { AspectRatio, Box, Image, Pressable, Text } from "native-base"
 import Svg, { Path } from "react-native-svg"
-import { fetchGet } from "../../../utils/helper.util"
+import { fetchGet, squareWH } from "../../../utils/helper.util"
 import { config } from "../../../utils/config.util"
 import { EHome, ICategory } from "../../../__types__"
 import { useNavigation } from "@react-navigation/native"
 
-const CategoryBlock: React.FC<any> = () => {
+const CategoryBlock: React.FC = () => {
   const navigation = useNavigation<any>()
   const [categories, setCategories] = React.useState<ICategory[]>([])
   const getCategories = async () => {
@@ -18,9 +18,11 @@ const CategoryBlock: React.FC<any> = () => {
     getCategories()
   }, [])
 
+  const _width = squareWH(0.2)
+
   return (
     <Box
-      minH={120}
+      minH={{ base: 120 }}
       flexDir="row"
       flexWrap="wrap"
       justifyContent="space-between"
@@ -32,7 +34,7 @@ const CategoryBlock: React.FC<any> = () => {
             <Box
               key={index}
               flexDir="column"
-              w="24%"
+              maxW="24.5%"
               overflow="hidden"
               alignItems="center"
               my={2}
@@ -43,14 +45,22 @@ const CategoryBlock: React.FC<any> = () => {
                   navigation.navigate(EHome.Category, { title: item.name, slug: item.slug })
                 }
               >
-                <Box size={24} bgColor="yellow.300" rounded="lg" />
+                <Box w={_width} h={_width} borderWidth={1} borderColor="muted.400" rounded="lg">
+                  <AspectRatio ratio={1 / 1}>
+                    <Image
+                      source={{ uri: item.thumbnail }}
+                      resizeMode="contain"
+                      alt="sub-cate-img"
+                    />
+                  </AspectRatio>
+                </Box>
               </Pressable>
               <Text fontSize="xs">{item.name}</Text>
             </Box>
           ))}
           <Box
             flexDir="column"
-            w="24%"
+            maxW="24.5%"
             overflow="hidden"
             justifyContent="flex-end"
             alignItems="center"
@@ -58,13 +68,14 @@ const CategoryBlock: React.FC<any> = () => {
           >
             <Pressable>
               <Box
-                size={24}
+                w={_width}
+                h={_width}
                 justifyContent="center"
                 alignItems="center"
                 bgColor="zuno"
                 rounded="lg"
               >
-                <Svg width={70} height={70} viewBox="0 0 24 24" fill="none">
+                <Svg width={60} height={60} viewBox="0 0 24 24" fill="none">
                   <Path
                     fillRule="evenodd"
                     clipRule="evenodd"

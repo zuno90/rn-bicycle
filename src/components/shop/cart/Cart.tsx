@@ -28,8 +28,9 @@ const ConfirmModal = React.lazy(() => import("../../useable/ConfirmModal"))
 
 const Cart: React.FC = ({ navigation }: any) => {
   const [isLoading, setIsLoading] = React.useState<boolean>(true)
-  const [carts, setCarts] = React.useState<IProductCart[] | any>([])
-  const localCart = JSON.parse(localGet(config.cache.cartList) as string)
+  const [carts, setCarts] = React.useState<IProductCart[] | []>([])
+  const c = localGet(config.cache.cartList)
+  const localCart = c ? JSON.parse(c) : []
   const sizes = JSON.parse(localGet(config.cache.sizelist) as string)
   const colors = JSON.parse(localGet(config.cache.colorlist) as string)
 
@@ -51,7 +52,6 @@ const Cart: React.FC = ({ navigation }: any) => {
     id: 9999,
     isOpen: false,
   })
-  console.log(carts, 555)
   // attribute states
   const [quantity, setQuantity] = React.useState<number>(1)
 
@@ -89,7 +89,7 @@ const Cart: React.FC = ({ navigation }: any) => {
                 }}
               >
                 <Button
-                  variant="unstyle"
+                  variant="unstyled"
                   h={50}
                   _pressed={{ bgColor: "yellow.600" }}
                   onPress={() => navigation.navigate(EHome.InitHome)}
@@ -108,8 +108,8 @@ const Cart: React.FC = ({ navigation }: any) => {
         </ScrollView>
       ) : (
         <>
-          <ScrollView>
-            <Stack px={5} pb="260px">
+          <ScrollView bgColor="white">
+            <Stack px={5} mt={5} pb="260px">
               {carts.length > 0 &&
                 carts.map((cart, index) => (
                   <React.Fragment key={index}>
@@ -139,9 +139,14 @@ const Cart: React.FC = ({ navigation }: any) => {
                             onPress={() => setDeleteModal({ id: cart.id, isOpen: true })}
                           />
                         </HStack>
-                        <Text color="red.500" fontWeight="semibold">
-                          đ {formatNumber(cart.price)}
-                        </Text>
+                        <HStack space={4}>
+                          <Text color="red.500" fontWeight="semibold">
+                            đ {formatNumber(cart.price)}
+                          </Text>
+                          <Text strikeThrough>
+                            đ {formatNumber(cart.price * (1 + cart.discount / 100))}
+                          </Text>
+                        </HStack>
                       </Box>
                     </HStack>
                     <HStack ml={6} alignItems="center" space={4}>
@@ -175,7 +180,7 @@ const Cart: React.FC = ({ navigation }: any) => {
                           bgColor="black"
                           _text={{ color: "white", fontSize: "lg", fontWeight: "bold" }}
                         >
-                          {quantity}
+                          {cart.quantity}
                         </Button>
                         <Button
                           onPress={() => setQuantity(quantity + 1)}
@@ -203,7 +208,7 @@ const Cart: React.FC = ({ navigation }: any) => {
             bottom={0}
             bgColor="yellow.50"
             w="full"
-            h={250}
+            maxH={250}
             p={5}
             gap={1}
             justifyContent="center"
@@ -212,7 +217,12 @@ const Cart: React.FC = ({ navigation }: any) => {
             <Text fontWeight="bold">Tổng đơn hàng</Text>
             <HStack justifyContent="space-between">
               <Text>Thành tiền</Text>
-              <Text>đ 0</Text>
+              <Text>
+                đ{" "}
+                {formatNumber(
+                  carts.map((item) => item.price * item.quantity).reduce((a, b) => a + b, 0)
+                )}
+              </Text>
             </HStack>
             <HStack justifyContent="space-between">
               <Text>Vận chuyển</Text>
@@ -224,7 +234,12 @@ const Cart: React.FC = ({ navigation }: any) => {
             </HStack>
             <HStack justifyContent="space-between">
               <Text>Tổng cộng</Text>
-              <Text color="red.500">đ 80.000.000</Text>
+              <Text color="red.500">
+                đ{" "}
+                {formatNumber(
+                  carts.map((item) => item.price * item.quantity).reduce((a, b) => a + b, 0)
+                )}
+              </Text>
             </HStack>
             <LinearGradient
               colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
@@ -234,7 +249,7 @@ const Cart: React.FC = ({ navigation }: any) => {
                 marginTop: 10,
               }}
             >
-              <Button variant="unstyle" h={50} _pressed={{ bgColor: "yellow.600" }}>
+              <Button variant="unstyled" h={50} _pressed={{ bgColor: "yellow.600" }}>
                 <Text fontSize="lg" fontWeight="semibold">
                   Thanh toán
                 </Text>

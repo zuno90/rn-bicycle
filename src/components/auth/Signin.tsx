@@ -23,10 +23,7 @@ import React from "react"
 import { config } from "../../utils/config.util"
 import { HideOnKeyboard } from "react-native-hide-onkeyboard"
 
-type TSignin = {
-  phoneNumber: string
-  password: string
-}
+type TSignin = { phoneNumber: string; password: string }
 
 const Signin: React.FC = ({ navigation }: any) => {
   const [showPass, setShowPass] = React.useState(false)
@@ -47,7 +44,7 @@ const Signin: React.FC = ({ navigation }: any) => {
 
   return (
     <>
-      <ScrollView>
+      <ScrollView bgColor="white">
         <Stack flex={1} m={5} space={4} safeAreaTop>
           <VStack space={4}>
             <Icon as={FaIcon} name="chevron-left" size={30} onPress={() => navigation.goBack()} />
@@ -159,7 +156,7 @@ const Signin: React.FC = ({ navigation }: any) => {
               }}
             >
               <Button
-                variant="unstyle"
+                variant="unstyled"
                 onPress={handleSubmit(onSignin)}
                 h="50px"
                 _pressed={{ bgColor: "yellow.600" }}
@@ -184,7 +181,7 @@ const Signin: React.FC = ({ navigation }: any) => {
         </Stack>
       </ScrollView>
       <HideOnKeyboard>
-        <Stack alignItems="center" my={5}>
+        <Stack bgColor="white" alignItems="center" py={5}>
           <Text>Hotline hỗ trợ: 1900 8558 68</Text>
           <Text>
             Fanpage:{" "}

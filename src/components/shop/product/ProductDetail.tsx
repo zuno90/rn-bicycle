@@ -26,7 +26,7 @@ import { addToCart, deduplicateArray, fetchGet, formatNumber } from "../../../ut
 import { config } from "../../../utils/config.util"
 import LinearGradient from "react-native-linear-gradient"
 
-import { FormProvider, useForm, useFormContext } from "react-hook-form"
+import { FormProvider, SubmitHandler, useForm, useFormContext } from "react-hook-form"
 import { useIsFocused } from "@react-navigation/native"
 import PhoneCallBtn from "../../useable/PhoneCallBtn"
 import { localGet } from "../../../utils/storage.util"
@@ -74,7 +74,6 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
 
   React.useEffect(() => {
     Promise.all([getProduct(), getRelatedProducts()])
-    console.log("vooooo")
   }, [useIsFocused()])
 
   // CART HANDLE
@@ -90,7 +89,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
     defaultValues: { sizes: "", colors: "", quantity: 1 },
   })
 
-  const handleAddToCart = (data: TProductAttr) => {
+  const handleAddToCart: SubmitHandler<TProductAttr> = (data) => {
     if (data.colors === "" || data.sizes === "" || data.quantity < 0) {
       return toast.show({
         id: "addtocart",
@@ -110,8 +109,14 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
 
     const { id, name, slug, images, price, discount } = product as IProduct
     const cartItem = { id, name, slug, image: images[0], price, discount, ...data }
-    console.log(cartItem, 4444)
     addToCart(cartItem)
+    setShowFilter({
+      isOpen: false,
+      type: "",
+      title: "",
+      data: [],
+      list: [],
+    })
   }
 
   return (
@@ -134,7 +139,11 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
               />
               <HStack alignItems="center" space={6}>
                 <ShareBtn />
-                <CartIcon />
+                {methods.formState.isSubmitted ? (
+                  <CartIcon quantity={methods.getValues("quantity")} />
+                ) : (
+                  <CartIcon />
+                )}
               </HStack>
             </HStack>
             <Stack p={5} bgColor="white" space={4}>
@@ -356,6 +365,8 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
               variant="outline"
               borderColor="zuno"
               _text={{ color: "black", fontWeight: "bold" }}
+              isLoading={methods.formState.isSubmitting}
+              isDisabled={methods.formState.isSubmitting}
               onPress={methods.handleSubmit(handleAddToCart)}
             >
               Thêm vào giỏ
@@ -440,7 +451,7 @@ const ProductSelect = ({ showFilter, setShowFilter }: any) => {
             style={{ width: "100%", borderRadius: 100 }}
           >
             <Button
-              variant="unstyle"
+              variant="unstyled"
               h="50px"
               _pressed={{ bgColor: "zuno" }}
               onPress={() =>
