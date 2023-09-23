@@ -38,7 +38,11 @@ const Signin: React.FC = ({ navigation }: any) => {
     const res = await fetchPost(`${config.endpoint}/signin`, JSON.stringify(data))
     console.log(res)
     if (res.success)
-      return navigation.navigate(EAuth.VerifyOtp, { from: EAuth.Signin, phone: data.phoneNumber })
+      return navigation.navigate(EAuth.VerifyOtp, {
+        from: EAuth.Signin,
+        phone: data.phoneNumber,
+        mockOtp: res.message.substr(res.message.length - 4),
+      })
     setErrMas(res.message)
   }
 

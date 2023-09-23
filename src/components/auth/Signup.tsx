@@ -49,7 +49,11 @@ const Signup: React.FC = ({ navigation }: any) => {
     const res = await fetchPost(`${config.endpoint}/signup`, JSON.stringify(data))
     console.log(res)
     if (res.success)
-      return navigation.navigate(EAuth.VerifyOtp, { from: EAuth.Signup, phone: data.phoneNumber })
+      return navigation.navigate(EAuth.VerifyOtp, {
+        from: EAuth.Signup,
+        phone: data.phoneNumber,
+        mockOtp: res.message.substr(res.message.length - 4),
+      })
   }
 
   return (

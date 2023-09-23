@@ -22,7 +22,6 @@ const CategoryBlock: React.FC = () => {
 
   return (
     <Box
-      minH={{ base: 120 }}
       flexDir="row"
       flexWrap="wrap"
       justifyContent="space-between"
@@ -55,7 +54,7 @@ const CategoryBlock: React.FC = () => {
                   </AspectRatio>
                 </Box>
               </Pressable>
-              <Text fontSize="xs">{item.name}</Text>
+              <Text fontSize="xs" isTruncated>{item.name}</Text>
             </Box>
           ))}
           <Box

@@ -24,7 +24,7 @@ import { formatNumber } from "../../../utils/helper.util"
 
 const AccordionItem = React.lazy(() => import("../../useable/Accordion"))
 
-type TShowFilter = { closeFilter: () => void }
+type TShowFilter = { confirmFilter: () => void; closeFilter: () => void }
 
 type TFilterInput = {
   category: string[]
@@ -33,16 +33,15 @@ type TFilterInput = {
   price: { l: number; h: number }
 }
 
-const FilterList: React.FC<TShowFilter> = ({ closeFilter }) => {
+const FilterList: React.FC<TShowFilter> = ({ confirmFilter, closeFilter }) => {
   const navigation = useNavigation<any>()
 
   const methods = useForm<TFilterInput>({
     defaultValues: { category: [], size: [], color: [], price: { l: 100000, h: 15000000 } },
   })
 
-  const onFilterSubmit: SubmitHandler<TFilterInput> = async (data) => {
-    console.log(data)
-    closeFilter()
+  const onFilterSubmit: SubmitHandler<TFilterInput> = (data) => {
+    confirmFilter()
     navigation.navigate(EHome.ProductList, {
       from: EProductList.Filter,
       title: "Lọc sản phẩm",

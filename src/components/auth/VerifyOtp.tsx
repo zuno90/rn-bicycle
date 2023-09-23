@@ -14,13 +14,11 @@ import CountdownClock from "../useable/CountdownClock"
 
 const Toast = React.lazy(() => import("../useable/Toast"))
 
-type TOtp = {
-  otp: string
-}
+type TOtp = { otp: string }
 
 const VerifyOtp: React.FC = ({ route, navigation }: any) => {
   const toast = useToast()
-  const { from, phone } = route.params
+  const { from, phone, mockOtp } = route.params
   const {
     control,
     trigger,
@@ -100,6 +98,11 @@ const VerifyOtp: React.FC = ({ route, navigation }: any) => {
             Xác thực tài khoản
           </Text>
           <Text fontSize="lg">Mã OTP đã được gửi qua SMS tới {phone && phone}</Text>
+          {mockOtp && (
+            <Text color="zuno" fontSize={20} fontWeight="bold">
+              OTP là: {mockOtp}
+            </Text>
+          )}
         </VStack>
         <Stack space={5} alignItems="center">
           <FormControl isRequired isInvalid={"otp" in errors}>

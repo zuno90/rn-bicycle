@@ -31,23 +31,11 @@ const Cart = React.lazy(() => import("../components/shop/cart/Cart"))
 const Rank = React.lazy(() => import("../components/rank/Rank"))
 const Notification = React.lazy(() => import("../components/notification/Notification"))
 
+const Profile = React.lazy(() => import("../components/profile/Profile"))
+
 const InitHome = ({ route, navigation }: any) => {
   const { checkAuth } = useAuth()
   const scrollRef = React.useRef(null)
-
-  const handleLogout = async () => {
-    const res = await fetchPost(`${config.endpoint}/logout`, JSON.stringify({}))
-    console.log(res, "logout")
-    localDel(config.cache.accessToken)
-    localDel(config.cache.refreshToken)
-    await checkAuth()
-    return navigation.navigate(EScreen.Auth)
-    // if (res.success) {
-    //   localDel(config.cache.accessToken)
-    //   localDel(config.cache.refreshToken)
-    //   return navigation.navigate(EScreen.Auth)
-    // }
-  }
 
   // seed carts
   const carts = [
@@ -160,6 +148,11 @@ const HomeScreen: React.FC<any> = ({ route }) => {
             initialParams={{ user }}
           />
         </HomeStack.Group>
+        <HomeStack.Screen
+          name={EHome.Profile}
+          component={Profile}
+          initialParams={{ user }}
+        ></HomeStack.Screen>
       </HomeStack.Navigator>
     </>
   )

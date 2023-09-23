@@ -21,20 +21,28 @@ import SimpleIcon from "react-native-vector-icons/SimpleLineIcons"
 import FeaIcon from "react-native-vector-icons/Feather"
 import MateComIcon from "react-native-vector-icons/MaterialCommunityIcons"
 import AntIcon from "react-native-vector-icons/AntDesign"
-import { EToastType, IProduct, IProductCart } from "../../../__types__"
-import { addToCart, deduplicateArray, fetchGet, formatNumber } from "../../../utils/helper.util"
+import { EHome, EToastType, IProduct } from "../../../__types__"
+import {
+  WIDTH,
+  addToCart,
+  deduplicateArray,
+  fetchGet,
+  formatNumber,
+} from "../../../utils/helper.util"
 import { config } from "../../../utils/config.util"
 import LinearGradient from "react-native-linear-gradient"
-
-import { FormProvider, SubmitHandler, useForm, useFormContext } from "react-hook-form"
+import { FormProvider, SubmitHandler, useForm } from "react-hook-form"
 import { useIsFocused } from "@react-navigation/native"
 import PhoneCallBtn from "../../useable/PhoneCallBtn"
 import { localGet } from "../../../utils/storage.util"
+import { SwiperFlatList } from "react-native-swiper-flatlist"
+import { ImageGallery, ImageObject } from "@georstat/react-native-image-gallery"
 
 const Toast = React.lazy(() => import("../../useable/Toast"))
 const Grid = React.lazy(() => import("../../useable/Grid"))
 const Product = React.lazy(() => import("./Product"))
 const SkeletonLoading = React.lazy(() => import("../../useable/SkeletonLoading"))
+const FilterAttribute = React.lazy(() => import("../../useable/FilterAttribute"))
 
 type TFilterModal = {
   isOpen: boolean
@@ -63,7 +71,6 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
 
   const getProduct = async () => {
     const res = await fetchGet(`${config.endpoint}/product/${slug}`)
-    // console.log(res.data.product.productItem)
     if (res.success) setProduct(res.data.product)
   }
 
@@ -76,6 +83,11 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
     Promise.all([getProduct(), getRelatedProducts()])
   }, [useIsFocused()])
 
+  // HANDLE GALLERY
+  const imgRef = React.useRef(null)
+  const [productImgIndex, setProductImgIndex] = React.useState<number>(0)
+  const [isOpenProductImg, setIsOpenProductImg] = React.useState<boolean>(false)
+
   // CART HANDLE
   const [showFilter, setShowFilter] = React.useState<TFilterModal>({
     isOpen: false,
@@ -85,9 +97,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
     list: [],
   })
 
-  const methods = useForm<TProductAttr>({
-    defaultValues: { sizes: "", colors: "", quantity: 1 },
-  })
+  const methods = useForm<TProductAttr>({ defaultValues: { sizes: "", colors: "", quantity: 1 } })
 
   const handleAddToCart: SubmitHandler<TProductAttr> = (data) => {
     if (data.colors === "" || data.sizes === "" || data.quantity < 0) {
@@ -117,36 +127,127 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
       data: [],
       list: [],
     })
+    return toast.show({
+      id: "addtocart",
+      placement: "top",
+      duration: 1500,
+      render: () => (
+        <React.Suspense>
+          <Toast
+            type={EToastType.noti}
+            content="Đã thêm vào giỏ hàng"
+            close={() => toast.close("addtocart")}
+          />
+        </React.Suspense>
+      ),
+    })
   }
 
   return (
     <>
       {product && (
         <>
-          <ScrollView>
-            <HStack
-              bgColor="white"
-              px={5}
-              justifyContent="space-between"
-              alignItems="center"
-              safeAreaTop
-            >
-              <Icon
-                as={SimpleIcon}
-                name="arrow-left-circle"
-                size={30}
-                onPress={() => navigation.goBack()}
-              />
-              <HStack alignItems="center" space={6}>
-                <ShareBtn />
-                {methods.formState.isSubmitted ? (
-                  <CartIcon quantity={methods.getValues("quantity")} />
-                ) : (
-                  <CartIcon />
-                )}
-              </HStack>
+          <ImageGallery
+            thumbSize={80}
+            initialIndex={productImgIndex}
+            resizeMode="contain"
+            thumbResizeMode="stretch"
+            isOpen={isOpenProductImg}
+            images={product.images.map((item, index) => ({
+              id: index,
+              url: item,
+              thumbUrl: item,
+            }))}
+            close={() => setIsOpenProductImg(false)}
+            renderHeaderComponent={(image: ImageObject, currentIndex: number) => (
+              <Box bgColor="transparent" alignSelf="flex-end" px={5} safeAreaTop>
+                <Icon as={FeaIcon} name="x" size={10} onPress={() => setIsOpenProductImg(false)} />
+              </Box>
+            )}
+            renderFooterComponent={(image: ImageObject, currentIndex: number) => (
+              <Box bgColor="transparent" safeAreaBottom>
+                <Text>
+                  {currentIndex + 1}/{product.images.length}
+                </Text>
+              </Box>
+            )}
+          />
+
+          <Box
+            w="full"
+            bgColor="transparent"
+            px={5}
+            position="absolute"
+            flexDir="row"
+            justifyContent="space-between"
+            alignItems="center"
+            zIndex={10}
+            safeArea
+          >
+            <Icon
+              as={SimpleIcon}
+              name="arrow-left-circle"
+              size={30}
+              onPress={() => navigation.goBack()}
+            />
+            <HStack alignItems="center" space={6}>
+              <ShareBtn />
+              {methods.formState.isSubmitted ? (
+                <CartIcon quantity={methods.getValues("quantity")} />
+              ) : (
+                <CartIcon />
+              )}
             </HStack>
-            <Stack p={5} bgColor="white" space={4}>
+          </Box>
+
+          <ScrollView bgColor="white">
+            <SwiperFlatList
+              ref={imgRef}
+              index={productImgIndex}
+              showPagination
+              onChangeIndex={({ index }) => setProductImgIndex(index)}
+              data={product.images}
+              renderItem={({ item, index }) => (
+                <>
+                  <Pressable onPress={() => setIsOpenProductImg(true)}>
+                    <Image
+                      source={{ uri: item }}
+                      resizeMode="contain"
+                      alt="top-image"
+                      w={WIDTH}
+                      h={WIDTH}
+                    />
+                  </Pressable>
+                  <Text color="red.500">{index}</Text>
+                </>
+              )}
+              PaginationComponent={() => (
+                <HStack justifyContent="center" space={2}>
+                  {product.images.map((item, index) => (
+                    <Pressable
+                      key={index}
+                      onPress={() => {
+                        setProductImgIndex(index)
+                        imgRef.current?.scrollToIndex({ index, animated: true })
+                      }}
+                    >
+                      <Image
+                        source={{ uri: item }}
+                        resizeMode="contain"
+                        rounded="lg"
+                        borderWidth={productImgIndex === index ? 2 : 1}
+                        borderColor={productImgIndex === index ? "zuno" : "gray.300"}
+                        alt="top-image"
+                        w={WIDTH / 5}
+                        h={WIDTH / 5}
+                      />
+                    </Pressable>
+                  ))}
+                </HStack>
+              )}
+            />
+
+            <Stack p={5} space={5}>
               <Text>{product.category?.name}</Text>
               <Heading fontSize="lg">{product.name}</Heading>
               <HStack justifyContent="space-between" alignItems="center">
@@ -159,7 +260,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                     <Box
                       variant="solid"
                       bgColor="red.500"
-                      rounded="full"
+                      rounded="lg"
                       w={10}
                       h={5}
                       zIndex={1}
@@ -178,111 +279,118 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                 <Icon as={MateComIcon} name="facebook-messenger" color="zuno" size={10} />
               </HStack>
 
-              <HStack justifyContent="space-evenly" alignItems="center" space={4}>
-                <Button
-                  variant="outline"
-                  size="xs"
-                  rounded="lg"
-                  borderColor={methods.getValues("sizes") === "" ? "zuno" : "none"}
-                  bgColor={methods.getValues("sizes") === "" ? "transparent" : "zuno"}
-                  rightIcon={
-                    methods.getValues("sizes") === "" ? (
-                      <Icon as={MateComIcon} name="plus" size={6} color="zuno" />
-                    ) : (
-                      <></>
-                    )
-                  }
-                  onPress={() =>
-                    setShowFilter({
-                      isOpen: true,
-                      type: "sizes",
-                      title: "Chọn size",
-                      data: product.productItem
-                        ? deduplicateArray(product.productItem, "size").map((v) => v.size)
-                        : [],
-                      list: sizes,
-                    })
-                  }
-                >
-                  <Text
-                    fontSize="xs"
-                    fontWeight="bold"
-                    color={methods.getValues("sizes") === "" ? "zuno" : "white"}
-                  >
-                    {methods.getValues("sizes") === "" && "Size"}
-                    {sizes.length > 0 &&
-                      sizes.filter((v: any) => v.value === methods.getValues("sizes"))[0]?.title}
-                  </Text>
-                </Button>
-                <Button
-                  variant="outline"
-                  size="xs"
-                  rounded="lg"
-                  borderColor={methods.getValues("colors") === "" ? "zuno" : "none"}
-                  bgColor={methods.getValues("colors") === "" ? "transparent" : "zuno"}
-                  rightIcon={
-                    methods.getValues("colors") === "" ? (
-                      <Icon as={MateComIcon} name="plus" size={6} color="zuno" />
-                    ) : (
-                      <></>
-                    )
-                  }
-                  onPress={() =>
-                    setShowFilter({
-                      isOpen: true,
-                      type: "colors",
-                      title: "Chọn màu",
-                      data: product.productItem
-                        ? deduplicateArray(product.productItem, "color").map((v) => v.color)
-                        : [],
-                      list: colors,
-                    })
-                  }
-                >
-                  <Text
-                    fontSize="xs"
-                    fontWeight="bold"
-                    color={methods.getValues("colors") === "" ? "zuno" : "white"}
-                  >
-                    Màu{" "}
-                    {colors.length > 0 &&
-                      colors.filter((v: any) => v.value === methods.getValues("colors"))[0]?.title}
-                  </Text>
-                </Button>
-                <Button.Group isAttached rounded="full" size={8}>
+              <ScrollView horizontal>
+                <HStack alignItems="center" space={2}>
                   <Button
-                    onPress={() => {
-                      methods.getValues("quantity") > 1 &&
-                        methods.setValue("quantity", methods.getValues("quantity") - 1, {
+                    maxW={WIDTH / 3}
+                    variant="outline"
+                    size="xs"
+                    rounded="lg"
+                    borderColor={methods.getValues("sizes") === "" ? "zuno" : "none"}
+                    bgColor={methods.getValues("sizes") === "" ? "transparent" : "zuno"}
+                    rightIcon={
+                      methods.getValues("sizes") === "" ? (
+                        <Icon as={MateComIcon} name="plus" size={6} color="zuno" />
+                      ) : (
+                        <></>
+                      )
+                    }
+                    onPress={() =>
+                      setShowFilter({
+                        isOpen: true,
+                        type: "sizes",
+                        title: "Chọn size",
+                        data: product.productItem
+                          ? deduplicateArray(product.productItem, "size").map((v) => v.size)
+                          : [],
+                        list: sizes,
+                      })
+                    }
+                  >
+                    <Text
+                      isTruncated
+                      fontSize="md"
+                      fontWeight="bold"
+                      color={methods.getValues("sizes") === "" ? "zuno" : "white"}
+                    >
+                      {methods.getValues("sizes") === "" && "Size"}
+                      {sizes.length > 0 &&
+                        sizes.filter((v: any) => v.value === methods.getValues("sizes"))[0]?.title}
+                    </Text>
+                  </Button>
+                  <Button
+                    maxW={WIDTH / 3.3}
+                    variant="outline"
+                    size="xs"
+                    rounded="lg"
+                    borderColor={methods.getValues("colors") === "" ? "zuno" : "none"}
+                    bgColor={methods.getValues("colors") === "" ? "transparent" : "zuno"}
+                    rightIcon={
+                      methods.getValues("colors") === "" ? (
+                        <Icon as={MateComIcon} name="plus" size={6} color="zuno" />
+                      ) : (
+                        <></>
+                      )
+                    }
+                    onPress={() =>
+                      setShowFilter({
+                        isOpen: true,
+                        type: "colors",
+                        title: "Chọn màu",
+                        data: product.productItem
+                          ? deduplicateArray(product.productItem, "color").map((v) => v.color)
+                          : [],
+                        list: colors,
+                      })
+                    }
+                  >
+                    <Text
+                      isTruncated
+                      fontSize="md"
+                      fontWeight="bold"
+                      color={methods.getValues("colors") === "" ? "zuno" : "white"}
+                    >
+                      Màu{" "}
+                      {colors.length > 0 &&
+                        colors.filter((v: any) => v.value === methods.getValues("colors"))[0]
+                          ?.title}
+                    </Text>
+                  </Button>
+                  <Button.Group isAttached rounded="full" size={10}>
+                    <Button
+                      onPress={() => {
+                        methods.getValues("quantity") > 1 &&
+                          methods.setValue("quantity", methods.getValues("quantity") - 1, {
+                            shouldDirty: true,
+                          })
+                      }}
+                      bgColor="black"
+                      _text={{ color: "white", fontSize: "lg", fontWeight: "bold" }}
+                      _pressed={{ bgColor: "zuno" }}
+                    >
+                      -
+                    </Button>
+                    <Button
+                      bgColor="black"
+                      _text={{ color: "white", fontSize: "lg", fontWeight: "bold" }}
+                    >
+                      {methods.watch("quantity")}
+                    </Button>
+                    <Button
+                      onPress={() => {
+                        methods.setValue("quantity", methods.getValues("quantity") + 1, {
                           shouldDirty: true,
                         })
-                    }}
-                    bgColor="black"
-                    _text={{ color: "white", fontSize: "lg", fontWeight: "bold" }}
-                    _pressed={{ bgColor: "zuno" }}
-                  >
-                    -
-                  </Button>
-                  <Button
-                    bgColor="black"
-                    _text={{ color: "white", fontSize: "lg", fontWeight: "bold" }}
-                  >
-                    {methods.watch("quantity")}
-                  </Button>
-                  <Button
-                    onPress={() => {
-                      methods.setValue("quantity", methods.getValues("quantity") + 1, {
-                        shouldDirty: true,
-                      })
-                    }}
-                    bgColor="black"
-                    _text={{ color: "white", fontSize: "lg", fontWeight: "bold" }}
-                    _pressed={{ bgColor: "zuno" }}
-                  >
-                    +
-                  </Button>
-                </Button.Group>
-              </HStack>
+                      }}
+                      bgColor="black"
+                      _text={{ color: "white", fontSize: "lg", fontWeight: "bold" }}
+                      _pressed={{ bgColor: "zuno" }}
+                    >
+                      +
+                    </Button>
+                  </Button.Group>
+                </HStack>
+              </ScrollView>
             </Stack>
             <Box bgColor="white">
               <Divider my={2} thickness={4} />
@@ -290,10 +398,9 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
             <Box p={5} bgColor="white" gap={4}>
               <Heading fontSize="lg">Chi tiết sản phẩm</Heading>
               <Text>
-                Nơi sản xuất: Đức Chất liệu: Sắt tổng hợp Lorem ipsum dolor sit amet, consectetur
-                adipiscing elit. Adipiscing augue nisl, gravida a, sapien leo. Morbi vulputate
-                fermentum porta nunc. Viverra laoreet convallis massa elementum vel. Eget tincidunt
-                massa sodales non massa euismod.
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Est ipsam incidunt nemo
+                doloribus velit, ipsum inventore tempore, eligendi ex in repudiandae neque veniam,
+                atque dolorum corrupti sapiente rerum dolore optio?
               </Text>
               <Image
                 source={require("../../../../public/child.jpg")}
@@ -318,13 +425,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                   </LinearGradient>
                 </Pressable>
               ) : (
-                <Box>
-                  <Text>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Est ipsam incidunt nemo
-                    doloribus velit, ipsum inventore tempore, eligendi ex in repudiandae neque
-                    veniam, atque dolorum corrupti sapiente rerum dolore optio?
-                  </Text>
-                </Box>
+                <Text>{product.detail}</Text>
               )}
             </Box>
             <Box bgColor="white">
@@ -356,7 +457,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
             safeAreaBottom
           >
             <VStack>
-              <Text>Giá</Text>
+              <Text fontWeight="bold">Giá</Text>
               <Heading fontSize="lg" color="red.500">
                 <Text underline>đ</Text>
                 {formatNumber(product.price)}
@@ -379,7 +480,11 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
               colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
               style={{ borderRadius: 100 }}
             >
-              <Button rounded="full" variant="unstyled">
+              <Button
+                rounded="full"
+                variant="unstyled"
+                _text={{ color: "black", fontWeight: "bold" }}
+              >
                 Mua ngay
               </Button>
             </LinearGradient>
@@ -389,7 +494,20 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
           {showFilter.isOpen && (
             <Slide in={showFilter.isOpen} duration={200} placement="top">
               <FormProvider {...methods}>
-                <ProductSelect showFilter={showFilter} setShowFilter={setShowFilter} />
+                <ProductAttributeSelect
+                  showFilter={showFilter}
+                  handleFilter={(type: any, value: string) => {
+                    const state = methods.getValues(type)
+                    if (value !== state) methods.setValue(type, value, { shouldDirty: true })
+                  }}
+                  submitFilter={() =>
+                    setShowFilter({ isOpen: false, type: "", title: "", data: [], list: [] })
+                  }
+                  closeFilter={() => {
+                    methods.setValue(showFilter.type as any, "", { shouldDirty: true })
+                    setShowFilter({ isOpen: false, type: "", title: "", data: [], list: [] })
+                  }}
+                />
               </FormProvider>
             </Slide>
           )}
@@ -403,72 +521,17 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
   )
 }
 
-const ProductSelect = ({ showFilter, setShowFilter }: any) => {
+const ProductAttributeSelect = ({ showFilter, handleFilter, submitFilter, closeFilter }: any) => {
   const { type, title, data, list } = showFilter
 
-  const { watch, setValue, getValues } = useFormContext()
-
-  const handleSetValue = (type: string, value: string) => {
-    const state = getValues(type)
-    if (value !== state) setValue(type, value, { shouldDirty: true })
-  }
-
   return (
-    <>
-      <Box flexDir="column" justifyContent="space-between" bgColor="white" w="full" h="full">
-        <Box p={5} bgColor="muted.200" safeAreaTop>
-          <HStack justifyContent="space-between" alignItems="center">
-            <Icon
-              as={FeaIcon}
-              name="x"
-              size={8}
-              onPress={() => {
-                setValue(type, "", { shouldDirty: true })
-                setShowFilter({ isOpen: false, type: "", title: "", data: [] })
-              }}
-            />
-            <Heading>{title}</Heading>
-            <Text></Text>
-          </HStack>
-        </Box>
-
-        <Divider />
-        <Box flex={1} p={8} gap={2} justifyContent="flex-start">
-          {data.length > 0 &&
-            data.map((item: any, index: number) => (
-              <React.Fragment key={index}>
-                <Pressable onPress={() => handleSetValue(type, item)}>
-                  <HStack justifyContent="space-between" alignItems="center">
-                    <Text>{list.filter((ele: any) => ele.value === item)[0]?.title}</Text>
-                    {watch(type) === item && <Icon as={AntIcon} name="checkcircle" color="zuno" />}
-                  </HStack>
-                </Pressable>
-                {data.length - index === 1 ? null : <Divider my={2} />}
-              </React.Fragment>
-            ))}
-        </Box>
-
-        <Box px={10} py={5} safeAreaBottom>
-          <LinearGradient
-            colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
-            style={{ width: "100%", borderRadius: 100 }}
-          >
-            <Button
-              variant="unstyled"
-              h="50px"
-              _pressed={{ bgColor: "zuno" }}
-              onPress={() =>
-                setShowFilter({ isOpen: false, type: "", title: "", data: [], list: [] })
-              }
-            >
-              <Text fontSize="lg" fontWeight="semibold">
-                Xác nhận
-              </Text>
-            </Button>
-          </LinearGradient>
-        </Box>
-      </Box>
-    </>
+    <React.Suspense fallback={<SkeletonLoading />}>
+      <FilterAttribute
+        from={EHome.ProductDetail}
+        filterData={{ type, title, data, list }}
+        filterAction={{ handleFilter, submitFilter, closeFilter }}
+      />
+    </React.Suspense>
   )
 }
 

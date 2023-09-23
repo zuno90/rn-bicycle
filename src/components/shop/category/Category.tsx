@@ -68,7 +68,7 @@ const Category: React.FC<any> = ({ route }) => {
                       </AspectRatio>
                     </Box>
                   </Pressable>
-                  <Text fontSize="xs" isTruncated ellipsizeMode="tail">
+                  <Text fontSize="xs" isTruncated>
                     {item.name}
                   </Text>
                 </Box>

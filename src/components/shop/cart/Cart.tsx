@@ -12,6 +12,7 @@ import {
   Text,
   VStack,
   Checkbox,
+  Slide,
 } from "native-base"
 import CartIcon from "./CartIcon"
 import { localGet, localSet } from "../../../utils/storage.util"
@@ -20,11 +21,18 @@ import { EHome, IProductCart } from "../../../__types__"
 import LinearGradient from "react-native-linear-gradient"
 import FaIcon from "react-native-vector-icons/FontAwesome"
 import AntIcon from "react-native-vector-icons/AntDesign"
-import { fetchGet, formatNumber } from "../../../utils/helper.util"
-import LoadingScreen from "../../../screens/LoadingScreen"
+import { HEIGHT, WIDTH, deduplicateArray, fetchGet, formatNumber } from "../../../utils/helper.util"
+import { FormProvider, useForm } from "react-hook-form"
 
+const LoadingScreen = React.lazy(() => import("../../../screens/LoadingScreen"))
 const BestSelling = React.lazy(() => import("../../home/BestSelling"))
+const FilterAttribute = React.lazy(() => import("../../useable/FilterAttribute"))
+const SkeletonLoading = React.lazy(() => import("../../useable/SkeletonLoading"))
 const ConfirmModal = React.lazy(() => import("../../useable/ConfirmModal"))
+
+type TFilterModal = { isOpen: boolean; type: string; title: string; data: any[]; list: any[] }
+
+type TProductAttr = { sizes: string; colors: string }
 
 const Cart: React.FC = ({ navigation }: any) => {
   const [isLoading, setIsLoading] = React.useState<boolean>(true)
@@ -40,20 +48,60 @@ const Cart: React.FC = ({ navigation }: any) => {
     })
     if (res.success) return res.data
   }
-  React.useEffect(() => {
-    const getCarts = async () =>
-      setCarts(localCart && localCart.length > 0 ? localCart : await getCart())
 
+  React.useEffect(() => {
+    const getCarts = async () => {
+      const c = localCart && localCart.length > 0 ? localCart : await getCart()
+      setCarts(c)
+      setIsLoading(false)
+    }
     getCarts()
-    setIsLoading(false)
   }, [])
+
+  // EDIT ATTR
+  const [showFilter, setShowFilter] = React.useState<TFilterModal>({
+    isOpen: false,
+    type: "",
+    title: "",
+    data: [],
+    list: [],
+  })
+  const setFilterByProduct = async (type: string, slug: string) => {
+    const res = await fetchGet(`${config.endpoint}/product/${slug}`)
+    if (res.success) {
+      const data = res.data.product.productItem
+        ? deduplicateArray(res.data.product.productItem, type).map((v) => v[type])
+        : []
+      setShowFilter({
+        isOpen: true,
+        type: type === "size" ? "sizes" : "colors",
+        title: type === "size" ? "Chọn Size" : "Chọn màu",
+        data,
+        list: type === "size" ? sizes : colors,
+      })
+    }
+  }
+
+  const dec = (id: number) => {
+    const quanIdx = carts.findIndex((item) => item.id === id)
+    if (carts[quanIdx].quantity - 1 === 0) return setDeleteModal({ id, isOpen: true })
+    const 
+    // setCarts((prev) => [...prev, { id, quantity: carts[quanIdx].quantity - 1 }])
+    console.log(carts[quanIdx].quantity - 1)
+  }
+  const inc = (id: number) => {
+    // const quanIdx = cQuan.findIndex((item) => item.id === id)
+    // setCQuan((prev) => [...prev, { id, quantity: cQuan[quanIdx].quantity + 1 }])
+    // console.log(cQuan)
+  }
+
+  const methods = useForm<TProductAttr>()
 
   const [deleteModal, setDeleteModal] = React.useState<{ id: number; isOpen: boolean }>({
     id: 9999,
     isOpen: false,
   })
   // attribute states
-  const [quantity, setQuantity] = React.useState<number>(1)
 
   const removeItem = (id: number) => {
     const newCarts = carts.filter((v: IProductCart) => v.id !== id)
@@ -109,7 +157,7 @@ const Cart: React.FC = ({ navigation }: any) => {
       ) : (
         <>
           <ScrollView bgColor="white">
-            <Stack px={5} mt={5} pb="260px">
+            <Stack px={5} mt={5} pb={HEIGHT / 3} space={2}>
               {carts.length > 0 &&
                 carts.map((cart, index) => (
                   <React.Fragment key={index}>
@@ -129,9 +177,11 @@ const Cart: React.FC = ({ navigation }: any) => {
                         resizeMode="contain"
                         alt="cart-prod"
                       />
-                      <Box flex={1} gap={2}>
+                      <Box flex={1} gap={4}>
                         <HStack justifyContent="space-between" alignItems="center">
-                          <Heading fontSize="xs">{cart.name}</Heading>
+                          <Heading fontSize="xs" numberOfLines={2} maxW={WIDTH * 0.6} isTruncated>
+                            {cart.name}
+                          </Heading>
                           <Icon
                             as={AntIcon}
                             name="delete"
@@ -149,27 +199,41 @@ const Cart: React.FC = ({ navigation }: any) => {
                         </HStack>
                       </Box>
                     </HStack>
-                    <HStack ml={6} alignItems="center" space={4}>
-                      <Button maxW="1/3" variant="solid" size="xs" bgColor="zuno" rounded="lg">
+                    <HStack px={5} justifyContent="space-between" alignItems="center" space={4}>
+                      <Button
+                        maxW="1/3"
+                        variant="solid"
+                        size="xs"
+                        bgColor="zuno"
+                        rounded="lg"
+                        onPress={() => setFilterByProduct("size", cart.slug)}
+                      >
                         <Text color="white" fontSize="xs" fontWeight="bold" isTruncated>
                           {sizes.length > 0 &&
-                            sizes.filter((v: any) => v.value === cart.sizes)[0]?.title}
+                            sizes.filter(
+                              (v: any) => v.value === (methods.getValues("sizes") || cart.sizes)
+                            )[0]?.title}
                         </Text>
                       </Button>
-                      <Button maxW="1/3" variant="solid" size="xs" bgColor="zuno" rounded="lg">
+                      <Button
+                        maxW="1/3"
+                        variant="solid"
+                        size="xs"
+                        bgColor="zuno"
+                        rounded="lg"
+                        onPress={() => setFilterByProduct("color", cart.slug)}
+                      >
                         <Text color="white" fontSize="xs" fontWeight="bold" isTruncated>
                           Màu{" "}
                           {colors.length > 0 &&
-                            colors.filter((v: any) => v.value === cart.colors)[0]?.title}
+                            colors.filter(
+                              (v: any) => v.value === (methods.getValues("colors") || cart.colors)
+                            )[0]?.title}
                         </Text>
                       </Button>
                       <Button.Group isAttached rounded="full" size={8}>
                         <Button
-                          onPress={() =>
-                            quantity > 1
-                              ? setQuantity(quantity - 1)
-                              : setDeleteModal({ id: cart.id, isOpen: true })
-                          }
+                          onPress={() => dec(cart.id)}
                           bgColor="black"
                           _text={{ color: "white", fontSize: "lg", fontWeight: "bold" }}
                           _pressed={{ bgColor: "zuno" }}
@@ -180,10 +244,11 @@ const Cart: React.FC = ({ navigation }: any) => {
                           bgColor="black"
                           _text={{ color: "white", fontSize: "lg", fontWeight: "bold" }}
                         >
+                          {/* {cQuan.length > 0 && cart.id === cQuan[index].id && cQuan[index].quantity} */}
                           {cart.quantity}
                         </Button>
                         <Button
-                          onPress={() => setQuantity(quantity + 1)}
+                          onPress={() => inc(cart.id)}
                           bgColor="black"
                           _text={{ color: "white", fontSize: "lg", fontWeight: "bold" }}
                           _pressed={{ bgColor: "zuno" }}
@@ -192,12 +257,7 @@ const Cart: React.FC = ({ navigation }: any) => {
                         </Button>
                       </Button.Group>
                     </HStack>
-
-                    {index + 1 < carts.length && (
-                      <Stack py={5}>
-                        <Divider />
-                      </Stack>
-                    )}
+                    {index + 1 < carts.length && <Divider my={2} />}
                   </React.Fragment>
                 ))}
             </Stack>
@@ -206,11 +266,11 @@ const Cart: React.FC = ({ navigation }: any) => {
           <Box
             position="absolute"
             bottom={0}
+            p={5}
+            gap={2}
             bgColor="yellow.50"
             w="full"
-            maxH={250}
-            p={5}
-            gap={1}
+            maxH={HEIGHT / 3}
             justifyContent="center"
             safeAreaBottom
           >
@@ -243,11 +303,7 @@ const Cart: React.FC = ({ navigation }: any) => {
             </HStack>
             <LinearGradient
               colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
-              style={{
-                width: "100%",
-                borderRadius: 100,
-                marginTop: 10,
-              }}
+              style={{ width: "100%", borderRadius: 100, marginTop: 10 }}
             >
               <Button variant="unstyled" h={50} _pressed={{ bgColor: "yellow.600" }}>
                 <Text fontSize="lg" fontWeight="semibold">
@@ -257,6 +313,26 @@ const Cart: React.FC = ({ navigation }: any) => {
             </LinearGradient>
           </Box>
         </>
+      )}
+      {showFilter.isOpen && (
+        <Slide in={showFilter.isOpen} duration={200} placement="top">
+          <FormProvider {...methods}>
+            <ProductAttributeSelect
+              showFilter={showFilter}
+              handleFilter={(type: any, value: string) => {
+                const state = methods.getValues(type)
+                if (value !== state) methods.setValue(type, value, { shouldDirty: true })
+              }}
+              submitFilter={() =>
+                setShowFilter({ isOpen: false, type: "", title: "", data: [], list: [] })
+              }
+              closeFilter={() => {
+                methods.setValue(showFilter.type as any, "", { shouldDirty: true })
+                setShowFilter({ isOpen: false, type: "", title: "", data: [], list: [] })
+              }}
+            />
+          </FormProvider>
+        </Slide>
       )}
       {deleteModal && (
         <ConfirmModal
@@ -268,6 +344,20 @@ const Cart: React.FC = ({ navigation }: any) => {
         />
       )}
     </>
+  )
+}
+
+const ProductAttributeSelect = ({ showFilter, handleFilter, submitFilter, closeFilter }: any) => {
+  const { type, title, data, list } = showFilter
+
+  return (
+    <React.Suspense fallback={<SkeletonLoading />}>
+      <FilterAttribute
+        from={EHome.Cart}
+        filterData={{ type, title, data, list }}
+        filterAction={{ handleFilter, submitFilter, closeFilter }}
+      />
+    </React.Suspense>
   )
 }
 
