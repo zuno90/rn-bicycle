@@ -20,8 +20,7 @@ import ShareBtn from "../../useable/ShareBtn"
 import SimpleIcon from "react-native-vector-icons/SimpleLineIcons"
 import FeaIcon from "react-native-vector-icons/Feather"
 import MateComIcon from "react-native-vector-icons/MaterialCommunityIcons"
-import AntIcon from "react-native-vector-icons/AntDesign"
-import { EHome, EToastType, IProduct } from "../../../__types__"
+import { EHome, EToastType, IProduct, IProductCart } from "../../../__types__"
 import {
   WIDTH,
   addToCart,
@@ -49,7 +48,6 @@ type TFilterModal = {
   type: string
   title: string
   data: any[]
-  list: any[]
 }
 
 type TProductAttr = {
@@ -94,11 +92,25 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
     type: "",
     title: "",
     data: [],
-    list: [],
   })
+  const setFilterByProduct = async (type: any) => {
+    const fType = type === "sizes" ? "size" : "color"
+    const tempData = product?.productItem
+      ? deduplicateArray(product?.productItem, fType).map((v) => v[fType])
+      : [] // ["s","l","xl"]
+    const fCollection = type === "sizes" ? sizes : colors
+    const fData = fCollection.map((item: any) => ({ title: item.title, value: item.value }))
+    let data: any = []
+    tempData.forEach((v) => data.push(...fData.filter((item: any) => item.value === v)))
 
+    setShowFilter({
+      isOpen: true,
+      type,
+      title: type === "sizes" ? "Chọn Size" : "Chọn màu",
+      data,
+    })
+  }
   const methods = useForm<TProductAttr>({ defaultValues: { sizes: "", colors: "", quantity: 1 } })
-
   const handleAddToCart: SubmitHandler<TProductAttr> = (data) => {
     if (data.colors === "" || data.sizes === "" || data.quantity < 0) {
       return toast.show({
@@ -118,15 +130,19 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
     }
 
     const { id, name, slug, images, price, discount } = product as IProduct
-    const cartItem = { id, name, slug, image: images[0], price, discount, ...data }
+    const cartItem = {
+      unit: `no${new Date().getTime()}`,
+      id,
+      name,
+      slug,
+      image: images[0],
+      price,
+      discount,
+      ...data,
+    } as IProductCart
     addToCart(cartItem)
-    setShowFilter({
-      isOpen: false,
-      type: "",
-      title: "",
-      data: [],
-      list: [],
-    })
+    setShowFilter({ isOpen: false, type: "", title: "", data: [] })
+    methods.reset()
     return toast.show({
       id: "addtocart",
       placement: "top",
@@ -192,11 +208,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
             />
             <HStack alignItems="center" space={6}>
               <ShareBtn />
-              {methods.formState.isSubmitted ? (
-                <CartIcon quantity={methods.getValues("quantity")} />
-              ) : (
-                <CartIcon />
-              )}
+              <CartIcon />
             </HStack>
           </Box>
 
@@ -282,7 +294,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
               <ScrollView horizontal>
                 <HStack alignItems="center" space={2}>
                   <Button
-                    maxW={WIDTH / 3}
+                    maxW={WIDTH / 4}
                     variant="outline"
                     size="xs"
                     rounded="lg"
@@ -295,17 +307,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                         <></>
                       )
                     }
-                    onPress={() =>
-                      setShowFilter({
-                        isOpen: true,
-                        type: "sizes",
-                        title: "Chọn size",
-                        data: product.productItem
-                          ? deduplicateArray(product.productItem, "size").map((v) => v.size)
-                          : [],
-                        list: sizes,
-                      })
-                    }
+                    onPress={() => setFilterByProduct("sizes")}
                   >
                     <Text
                       isTruncated
@@ -332,17 +334,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                         <></>
                       )
                     }
-                    onPress={() =>
-                      setShowFilter({
-                        isOpen: true,
-                        type: "colors",
-                        title: "Chọn màu",
-                        data: product.productItem
-                          ? deduplicateArray(product.productItem, "color").map((v) => v.color)
-                          : [],
-                        list: colors,
-                      })
-                    }
+                    onPress={() => setFilterByProduct("colors")}
                   >
                     <Text
                       isTruncated
@@ -500,13 +492,14 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                     const state = methods.getValues(type)
                     if (value !== state) methods.setValue(type, value, { shouldDirty: true })
                   }}
-                  submitFilter={() =>
-                    setShowFilter({ isOpen: false, type: "", title: "", data: [], list: [] })
+                  closeFilter={() =>
+                    setShowFilter({
+                      isOpen: false,
+                      type: "",
+                      title: "",
+                      data: [],
+                    })
                   }
-                  closeFilter={() => {
-                    methods.setValue(showFilter.type as any, "", { shouldDirty: true })
-                    setShowFilter({ isOpen: false, type: "", title: "", data: [], list: [] })
-                  }}
                 />
               </FormProvider>
             </Slide>
@@ -521,15 +514,15 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
   )
 }
 
-const ProductAttributeSelect = ({ showFilter, handleFilter, submitFilter, closeFilter }: any) => {
-  const { type, title, data, list } = showFilter
+const ProductAttributeSelect = ({ showFilter, handleFilter, closeFilter }: any) => {
+  const { type, selectedValue, title, data } = showFilter
 
   return (
     <React.Suspense fallback={<SkeletonLoading />}>
       <FilterAttribute
         from={EHome.ProductDetail}
-        filterData={{ type, title, data, list }}
-        filterAction={{ handleFilter, submitFilter, closeFilter }}
+        filterData={{ type, selectedValue, title, data }}
+        filterAction={{ handleFilter, closeFilter }}
       />
     </React.Suspense>
   )

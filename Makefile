@@ -1,6 +1,6 @@
-ios-se:
-	yarn ios --simulator "iPhone SE (3rd generation)"
-ios-14:
-	yarn ios --simulator "iPhone 14 Pro Max"
+start:
+	yarn start --reset-cache
 android:
 	yarn android
+pi:
+	npx pod-install

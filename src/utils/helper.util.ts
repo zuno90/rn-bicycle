@@ -54,11 +54,20 @@ export const getCart = () => {
 
 export const addToCart = (prod: IProductCart) => {
   const cartList = getCart()
-  const index = cartList.map((v: IProductCart) => v.id).findIndex((id: number) => id === prod.id)
+  const index = cartList
+    .map((v: IProductCart) => v.id)
+    .findIndex(
+      ({ unit, id, sizes, colors }: IProductCart) =>
+        unit === prod.unit && id === prod.id && sizes === prod.sizes && colors === prod.colors
+    )
   if (index < 0) cartList.push(prod)
   else cartList[index].quantity += prod.quantity
 
   localSet(config.cache.cartList, JSON.stringify(cartList))
+}
+
+export const updateCart = (newCart: IProductCart[]) => {
+  localSet(config.cache.cartList, JSON.stringify(newCart))
 }
 
 export const removeCartItem = (id: number) => {

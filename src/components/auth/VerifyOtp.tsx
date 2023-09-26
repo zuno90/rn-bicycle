@@ -1,5 +1,5 @@
 import React from "react"
-import { Stack, VStack, Text, Button, FormControl, useToast, Pressable } from "native-base"
+import { Stack, VStack, Text, Button, FormControl, useToast } from "native-base"
 import { Controller, SubmitHandler, useForm } from "react-hook-form"
 import OTPTextView from "react-native-otp-textinput"
 import LinearGradient from "react-native-linear-gradient"
@@ -35,7 +35,7 @@ const VerifyOtp: React.FC = ({ route, navigation }: any) => {
     // call api verify
     const payload = { phoneNumber: phone, code: data.otp }
     const res = await fetchPost(`${config.endpoint}/user/verify-otp`, JSON.stringify(payload))
-    console.log(res, 45454)
+    console.log(res, "data accesstoken")
     if (res.success) {
       switch (from) {
         case EAuth.Signup:
@@ -48,13 +48,13 @@ const VerifyOtp: React.FC = ({ route, navigation }: any) => {
             btn: "Bắt đầu mua sắm",
           })
           break
-        case EAuth.Signin:
-          const signinData = res.data
-          localSet(config.cache.accessToken, signinData.accessToken)
-          localSet(config.cache.refreshToken, signinData.refreshToken)
-          await checkAuth()
-          navigation.navigate(EScreen.Home)
-          break
+        // case EAuth.Signin:
+        //   const signinData = res.data
+        //   localSet(config.cache.accessToken, signinData.accessToken)
+        //   localSet(config.cache.refreshToken, signinData.refreshToken)
+        //   await checkAuth()
+        //   navigation.navigate(EScreen.Home)
+        //   break
         case EAuth.ForgotPassword:
           navigation.navigate(EAuth.NewPassword, { phone })
           break

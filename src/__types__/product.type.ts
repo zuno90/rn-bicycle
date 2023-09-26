@@ -27,6 +27,7 @@ interface IProductItem {
 }
 
 export interface IProductCart {
+  unit: string
   id: number
   name: string
   slug: string

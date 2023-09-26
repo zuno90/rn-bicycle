@@ -7,13 +7,14 @@ import { getCart } from "../../../utils/helper.util"
 
 type TCartUpdatedICon = { quantity: number }
 
-const CartIcon: React.FC<TCartUpdatedICon | any> = ({ quantity }) => {
+const CartIcon: React.FC<TCartUpdatedICon | any> = () => {
   const navigation = useNavigation<any>()
 
   const carts = getCart()
-  const total = carts
-    .map((item: IProductCart) => item.quantity)
-    .reduce((a: number, b: number) => a + b, 0)
+  // const total = carts
+  //   .map((item: IProductCart) => item.quantity)
+  //   .reduce((a: number, b: number) => a + b, 0)
+  const total = carts.length
 
   return (
     <Pressable onPress={() => navigation.navigate(EHome.Cart)}>

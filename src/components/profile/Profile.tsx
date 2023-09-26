@@ -2,7 +2,7 @@ import { Button } from "native-base"
 import { fetchPost } from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
 import { localDel } from "../../utils/storage.util"
-import { EScreen } from "../../__types__"
+import { EHome, EScreen } from "../../__types__"
 import useAuth from "../../context/AuthProvider"
 
 const Profile: React.FC<any> = ({ navigation }) => {
@@ -22,7 +22,12 @@ const Profile: React.FC<any> = ({ navigation }) => {
     // }
   }
 
-  return <Button onPress={handleLogout}>LOG OUT</Button>
+  return (
+    <>
+      <Button onPress={() => navigation.navigate(EHome.Payment)}>PAYMENT</Button>
+      <Button onPress={handleLogout}>LOG OUT</Button>
+    </>
+  )
 }
 
 export default Profile

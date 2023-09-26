@@ -47,7 +47,7 @@ const FooterMenu: React.FC<TCurrentScreen> = ({ currentScreen }) => {
             />
           </Center>
         </Pressable>
-        <Pressable
+        {/* <Pressable
           opacity={currentScreen === EHome.Shop ? 1 : 0.5}
           py={4}
           flex={1}
@@ -61,7 +61,7 @@ const FooterMenu: React.FC<TCurrentScreen> = ({ currentScreen }) => {
               size="lg"
             />
           </Center>
-        </Pressable>
+        </Pressable> */}
         <Pressable
           opacity={currentScreen === EHome.Rank ? 1 : 0.5}
           py={4}

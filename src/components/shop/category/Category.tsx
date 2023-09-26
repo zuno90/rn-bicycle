@@ -4,7 +4,7 @@ import { Stack, Heading, ScrollView, Text, Box, Pressable, Image, AspectRatio } 
 import { EHome, IProduct, ISubCategory } from "../../../__types__"
 import Grid from "../../useable/Grid"
 import { config } from "../../../utils/config.util"
-import { fetchGet, squareWH } from "../../../utils/helper.util"
+import { WIDTH, fetchGet } from "../../../utils/helper.util"
 
 const SkeletonLoading = React.lazy(() => import("../../useable/SkeletonLoading"))
 const Product = React.lazy(() => import("../product/Product"))
@@ -37,8 +37,6 @@ const Category: React.FC<any> = ({ route }) => {
     Promise.all([getProductBySubCate(currentBrand), getSubCates()])
   }, [currentBrand])
 
-  const _width = squareWH(0.22)
-
   return (
     <>
       <SearchBar />
@@ -58,7 +56,13 @@ const Category: React.FC<any> = ({ route }) => {
                   gap={2}
                 >
                   <Pressable onPress={() => setCurrentBrand(item.slug)}>
-                    <Box w={_width} h={_width} borderWidth={1} borderColor="muted.400" rounded="lg">
+                    <Box
+                      w={WIDTH * 0.22}
+                      h={WIDTH * 0.22}
+                      borderWidth={1}
+                      borderColor="muted.400"
+                      rounded="lg"
+                    >
                       <AspectRatio ratio={1 / 1}>
                         <Image
                           source={{ uri: item.thumbnail }}

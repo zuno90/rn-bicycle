@@ -5,10 +5,11 @@ export enum EHome {
   ProductList = "ProductList",
   ProductDetail = "ProductDetail",
   Voucher = "Voucher",
+  Cart = "Cart",
+  Payment = "Payment",
+  Rank = "Rank",
   Chat = "Chat",
   PrivateChat = "PrivateChat",
-  Cart = "Cart",
-  Rank = "Rank",
   Notification = "Notification",
   Profile = "Profile",
 }

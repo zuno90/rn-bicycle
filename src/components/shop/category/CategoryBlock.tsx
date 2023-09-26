@@ -1,7 +1,7 @@
 import React from "react"
 import { AspectRatio, Box, Image, Pressable, Text } from "native-base"
 import Svg, { Path } from "react-native-svg"
-import { fetchGet, squareWH } from "../../../utils/helper.util"
+import { fetchGet, WIDTH } from "../../../utils/helper.util"
 import { config } from "../../../utils/config.util"
 import { EHome, ICategory } from "../../../__types__"
 import { useNavigation } from "@react-navigation/native"
@@ -18,15 +18,8 @@ const CategoryBlock: React.FC = () => {
     getCategories()
   }, [])
 
-  const _width = squareWH(0.23)
-
   return (
-    <Box
-      flexDir="row"
-      flexWrap="wrap"
-      justifyContent="space-between"
-      alignItems="center"
-    >
+    <Box flexDir="row" flexWrap="wrap" justifyContent="space-between" alignItems="center">
       {categories.length > 0 && (
         <>
           {categories.map((item, index) => (
@@ -44,7 +37,13 @@ const CategoryBlock: React.FC = () => {
                   navigation.navigate(EHome.Category, { title: item.name, slug: item.slug })
                 }
               >
-                <Box w={_width} h={_width} borderWidth={1} borderColor="muted.400" rounded="lg">
+                <Box
+                  w={WIDTH * 0.23}
+                  h={WIDTH * 0.23}
+                  borderWidth={1}
+                  borderColor="muted.400"
+                  rounded="lg"
+                >
                   <AspectRatio ratio={1 / 1}>
                     <Image
                       source={{ uri: item.thumbnail }}
@@ -54,7 +53,9 @@ const CategoryBlock: React.FC = () => {
                   </AspectRatio>
                 </Box>
               </Pressable>
-              <Text fontSize="xs" isTruncated>{item.name}</Text>
+              <Text fontSize="xs" isTruncated>
+                {item.name}
+              </Text>
             </Box>
           ))}
           <Box
@@ -67,8 +68,8 @@ const CategoryBlock: React.FC = () => {
           >
             <Pressable>
               <Box
-                w={_width}
-                h={_width}
+                w={WIDTH * 0.23}
+                h={WIDTH * 0.23}
                 justifyContent="center"
                 alignItems="center"
                 bgColor="zuno"

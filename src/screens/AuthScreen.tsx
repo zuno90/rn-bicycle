@@ -9,10 +9,9 @@ import NewPassword from "../components/auth/NewPassword"
 import VerifyOtp from "../components/auth/VerifyOtp"
 import LinearGradient from "react-native-linear-gradient"
 import Success from "../components/auth/Success"
-import { squareWH } from "../utils/helper.util"
+import { WIDTH } from "../utils/helper.util"
 
 const InitAuth = ({ navigation }: any) => {
-  const _width = squareWH(1)
   return (
     <View h="full" bgColor="white">
       <Box mx={{ base: 5, lg: 20 }} safeAreaTop>
@@ -27,7 +26,7 @@ const InitAuth = ({ navigation }: any) => {
         <Img
           source={require("../../public/home-banner.png")}
           w="80%"
-          h={{ base: _width, lg: _width / 1.2 }}
+          h={{ base: WIDTH, lg: WIDTH / 1.2 }}
           resizeMode="contain"
           alt="home-banner-lg"
         />

@@ -3,10 +3,7 @@ import React from "react"
 import type { PropsWithChildren } from "react"
 import FeaIcon from "react-native-vector-icons/Feather"
 
-type AccordionItemPros = PropsWithChildren<{
-  title: string
-  showIcon: boolean
-}>
+type AccordionItemPros = PropsWithChildren<{ title: string; showIcon: boolean }>
 
 const AccordionItem: React.FC<AccordionItemPros> = ({ children, title, showIcon }) => {
   const [expanded, setExpanded] = React.useState<boolean>(false)

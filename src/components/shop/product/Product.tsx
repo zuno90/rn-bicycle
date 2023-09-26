@@ -2,18 +2,16 @@ import React from "react"
 import { Box, HStack, Image, Text, Button, AspectRatio, Pressable, Heading } from "native-base"
 import { EHome, IProduct } from "../../../__types__"
 import { useNavigation } from "@react-navigation/native"
-import { formatNumber, squareWH } from "../../../utils/helper.util"
+import { WIDTH, formatNumber } from "../../../utils/helper.util"
 
 const Product: React.FC<{ data: IProduct }> = ({ data }) => {
   const navigation = useNavigation<any>()
 
-  const _width = squareWH(0.5)
-
   return (
     <Box
-      w={_width * 0.97}
-      maxW={_width}
-      maxH={_width * 2}
+      w={(WIDTH * 0.97) / 2}
+      maxW={WIDTH / 2}
+      maxH={WIDTH * 2}
       rounded="lg"
       borderColor="yellow.400"
       borderWidth={1}
@@ -32,8 +30,8 @@ const Product: React.FC<{ data: IProduct }> = ({ data }) => {
         <AspectRatio ratio={1 / 1}>
           <Image
             source={{ uri: data.images[0] }}
-            maxW={_width}
-            maxH={_width}
+            maxW={WIDTH}
+            maxH={WIDTH}
             resizeMode="contain"
             alt="product-image"
           />

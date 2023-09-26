@@ -12,7 +12,7 @@ import {
 } from "native-base"
 import LinearGradient from "react-native-linear-gradient"
 import { useForm, Controller, SubmitHandler } from "react-hook-form"
-import { EAuth } from "../../__types__"
+import { EAuth, EScreen } from "../../__types__"
 import { allowOnlyNumber, fetchPost } from "../../utils/helper.util"
 import AntIcon from "react-native-vector-icons/AntDesign"
 import FaIcon from "react-native-vector-icons/FontAwesome"
@@ -22,6 +22,8 @@ import MatIcon from "react-native-vector-icons/MaterialIcons"
 import React from "react"
 import { config } from "../../utils/config.util"
 import { HideOnKeyboard } from "react-native-hide-onkeyboard"
+import { localSet } from "../../utils/storage.util"
+import useAuth from "../../context/AuthProvider"
 
 type TSignin = { phoneNumber: string; password: string }
 
@@ -34,15 +36,17 @@ const Signin: React.FC = ({ navigation }: any) => {
     formState: { isSubmitting, errors },
   } = useForm<TSignin>()
 
+  const { checkAuth } = useAuth()
+
   const onSignin: SubmitHandler<TSignin> = async (data) => {
     const res = await fetchPost(`${config.endpoint}/signin`, JSON.stringify(data))
-    console.log(res)
-    if (res.success)
-      return navigation.navigate(EAuth.VerifyOtp, {
-        from: EAuth.Signin,
-        phone: data.phoneNumber,
-        mockOtp: res.message.substr(res.message.length - 4),
-      })
+    if (res.success) {
+      const signinData = res.data
+      localSet(config.cache.accessToken, signinData.accessToken)
+      localSet(config.cache.refreshToken, signinData.refreshToken)
+      await checkAuth()
+      return navigation.navigate(EScreen.Home)
+    }
     setErrMas(res.message)
   }
 

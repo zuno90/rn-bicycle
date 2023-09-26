@@ -1,10 +1,9 @@
 import React from "react"
-import { Box, Button, Heading, Image, ScrollView, Stack, VStack } from "native-base"
+import { Box, Heading, Image, ScrollView, Stack, VStack } from "native-base"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
-import { EHome, EScreen, ICategory } from "../__types__"
-import { fetchGet, fetchPost, squareWH } from "../utils/helper.util"
-import { localDel, localGet, localSet } from "../utils/storage.util"
-import useAuth from "../context/AuthProvider"
+import { EHome } from "../__types__"
+import { WIDTH, fetchGet } from "../utils/helper.util"
+import { localSet } from "../utils/storage.util"
 import { config } from "../utils/config.util"
 import { useIsFocused } from "@react-navigation/native"
 import PhoneCallBtn from "../components/useable/PhoneCallBtn"
@@ -24,28 +23,17 @@ const Category = React.lazy(() => import("../components/shop/category/Category")
 const ProductList = React.lazy(() => import("../components/shop/product/ProductList"))
 const ProductDetail = React.lazy(() => import("../components/shop/product/ProductDetail"))
 const Voucher = React.lazy(() => import("../components/shop/voucher/Voucher"))
+const Payment = React.lazy(() => import("../components/shop/payment/Payment"))
 
 const Chat = React.lazy(() => import("../components/chat/Chat"))
 const PrivateChat = React.lazy(() => import("../components/chat/PrivateChat"))
 const Cart = React.lazy(() => import("../components/shop/cart/Cart"))
 const Rank = React.lazy(() => import("../components/rank/Rank"))
 const Notification = React.lazy(() => import("../components/notification/Notification"))
-
 const Profile = React.lazy(() => import("../components/profile/Profile"))
 
-const InitHome = ({ route, navigation }: any) => {
-  const { checkAuth } = useAuth()
+const InitHome = ({ route }: any) => {
   const scrollRef = React.useRef(null)
-
-  // seed carts
-  const carts = [
-    { id: 1, name: "xe 1", price: 8000000, size: "xl", color: "white" },
-    { id: 2, name: "xe 2", price: 8000000, size: "xl", color: "white" },
-    { id: 3, name: "xe 3", price: 8000000, size: "xl", color: "white" },
-    { id: 4, name: "xe 4", price: 8000000, size: "xl", color: "white" },
-    { id: 5, name: "xe 5", price: 8000000, size: "xl", color: "white" },
-  ]
-  // localSet(config.cache.cartList, JSON.stringify(carts))
 
   const getCategories = async () => {
     const res = await fetchGet(`${config.endpoint}/categories`)
@@ -68,8 +56,6 @@ const InitHome = ({ route, navigation }: any) => {
     Promise.all([getCategories(), getSizes(), getColors()])
   }, [useIsFocused()])
 
-  const _width = squareWH(1)
-
   return (
     <>
       <SearchBar />
@@ -79,8 +65,8 @@ const InitHome = ({ route, navigation }: any) => {
             source={require("../../public/child.jpg")}
             alignSelf="center"
             rounded="xl"
-            w={_width}
-            h={_width / 2}
+            w={WIDTH}
+            h={WIDTH / 2}
             resizeMode="cover"
             alt="shop-banner"
           />
@@ -134,6 +120,7 @@ const HomeScreen: React.FC<any> = ({ route }) => {
           <HomeStack.Screen name={EHome.Shop} component={Shop} />
           <HomeStack.Screen name={EHome.Category} component={Category} />
           <HomeStack.Screen name={EHome.Cart} component={Cart} />
+          <HomeStack.Screen name={EHome.Payment} component={Payment} />
           <HomeStack.Screen name={EHome.Voucher} component={Voucher} />
         </HomeStack.Group>
         <HomeStack.Group screenOptions={{ headerShown: false }}>

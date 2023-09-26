@@ -65,8 +65,7 @@ const Chat: React.FC<any> = ({ route, navigation }) => {
                       variant="solid"
                       bgColor="red.500"
                       rounded="full"
-                      w={5}
-                      h={5}
+                      size={5}
                       zIndex={1}
                       justifyContent="center"
                       alignItems="center"
