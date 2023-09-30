@@ -24,8 +24,7 @@ const CartIcon: React.FC<TCartUpdatedICon | any> = () => {
             variant="solid"
             bgColor="red.500"
             rounded="full"
-            w={5}
-            h={5}
+            size={5}
             mb={-3}
             mr={-3}
             zIndex={1}

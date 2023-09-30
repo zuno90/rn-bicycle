@@ -28,8 +28,6 @@ const VerifyOtp: React.FC = ({ route, navigation }: any) => {
   const [isExpired, setIsExpired] = React.useState<boolean>(false)
   const otpRef = React.useRef(null)
 
-  const { checkAuth } = useAuth()
-
   const onVerify: SubmitHandler<TOtp> = async (data) => {
     console.log(data, 4545454)
     // call api verify

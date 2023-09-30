@@ -7,7 +7,7 @@ import { fetchGet } from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
 
 const SkeletonLoading = React.lazy(() => import("../useable/SkeletonLoading"))
-const Product = React.lazy( () =>  import("../shop/product/Product"))
+const Product = React.lazy(() => import("../shop/product/Product"))
 
 const BestSelling: React.FC = () => {
   const navigation = useNavigation<any>()

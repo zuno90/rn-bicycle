@@ -12,7 +12,7 @@ const PhoneCallBtn: React.FC = () => {
       <Svg width={50} height={50} viewBox="0 0 50 50" fill="none">
         <Path
           d="M0 25C0 11.1929 11.1929 0 25 0C38.8071 0 50 11.1929 50 25C50 38.8071 38.8071 50 25 50C11.1929 50 0 38.8071 0 25Z"
-          fill="#966216"
+          fill="#7C7C7C"
           fill-opacity="0.8"
         />
         <Path

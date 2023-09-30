@@ -167,7 +167,7 @@ const Signin: React.FC = ({ navigation }: any) => {
                 variant="unstyled"
                 onPress={handleSubmit(onSignin)}
                 h="50px"
-                _pressed={{ bgColor: "yellow.600" }}
+                _pressed={{ bgColor: "yellow.400" }}
                 isLoading={isSubmitting}
                 isDisabled={isSubmitting}
               >

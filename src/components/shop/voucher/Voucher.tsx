@@ -63,7 +63,7 @@ const Voucher: React.FC = ({ navigation }: any) => {
                 size={10}
                 zIndex={10}
               ></Box>
-              <Box flexDir="column" bgColor="yellow.100" roundedLeft="md" w={WIDTH * 0.3}>
+              <Box flexDir="column" bgColor="yellow.200" roundedLeft="md" w={WIDTH * 0.3}>
                 <Box
                   my={1}
                   p={1}
@@ -89,7 +89,7 @@ const Voucher: React.FC = ({ navigation }: any) => {
                 py={5}
                 roundedRight="md"
                 flexDir="row"
-                bgColor="yellow.200"
+                bgColor="yellow.300"
                 justifyContent="space-between"
                 alignItems="center"
                 gap={2}

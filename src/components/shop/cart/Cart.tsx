@@ -17,7 +17,7 @@ import {
   FormControl,
 } from "native-base"
 import CartIcon from "./CartIcon"
-import { localGet, localSet } from "../../../utils/storage.util"
+import { localGet } from "../../../utils/storage.util"
 import { config } from "../../../utils/config.util"
 import { EHome, IProductCart } from "../../../__types__"
 import LinearGradient from "react-native-linear-gradient"
@@ -30,6 +30,7 @@ import {
   deduplicateArray,
   fetchGet,
   formatNumber,
+  removeCartItem,
   updateCart,
 } from "../../../utils/helper.util"
 import { useForm } from "react-hook-form"
@@ -48,7 +49,7 @@ type TFilterModal = {
 
 const Cart: React.FC = ({ navigation }: any) => {
   const [isLoading, setIsLoading] = React.useState<boolean>(true)
-  const [carts, setCarts] = React.useState<IProductCart[] | []>([])
+  const [carts, setCarts] = React.useState<IProductCart[]>([])
   const [selectItems, setSelectItems] = React.useState<string[]>([])
   const c = localGet(config.cache.cartList)
   const localCart = c ? JSON.parse(c) : []
@@ -60,12 +61,12 @@ const Cart: React.FC = ({ navigation }: any) => {
       // Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
     })
     if (res.success) return res.data
+    console.log(res)
   }
 
   const getCarts = async () => {
     const c: IProductCart[] = localCart && localCart.length > 0 ? localCart : await getCart()
     setCarts(c)
-    setSelectItems(c.map((item) => item.unit))
     setIsLoading(false)
   }
 
@@ -119,30 +120,23 @@ const Cart: React.FC = ({ navigation }: any) => {
     setCarts(newCarts)
   }
 
-  const handleAddSelectCartItem = (unit: string) => {
-    const index = selectItems.findIndex((item) => item === unit)
-    index < 0 && setSelectItems((prev) => [...prev, unit])
-  }
-
-  const handleRemoveSelectCartItem = (unit: string) => {
-    const index = selectItems.findIndex((item) => item === unit)
-    index >= 0 && setSelectItems((prev) => prev.filter((item) => item !== unit))
-  }
-
   const [deleteModal, setDeleteModal] = React.useState<{ unit: string; isOpen: boolean }>({
     unit: "",
     isOpen: false,
   })
 
   const removeItem = (unit: string) => {
-    const newCarts = carts.filter((v: IProductCart) => v.unit !== unit)
-    localSet(config.cache.cartList, JSON.stringify(newCarts))
+    const newCarts = removeCartItem(unit)
     setCarts(newCarts)
   }
+  const handleCheckBox = (unit: string, ischecked: boolean) => {
+    if (ischecked) setSelectItems((prev) => [...prev, unit])
+    else setSelectItems((prev) => prev.filter((it) => it !== unit))
+  }
 
-  const handlePayment = () => {
-    console.log(carts, selectItems)
-    return navigation.navigate(EHome.Payment, { selectItems })
+  const handleCheckout = () => {
+    const items = carts.filter((it) => selectItems.includes(it.unit))
+    navigation.navigate(EHome.Order, { selectItems: items })
   }
 
   return (
@@ -173,7 +167,7 @@ const Cart: React.FC = ({ navigation }: any) => {
                 <Button
                   variant="unstyled"
                   h={50}
-                  _pressed={{ bgColor: "yellow.600" }}
+                  _pressed={{ bgColor: "yellow.400" }}
                   onPress={() => navigation.navigate(EHome.InitHome)}
                 >
                   <Text fontSize="lg" fontWeight="semibold">
@@ -200,19 +194,16 @@ const Cart: React.FC = ({ navigation }: any) => {
                         <Stack justifyContent="center">
                           <Checkbox
                             colorScheme="yellow"
-                            accessibilityLabel="choose numbers"
+                            accessibilityLabel="choose items"
                             _checked={{ backgroundColor: "zuno", borderColor: "zuno" }}
+                            defaultIsChecked={false}
                             value={cart.unit}
-                            defaultIsChecked={selectItems.includes(cart.unit) ? true : false}
-                            onChange={(isChecked) =>
-                              isChecked
-                                ? handleAddSelectCartItem(cart.unit)
-                                : handleRemoveSelectCartItem(cart.unit)
-                            }
+                            onChange={(ischecked) => handleCheckBox(cart.unit, ischecked)}
                           />
                         </Stack>
+
                         <Image
-                          source={require("../../../../public/home-banner.png")}
+                          source={{ uri: cart.image }}
                           size="sm"
                           alignSelf="center"
                           resizeMode="contain"
@@ -240,7 +231,13 @@ const Cart: React.FC = ({ navigation }: any) => {
                           </HStack>
                         </Box>
                       </HStack>
-                      <HStack px={5} justifyContent="space-between" alignItems="center" space={4}>
+                      <HStack
+                        px={5}
+                        py={2}
+                        justifyContent="space-between"
+                        alignItems="center"
+                        space={4}
+                      >
                         <Button
                           maxW="1/3"
                           variant="solid"
@@ -353,9 +350,9 @@ const Cart: React.FC = ({ navigation }: any) => {
               <Button
                 variant="unstyled"
                 h={50}
-                _pressed={{ bgColor: "yellow.600" }}
+                _pressed={{ bgColor: "yellow.400" }}
                 isDisabled={selectItems.length > 0 ? false : true}
-                onPress={() => handlePayment()}
+                onPress={() => handleCheckout()}
               >
                 <Text fontSize="lg" fontWeight="semibold">
                   Thanh toán

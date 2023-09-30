@@ -70,9 +70,11 @@ export const updateCart = (newCart: IProductCart[]) => {
   localSet(config.cache.cartList, JSON.stringify(newCart))
 }
 
-export const removeCartItem = (id: number) => {
+export const removeCartItem = (unit: string) => {
   const cartList = getCart()
-  cartList.filter((v: IProductCart) => v.id !== id)
+  const newCarts = cartList.filter((v: IProductCart) => v.unit !== unit)
+  localSet(config.cache.cartList, JSON.stringify(newCarts))
+  return newCarts
 }
 
 export const removeAllCart = () => {}

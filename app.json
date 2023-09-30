@@ -1,4 +1,11 @@
 {
   "name": "bicycle",
-  "displayName": "bicycle"
+  "displayName": "bicycle",
+  "apiKey": "AIzaSyBuXJPxFSJ76Cq0_bLZ2SPwWqyNbW9P9j0",
+  "authDomain": "bicycle-d13d7.firebaseapp.com",
+  "projectId": "bicycle-d13d7",
+  "storageBucket": "bicycle-d13d7.appspot.com",
+  "messagingSenderId": "177363978819",
+  "appId": "1:177363978819:web:a16e333e7d7b482ac4a2f6",
+  "measurementId": "G-4BKRDZB7YB"
 }

@@ -13,7 +13,7 @@ import { WIDTH } from "../utils/helper.util"
 
 const InitAuth = ({ navigation }: any) => {
   return (
-    <View h="full" bgColor="white">
+    <View flex={1} bgColor="white">
       <Box mx={{ base: 5, lg: 20 }} safeAreaTop>
         <Img
           source={require("../../public/home-banner.png")}
@@ -52,9 +52,7 @@ const InitAuth = ({ navigation }: any) => {
             variant="unstyled"
             h={50}
             _pressed={{ bgColor: "yellow.400" }}
-            onPress={() => {
-              navigation.navigate(EAuth.Signup)
-            }}
+            onPress={() => navigation.navigate(EAuth.Signup)}
           >
             <Text fontSize="lg" fontWeight="semibold">
               Đăng kí
@@ -63,13 +61,11 @@ const InitAuth = ({ navigation }: any) => {
         </LinearGradient>
         <Button
           variant="outline"
-          w="100%"
-          h="50px"
+          w="full"
+          h={50}
           rounded="full"
           borderColor="yellow.400"
-          onPress={() => {
-            navigation.navigate(EAuth.Signin)
-          }}
+          onPress={() => navigation.navigate(EAuth.Signin)}
         >
           <Text fontSize="lg" fontWeight="semibold">
             Đăng nhập

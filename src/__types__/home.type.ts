@@ -6,12 +6,16 @@ export enum EHome {
   ProductDetail = "ProductDetail",
   Voucher = "Voucher",
   Cart = "Cart",
-  Payment = "Payment",
+  Order = "Order",
   Rank = "Rank",
   Chat = "Chat",
   PrivateChat = "PrivateChat",
   Notification = "Notification",
   Profile = "Profile",
+  Information = "Information",
+  OrderHistory = "OrderHistory",
+  Transaction = "Transaction",
+  Topup = "Topup",
 }
 
 export enum EProductList {

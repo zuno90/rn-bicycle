@@ -23,7 +23,7 @@ const Category = React.lazy(() => import("../components/shop/category/Category")
 const ProductList = React.lazy(() => import("../components/shop/product/ProductList"))
 const ProductDetail = React.lazy(() => import("../components/shop/product/ProductDetail"))
 const Voucher = React.lazy(() => import("../components/shop/voucher/Voucher"))
-const Payment = React.lazy(() => import("../components/shop/payment/Payment"))
+const Order = React.lazy(() => import("../components/shop/order/Order"))
 
 const Chat = React.lazy(() => import("../components/chat/Chat"))
 const PrivateChat = React.lazy(() => import("../components/chat/PrivateChat"))
@@ -31,6 +31,11 @@ const Cart = React.lazy(() => import("../components/shop/cart/Cart"))
 const Rank = React.lazy(() => import("../components/rank/Rank"))
 const Notification = React.lazy(() => import("../components/notification/Notification"))
 const Profile = React.lazy(() => import("../components/profile/Profile"))
+
+const Information = React.lazy(() => import("../components/profile/Information"))
+const OrderHistory = React.lazy(() => import("../components/profile/OrderHistory"))
+const Transaction = React.lazy(() => import("../components/profile/Transaction"))
+const Topup = React.lazy(() => import("../components/profile/Topup"))
 
 const InitHome = ({ route }: any) => {
   const scrollRef = React.useRef(null)
@@ -70,12 +75,6 @@ const InitHome = ({ route }: any) => {
             resizeMode="cover"
             alt="shop-banner"
           />
-          {/* <Button onPress={handleLogout}>LOGOUT</Button>
-          <Button colorScheme="warning" onPress={() => navigation.navigate(EHome.Voucher)}>
-            VOUCHER
-          </Button> */}
-          {/* <SkeletonLoading /> */}
-
           {/* component adding */}
         </Stack>
         <VStack bgColor="white" space={{ base: 3 }}>
@@ -120,7 +119,7 @@ const HomeScreen: React.FC<any> = ({ route }) => {
           <HomeStack.Screen name={EHome.Shop} component={Shop} />
           <HomeStack.Screen name={EHome.Category} component={Category} />
           <HomeStack.Screen name={EHome.Cart} component={Cart} />
-          <HomeStack.Screen name={EHome.Payment} component={Payment} />
+          <HomeStack.Screen name={EHome.Order} component={Order} />
           <HomeStack.Screen name={EHome.Voucher} component={Voucher} />
         </HomeStack.Group>
         <HomeStack.Group screenOptions={{ headerShown: false }}>
@@ -135,11 +134,25 @@ const HomeScreen: React.FC<any> = ({ route }) => {
             initialParams={{ user }}
           />
         </HomeStack.Group>
-        <HomeStack.Screen
-          name={EHome.Profile}
-          component={Profile}
-          initialParams={{ user }}
-        ></HomeStack.Screen>
+        <HomeStack.Group screenOptions={{ headerShown: false }}>
+          <HomeStack.Screen name={EHome.Profile} component={Profile} initialParams={{ user }} />
+          <HomeStack.Screen
+            name={EHome.Information}
+            component={Information}
+            initialParams={{ user }}
+          />
+          <HomeStack.Screen
+            name={EHome.OrderHistory}
+            component={OrderHistory}
+            initialParams={{ user }}
+          />
+          <HomeStack.Screen
+            name={EHome.Transaction}
+            component={Transaction}
+            initialParams={{ user }}
+          />
+          <HomeStack.Screen name={EHome.Topup} component={Topup} initialParams={{ user }} />
+        </HomeStack.Group>
       </HomeStack.Navigator>
     </>
   )

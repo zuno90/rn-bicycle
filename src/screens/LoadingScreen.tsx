@@ -4,7 +4,7 @@ import { ActivityIndicator } from "react-native"
 const LoadingScreen: React.FC = () => {
   return (
     <Stack flex={1} justifyContent="center" alignItems="center">
-      <ActivityIndicator animating={true} />
+      <ActivityIndicator size="large" animating />
       <Text>LOADING...</Text>
     </Stack>
   )

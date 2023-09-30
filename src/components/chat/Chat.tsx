@@ -59,8 +59,10 @@ const Chat: React.FC<any> = ({ route, navigation }) => {
                     <Heading fontSize="sm">Vuong Do Shop</Heading>
                     <Text>10 min</Text>
                   </HStack>
-                  <HStack justifyContent="space-between">
-                    <Text fontSize="xs">{lastMessage}</Text>
+                  <HStack justifyContent="space-around" space={8}>
+                    <Box flex={1}>
+                      <Text fontSize="xs">{lastMessage}</Text>
+                    </Box>
                     <Box
                       variant="solid"
                       bgColor="red.500"

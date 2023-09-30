@@ -23,7 +23,7 @@ const FilterAttribute: React.FC<any> = ({ from, filterData, filterAction }) => {
 
       <Divider />
       <Box flex={1} p={8} gap={2} justifyContent="flex-start">
-        {data.length > 1 ? (
+        {data.length > 0 &&
           data.map((item: any, index: number) => (
             <React.Fragment key={index}>
               <Pressable onPress={() => handleFilter(type, item.value)}>
@@ -37,10 +37,7 @@ const FilterAttribute: React.FC<any> = ({ from, filterData, filterAction }) => {
               </Pressable>
               {data.length - index === 1 ? null : <Divider my={2} />}
             </React.Fragment>
-          ))
-        ) : (
-          <Text>Sản phẩm chỉ có 1 thuộc tính</Text>
-        )}
+          ))}
       </Box>
 
       <Box px={10} py={5} safeAreaBottom>

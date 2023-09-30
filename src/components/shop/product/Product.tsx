@@ -30,8 +30,8 @@ const Product: React.FC<{ data: IProduct }> = ({ data }) => {
         <AspectRatio ratio={1 / 1}>
           <Image
             source={{ uri: data.images[0] }}
-            maxW={WIDTH}
-            maxH={WIDTH}
+            // maxW={WIDTH}
+            // maxH={WIDTH}
             resizeMode="contain"
             alt="product-image"
           />

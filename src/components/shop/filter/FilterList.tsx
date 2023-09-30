@@ -81,7 +81,7 @@ const FilterList: React.FC<TShowFilter> = ({ confirmFilter, closeFilter }) => {
           >
             <Button
               variant="unstyled"
-              h="50px"
+              h={50}
               _pressed={{ bgColor: "yellow.400" }}
               onPress={methods.handleSubmit(onFilterSubmit)}
             >

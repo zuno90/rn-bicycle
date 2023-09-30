@@ -121,7 +121,13 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
           <React.Suspense>
             <Toast
               type={EToastType.err}
-              content="Lỗi thêm sản phẩm!"
+              content={
+                data.colors === "" || data.sizes === ""
+                  ? "Vui lòng chọn size và màu!"
+                  : data.quantity <= 0
+                  ? "Số lượng sản phẩm không thể < 1"
+                  : "Lỗi thêm sản phẩm!"
+              }
               close={() => toast.close("addtocart")}
             />
           </React.Suspense>
@@ -167,7 +173,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
             thumbSize={80}
             initialIndex={productImgIndex}
             resizeMode="contain"
-            thumbResizeMode="stretch"
+            thumbResizeMode="cover"
             isOpen={isOpenProductImg}
             images={product.images.map((item, index) => ({
               id: index,
@@ -180,13 +186,13 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                 <Icon as={FeaIcon} name="x" size={10} onPress={() => setIsOpenProductImg(false)} />
               </Box>
             )}
-            renderFooterComponent={(image: ImageObject, currentIndex: number) => (
-              <Box bgColor="transparent" safeAreaBottom>
-                <Text>
-                  {currentIndex + 1}/{product.images.length}
-                </Text>
-              </Box>
-            )}
+            // renderFooterComponent={(image: ImageObject, currentIndex: number) => (
+            //   <Box bgColor="transparent" safeAreaBottom>
+            //     <Text>
+            //       {currentIndex + 1}/{product.images.length}
+            //     </Text>
+            //   </Box>
+            // )}
           />
 
           <Box
@@ -220,18 +226,15 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
               onChangeIndex={({ index }) => setProductImgIndex(index)}
               data={product.images}
               renderItem={({ item, index }) => (
-                <>
-                  <Pressable onPress={() => setIsOpenProductImg(true)}>
-                    <Image
-                      source={{ uri: item }}
-                      resizeMode="contain"
-                      alt="top-image"
-                      w={WIDTH}
-                      h={WIDTH}
-                    />
-                  </Pressable>
-                  <Text color="red.500">{index}</Text>
-                </>
+                <Pressable onPress={() => setIsOpenProductImg(true)}>
+                  <Image
+                    source={{ uri: item }}
+                    resizeMode="contain"
+                    alt="top-image"
+                    w={WIDTH}
+                    h={WIDTH}
+                  />
+                </Pressable>
               )}
               PaginationComponent={() => (
                 <HStack justifyContent="center" space={2}>
@@ -290,6 +293,9 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                 </VStack>
                 <Icon as={MateComIcon} name="facebook-messenger" color="zuno" size={10} />
               </HStack>
+              <Text>
+                Tồn kho: 100 {methods.getValues("sizes")} {methods.getValues("colors")}
+              </Text>
 
               <ScrollView horizontal>
                 <HStack alignItems="center" space={2}>
