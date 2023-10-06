@@ -9,17 +9,25 @@ import { config } from "../../utils/config.util"
 const SkeletonLoading = React.lazy(() => import("../useable/SkeletonLoading"))
 const Product = React.lazy(() => import("../shop/product/Product"))
 
-const Recommendation: React.FC = () => {
+const Recommendation: React.FC<any> = ({ isScrollEnd, setIsScrollEnd }) => {
   const navigation = useNavigation<any>()
   const [products, setProducts] = React.useState<IProduct[]>([])
+  const [page, setPage] = React.useState<number>(1)
   const getProducts = async () => {
-    const res = await fetchGet(`${config.endpoint}/products`)
-    if (res.success) return setProducts(res.data.products)
+    const res = await fetchGet(`${config.endpoint}/products?page=${page}`)
+    if (res.success) {
+      setProducts(res.data.products)
+      setIsScrollEnd(false)
+    }
   }
 
   React.useEffect(() => {
+    if (isScrollEnd) setPage((page) => page + 1)
+  }, [isScrollEnd])
+
+  React.useEffect(() => {
     getProducts()
-  }, [])
+  }, [page])
 
   return (
     <Stack mt={5} space={{ base: 4 }}>
@@ -27,7 +35,7 @@ const Recommendation: React.FC = () => {
         <Heading size="md">Dành cho bạn</Heading>
         <Text
           fontSize="sm"
-          color="zuno"
+          color="#966216"
           onPress={() =>
             navigation.navigate(EHome.ProductList, {
               from: EProductList.Recommendation,
@@ -38,7 +46,7 @@ const Recommendation: React.FC = () => {
           Xem tất cả {">"}
         </Text>
       </HStack>
-      <Grid rows={1} columns={2}>
+      <Grid>
         {products.length > 0 &&
           products.map((item, index) => (
             <React.Fragment key={index}>

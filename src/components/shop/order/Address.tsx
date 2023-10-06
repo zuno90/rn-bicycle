@@ -4,9 +4,8 @@ import LinearGradient from "react-native-linear-gradient"
 import FeaIcon from "react-native-vector-icons/Feather"
 import { Controller, useFormContext } from "react-hook-form"
 import { Dropdown } from "react-native-element-dropdown"
-import { allowOnlyNumber } from "../../../utils/helper.util"
-
-const endpoint = "https://provinces.open-api.vn/api/"
+import { allowOnlyNumber, fetchGet } from "../../../utils/helper.util"
+import { config } from "../../../utils/config.util"
 
 const Address: React.FC<any> = ({ showToast, closePopup }) => {
   const {
@@ -20,57 +19,28 @@ const Address: React.FC<any> = ({ showToast, closePopup }) => {
   const [wards, setWards] = React.useState([])
 
   const getCities = async () => {
-    try {
-      const res = await fetch(endpoint)
-      const result = await res.json()
-      const c = result.map((city: any) => ({ label: city.name, value: city.code }))
-      setCities(c)
-    } catch (error) {
-      throw error
-    }
+    const res = await fetchGet(`${config.endpoint}/cities`)
+    console.log(res.data.cities.length)
+    if (res.success)
+      setCities(res.data.cities.map((city: any) => ({ label: city.name, value: city.id })))
   }
   const getDistricts = async (cityId: number) => {
-    if (!getValues("information.city.value") || getValues("information.city.value") === "") return
-    try {
-      const res = await fetch(`${endpoint}?depth=2`)
-      const result = await res.json()
-      let d: any
-      result.forEach((city: any) => {
-        if (city.code === cityId)
-          d = city.districts.map((district: any) => ({
-            label: district.name,
-            value: district.code,
-          }))
-        return d
-      })
-      setDistricts(d)
-    } catch (error) {
-      throw error
-    }
+    const res = await fetchGet(`${config.endpoint}/districts/${cityId}`)
+    setDistricts(
+      res.data.districts.map((district: any) => ({ label: district.name, value: district.id }))
+    )
   }
-  const getWards = async () => {
-    try {
-      const res = await fetch(`${endpoint}?depth=3`)
-      const result = await res.json()
-      console.log(result)
-    } catch (error) {
-      throw error
-    }
+  const getWards = async (districtId: number) => {
+    const res = await fetchGet(`${config.endpoint}/wards/${districtId}`)
+    setWards(res.data.wards.map((ward: any) => ({ label: ward.name, value: ward.id })))
   }
 
   const onSubmitAddress = async () => {
-    if (getValues("information.name") === "") return showToast("Tên không được để trống!")
-    if (getValues("information.phoneNumber") === "")
-      return showToast("Số điện thoại không được để trống!")
-    if (!getValues("information.city.value")) return showToast("Tỉnh Thành không được để trống!")
-    if (!getValues("information.district.value"))
-      return showToast("Quận/Huyện không được để trống!")
-    if (!getValues("information.ward.value")) return showToast("Phường không được để trống!")
-    if (getValues("information.address") === "") return showToast("Địa chỉ không được để trống!")
-    closePopup()
+    const { name, phoneNumber, city, district, ward, address } = getValues("information")
+    if (name === "" || phoneNumber === "" || !city || !district || !ward || address === "") {
+      return showToast("Vui lòng điền đầy đủ thông tin giao hàng!")
+    } else closePopup()
   }
-
-  const data = [{ label: "Phường clgt", value: 1 }]
 
   return (
     <Box flexDir="column" justifyContent="space-between" bgColor="white" size="full">
@@ -109,7 +79,10 @@ const Address: React.FC<any> = ({ showToast, closePopup }) => {
                 defaultValue=""
                 rules={{
                   required: "Số điện thoại không được để trống!",
-                  pattern: /^(?:\+\d{1,3})?[ -]?\(?\d{3}\)?[ -]?\d{3}[ -]?\d{4}$/,
+                  pattern: {
+                    value: /^(?:\+\d{1,3})?[ -]?\(?\d{3}\)?[ -]?\d{3}[ -]?\d{4}$/,
+                    message: "Số điện thoại không hợp lệ!",
+                  },
                 }}
                 control={control}
                 render={({ field: { onChange, onBlur, value } }) => (
@@ -157,7 +130,11 @@ const Address: React.FC<any> = ({ showToast, closePopup }) => {
                     value={value}
                     onBlur={onBlur}
                     onFocus={getCities}
-                    onChange={onChange}
+                    onChange={(v) => {
+                      setDistricts([])
+                      setWards([])
+                      onChange(v)
+                    }}
                     renderRightIcon={() => (
                       <Icon as={FeaIcon} name="chevron-down" color="#a3a3a3" size={6} />
                     )}
@@ -188,11 +165,15 @@ const Address: React.FC<any> = ({ showToast, closePopup }) => {
                     data={districts}
                     labelField="label"
                     valueField="value"
+                    disable={cities?.length === 0}
                     searchPlaceholder="Search..."
                     value={value}
                     onFocus={() => getDistricts(getValues("information.city.value"))}
                     onBlur={onBlur}
-                    onChange={onChange}
+                    onChange={(v) => {
+                      setWards([])
+                      onChange(v)
+                    }}
                     renderRightIcon={() => (
                       <Icon as={FeaIcon} name="chevron-down" color="#a3a3a3" size={6} />
                     )}
@@ -219,11 +200,13 @@ const Address: React.FC<any> = ({ showToast, closePopup }) => {
                     placeholderStyle={{ color: "#a3a3a3", fontSize: 14, padding: 8 }}
                     selectedTextStyle={{ color: "black", fontSize: 14, padding: 8 }}
                     placeholder="Chọn phường"
-                    data={data}
+                    data={wards}
                     labelField="label"
                     valueField="value"
+                    disable={districts?.length === 0}
                     searchPlaceholder="Search..."
                     value={value}
+                    onFocus={() => getWards(getValues("information.district.value"))}
                     onBlur={onBlur}
                     onChange={onChange}
                     renderRightIcon={() => (

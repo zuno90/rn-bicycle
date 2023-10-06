@@ -3,7 +3,7 @@ import React from "react"
 
 type TGrid = {
   rows?: number
-  columns: number
+  columns?: number
   children: React.ReactElement[] | React.ReactNode
 }
 

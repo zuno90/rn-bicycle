@@ -1,16 +1,16 @@
-import { Modal, Text, Button, Heading, Box, HStack, Icon } from "native-base"
+import { Modal, Text, Button, Heading, Box, HStack } from "native-base"
 import { Dispatch, SetStateAction } from "react"
 import MateIcon from "react-native-vector-icons/MaterialIcons"
 
 type TModal = {
   isOpen: boolean
   onClose: Dispatch<SetStateAction<any>>
-  removeItem: () => void
+  action: () => void
   title?: string
   desc?: string
 }
 
-const ConfirmModal: React.FC<TModal> = ({ isOpen, onClose, removeItem, title, desc, ...props }) => {
+const ConfirmModal: React.FC<TModal> = ({ isOpen, onClose, action, title, desc, ...props }) => {
   return (
     <Modal isOpen={isOpen} size="md">
       <Modal.Content>
@@ -27,7 +27,7 @@ const ConfirmModal: React.FC<TModal> = ({ isOpen, onClose, removeItem, title, de
                 borderColor="zuno"
                 _text={{ color: "zuno", fontWeight: "semibold" }}
                 onPress={() => {
-                  removeItem()
+                  action()
                   onClose(false)
                 }}
               >

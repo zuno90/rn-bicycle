@@ -32,7 +32,7 @@ type TNewPassword = {
   confirmPassword: string
 }
 
-const NewPassword: React.FC = ({ route, navigation }: any) => {
+const NewPassword: React.FC<any> = ({ route, navigation }) => {
   const { phone } = route.params
   const [showPass, setShowPass] = React.useState(false)
   const {
@@ -188,7 +188,7 @@ const NewPassword: React.FC = ({ route, navigation }: any) => {
               <Button
                 variant="unstyled"
                 onPress={handleSubmit(onSubmit)}
-                h="50px"
+                h={50}
                 _pressed={{ bgColor: "yellow.400" }}
                 isLoading={isSubmitting}
                 isDisabled={isSubmitting}

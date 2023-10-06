@@ -16,14 +16,13 @@ import FaIcon from "react-native-vector-icons/FontAwesome"
 import FeaIcon from "react-native-vector-icons/Feather"
 import { Controller, SubmitHandler, useForm } from "react-hook-form"
 import { Dropdown } from "react-native-element-dropdown"
-import { HEIGHT, allowOnlyNumber } from "../../utils/helper.util"
+import { allowOnlyNumber, fetchGet, fetchPost } from "../../utils/helper.util"
 import { EToastType, TInputInformation } from "../../__types__"
+import { config } from "../../utils/config.util"
 
 const Toast = React.lazy(() => import("../useable/Toast"))
 
-const endpoint = "https://provinces.open-api.vn/api/"
-
-const Information: React.FC<any> = ({ navigation }) => {
+const Information: React.FC<any> = ({ route, navigation }) => {
   const {
     control,
     getValues,
@@ -36,57 +35,34 @@ const Information: React.FC<any> = ({ navigation }) => {
   const [wards, setWards] = React.useState([])
 
   const getCities = async () => {
-    try {
-      const res = await fetch(endpoint)
-      const result = await res.json()
-      const c = result.map((city: any) => ({ label: city.name, value: city.code }))
-      setCities(c)
-    } catch (error) {
-      throw error
-    }
+    const res = await fetchGet(`${config.endpoint}/cities`)
+    if (res.success)
+      setCities(res.data.cities.map((city: any) => ({ label: city.name, value: city.id })))
   }
   const getDistricts = async (cityId: number) => {
-    if (!getValues("city.value")) return
-    try {
-      const res = await fetch(`${endpoint}?depth=2`)
-      const result = await res.json()
-      let d: any
-      result.forEach((city: any) => {
-        if (city.code === cityId)
-          d = city.districts.map((district: any) => ({
-            label: district.name,
-            value: district.code,
-          }))
-        return d
-      })
-      setDistricts(d)
-    } catch (error) {
-      throw error
-    }
+    const res = await fetchGet(`${config.endpoint}/districts/${cityId}`)
+    setDistricts(
+      res.data.districts.map((district: any) => ({ label: district.name, value: district.id }))
+    )
   }
-  const getWards = async () => {
-    try {
-      const res = await fetch(`${endpoint}?depth=3`)
-      const result = await res.json()
-      console.log(result)
-    } catch (error) {
-      throw error
-    }
+  const getWards = async (districtId: number) => {
+    const res = await fetchGet(`${config.endpoint}/wards/${districtId}`)
+    setWards(res.data.wards.map((ward: any) => ({ label: ward.name, value: ward.id })))
   }
 
   const onSubmitInformation: SubmitHandler<TInputInformation> = async (data) => {
-    console.log(data)
-    //   if (getValues("name") === "") return showToast("Tên không được để trống!")
-    //   if (getValues("phoneNumber") === "")
-    //     return showToast("Số điện thoại không được để trống!")
-    //   if (!getValues("city.value")) return showToast("Tỉnh Thành không được để trống!")
-    //   if (!getValues("district.value"))
-    //     return showToast("Quận/Huyện không được để trống!")
-    //   if (!getValues("ward.value")) return showToast("Phường không được để trống!")
-    //   if (getValues("address") === "") return showToast("Địa chỉ không được để trống!")
+    const payload = {
+      name: data.name,
+      phoneNumber: data.phoneNumber,
+      city: data.city.label,
+      district: data.district.label,
+      ward: data.ward.label,
+      address: data.address,
+    }
+    const res = await fetchPost(`${config.endpoint}/user`, JSON.stringify(payload), {
+      Authorization: `Bearer ${config.cache.accessToken}`,
+    })
   }
-
-  const data = [{ label: "Phường clgt", value: 1 }]
 
   const toast = useToast()
   const showToast = (msg: string) => {
@@ -114,7 +90,7 @@ const Information: React.FC<any> = ({ navigation }) => {
       </HStack>
 
       <KeyboardAvoidingView behavior="position">
-        <ScrollView p={5} bgColor="white" h={(HEIGHT * 2) / 3}>
+        <ScrollView p={5} bgColor="white">
           <Box justifyContent="flex-start" gap={5}>
             <Box gap={3}>
               <Text fontSize="md" fontWeight="semibold">
@@ -210,7 +186,11 @@ const Information: React.FC<any> = ({ navigation }) => {
                       value={value}
                       onBlur={onBlur}
                       onFocus={getCities}
-                      onChange={onChange}
+                      onChange={(v) => {
+                        setDistricts([])
+                        setWards([])
+                        onChange(v)
+                      }}
                       renderRightIcon={() => (
                         <Icon as={FeaIcon} name="chevron-down" color="#a3a3a3" size={6} />
                       )}
@@ -246,11 +226,15 @@ const Information: React.FC<any> = ({ navigation }) => {
                       data={districts}
                       labelField="label"
                       valueField="value"
+                      disable={cities?.length === 0}
                       searchPlaceholder="Search..."
                       value={value}
                       onFocus={() => getDistricts(getValues("city.value"))}
                       onBlur={onBlur}
-                      onChange={onChange}
+                      onChange={(v) => {
+                        setWards([])
+                        onChange(v)
+                      }}
                       renderRightIcon={() => (
                         <Icon as={FeaIcon} name="chevron-down" color="#a3a3a3" size={6} />
                       )}
@@ -282,11 +266,13 @@ const Information: React.FC<any> = ({ navigation }) => {
                       placeholderStyle={{ color: "#a3a3a3", fontSize: 14, padding: 8 }}
                       selectedTextStyle={{ color: "black", fontSize: 14, padding: 8 }}
                       placeholder="Chọn phường"
-                      data={data}
+                      data={wards}
                       labelField="label"
                       valueField="value"
+                      disable={districts?.length === 0}
                       searchPlaceholder="Search..."
                       value={value}
+                      onFocus={() => getWards(getValues("district.value"))}
                       onBlur={onBlur}
                       onChange={onChange}
                       renderRightIcon={() => (
@@ -333,7 +319,7 @@ const Information: React.FC<any> = ({ navigation }) => {
         </ScrollView>
       </KeyboardAvoidingView>
 
-      <Box flex={1} p={5} bgColor="white" safeAreaBottom>
+      <Box flex={1} p={5} bgColor="white">
         <LinearGradient
           colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
           style={{ width: "100%", borderRadius: 100 }}

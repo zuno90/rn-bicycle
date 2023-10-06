@@ -34,6 +34,7 @@ import {
   updateCart,
 } from "../../../utils/helper.util"
 import { useForm } from "react-hook-form"
+import { useIsFocused } from "@react-navigation/native"
 
 const LoadingScreen = React.lazy(() => import("../../../screens/LoadingScreen"))
 const BestSelling = React.lazy(() => import("../../home/BestSelling"))
@@ -47,7 +48,7 @@ type TFilterModal = {
   data: any[]
 }
 
-const Cart: React.FC = ({ navigation }: any) => {
+const Cart: React.FC<any> = ({ navigation }) => {
   const [isLoading, setIsLoading] = React.useState<boolean>(true)
   const [carts, setCarts] = React.useState<IProductCart[]>([])
   const [selectItems, setSelectItems] = React.useState<string[]>([])
@@ -73,6 +74,8 @@ const Cart: React.FC = ({ navigation }: any) => {
   React.useEffect(() => {
     getCarts()
   }, [])
+
+  React.useEffect(() => {}, [useIsFocused()])
 
   // EDIT ATTR
   const [showFilter, setShowFilter] = React.useState<TFilterModal>({
@@ -376,7 +379,7 @@ const Cart: React.FC = ({ navigation }: any) => {
         <ConfirmModal
           isOpen={deleteModal.isOpen}
           onClose={() => setDeleteModal({ unit: "", isOpen: false })}
-          removeItem={() => removeItem(deleteModal.unit)}
+          action={() => removeItem(deleteModal.unit)}
           title="Xác nhận"
           desc="Bạn có muốn bỏ sản phẩm này khỏi giỏ hàng"
         />

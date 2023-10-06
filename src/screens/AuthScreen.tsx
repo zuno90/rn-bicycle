@@ -1,14 +1,14 @@
 import React from "react"
-import { Stack, Button, Image as Img, Text, VStack, Box, Center, View } from "native-base"
+import { Button, Image as Img, Text, VStack, Box, Center, View } from "native-base"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import Signup from "../components/auth/Signup"
 import Signin from "../components/auth/Signin"
-import { EAuth } from "../__types__"
 import ForgotPassword from "../components/auth/ForgotPassword"
 import NewPassword from "../components/auth/NewPassword"
 import VerifyOtp from "../components/auth/VerifyOtp"
-import LinearGradient from "react-native-linear-gradient"
 import Success from "../components/auth/Success"
+import { EAuth } from "../__types__"
+import LinearGradient from "react-native-linear-gradient"
 import { WIDTH } from "../utils/helper.util"
 
 const InitAuth = ({ navigation }: any) => {

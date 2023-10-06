@@ -1,5 +1,6 @@
+import { addDoc, collection, onSnapshot, orderBy, query, where } from "firebase/firestore"
+import { Avatar, Box, HStack, Heading, Icon, ScrollView, Text, VStack, View } from "native-base"
 import React from "react"
-import { Avatar, HStack, Heading, Icon, ScrollView, Text, VStack, View } from "native-base"
 import { Keyboard, Platform } from "react-native"
 import DocumentPicker from "react-native-document-picker"
 import {
@@ -9,6 +10,7 @@ import {
   IMessage,
   InputToolbar,
   Send,
+  Time,
 } from "react-native-gifted-chat"
 import { QuickReplies } from "react-native-gifted-chat/lib/QuickReplies"
 import { launchCamera, launchImageLibrary } from "react-native-image-picker"
@@ -16,6 +18,20 @@ import AntIcon from "react-native-vector-icons/AntDesign"
 import FeaIcon from "react-native-vector-icons/Feather"
 import FaIcon from "react-native-vector-icons/FontAwesome"
 import MateIcon from "react-native-vector-icons/MaterialIcons"
+import { db } from "../../utils/firebase"
+import { config } from "../../utils/config.util"
+import env from "../../../app.json"
+import AWS from "aws-sdk"
+import { WIDTH } from "../../utils/helper.util"
+
+AWS.config.update({
+  accessKeyId: env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+  region: env.AWS_REGION,
+})
+const s3 = new AWS.S3()
+
+const ADMIN_ID = 99
 
 const PrivateChat: React.FC<any> = ({ route, navigation }) => {
   const { user } = route.params
@@ -24,39 +40,27 @@ const PrivateChat: React.FC<any> = ({ route, navigation }) => {
 
   const onSend = (mess = []) => {
     setMessages((previousMessages: any) => GiftedChat.append(previousMessages, mess))
-    console.log(mess[0])
-    const { _id, text, createdAt, user } = mess[0]
-    // addDoc(collection(db, "chat"), { _id, createdAt, text, user })
+    addDoc(collection(db, "chat"), mess[0])
   }
 
-  const onQuickReply = (rep: any) => {}
-
   // React.useEffect(() => {
+  //   handleKeyboard()
   //   const c = collection(db, "chat")
-  //   const q = query(c, orderBy("createdAt", "desc"))
+  //   const q = query(
+  //     c,
+  //     where("user.id", "==", ADMIN_ID),
+  //     where("chatTo", "==", user.id),
+  //     orderBy("createdAt", "desc")
+  //   )
 
   //   const unsubscribe = onSnapshot(q, (snapshot) => {
   //     // console.log("snapshop", snapshot)
   //     setMessages(
   //       snapshot.docs.map((doc) => ({
   //         _id: doc.id,
-  //         createdAt: doc.data().createdAt.toDate(),
   //         text: doc.data().text,
   //         user: doc.data().user,
-  //         // quickReplies: {
-  //         //   type: "radio", // or 'checkbox',
-  //         //   keepIt: false,
-  //         //   values: [
-  //         //     {
-  //         //       title: "Xin chào, món này còn không?",
-  //         //       value: "Xin chào, món này còn không?",
-  //         //     },
-  //         //     {
-  //         //       title: "Tôi muốn giảm giá",
-  //         //       value: "Tôi muốn giảm giá",
-  //         //     },
-  //         //   ],
-  //         // },
+  //         createdAt: doc.data().createdAt.toDate(),
   //       }))
   //     )
   //   })
@@ -66,8 +70,8 @@ const PrivateChat: React.FC<any> = ({ route, navigation }) => {
   React.useEffect(() => {
     setMessages([
       {
-        _id: 1,
-        text: "My message",
+        _id: 99,
+        text: "Demo message",
         createdAt: new Date(),
         user: { _id: 2, avatar: "https://i.pravatar.cc/300" },
         image: "https://i.pravatar.cc/300",
@@ -86,16 +90,54 @@ const PrivateChat: React.FC<any> = ({ route, navigation }) => {
     handleKeyboard()
   }, [])
 
+  async function upLoadImage(image: any) {
+    const res = await fetch(image.uri.replace("file://", ""))
+    const rawBlob = await res.blob()
+    const params = {
+      Bucket: env.AWS_BUCKET_NAME,
+      Key: image.name,
+      Body: rawBlob,
+    }
+    return s3.upload(params).promise()
+  }
+
   const handleUploadImage = async () => {
     try {
       const result = await launchImageLibrary({ mediaType: "photo" })
+      if (!result.assets) throw new Error("")
       if (result.assets[0]?.uri) {
         const image = {
           uri: result.assets[0].uri,
           type: result.assets[0].type,
           name: result.assets[0].fileName,
         }
-        console.log(image)
+        const s3Img = await upLoadImage(image)
+        const imgUrl = `${env.AWS_CDN_CLOUDFONT}/${s3Img.Key}`
+        const message = {
+          _id: messages.length + 1,
+          text: "",
+          createdAt: new Date(),
+          user: { _id: user.id, name: user.phoneNumber, avatar: "https://i.pravatar.cc/300" },
+          image: imgUrl,
+        }
+        setMessages((previousMessages) => GiftedChat.append(previousMessages, [message]))
+        // addDoc(collection(db, "chat"), message)
+      }
+    } catch (error) {
+      // throw error
+    }
+  }
+  const handleCapture = async () => {
+    try {
+      const result = await launchCamera({ mediaType: "photo" })
+      if (!result.assets) throw new Error("")
+      if (result.assets[0].uri) {
+        // const image = {
+        //   uri: result.assets[0].uri,
+        //   type: result.assets[0].type,
+        //   name: result.assets[0].fileName,
+        // }
+
         const message = {
           _id: messages.length + 1,
           text: "",
@@ -104,17 +146,10 @@ const PrivateChat: React.FC<any> = ({ route, navigation }) => {
           image: result.assets[0].uri,
         }
         setMessages((previousMessages) => GiftedChat.append(previousMessages, [message]))
+        addDoc(collection(db, "chat"), message)
       }
     } catch (error) {
-      throw error
-    }
-  }
-  const handleCapture = async () => {
-    try {
-      const result = await launchCamera({ mediaType: "photo" })
-      console.log(result)
-    } catch (error) {
-      throw error
+      // throw error
     }
   }
   const handleSendFile = async () => {
@@ -170,17 +205,18 @@ const PrivateChat: React.FC<any> = ({ route, navigation }) => {
         <Icon as={FeaIcon} name="more-horizontal" size={30} onPress={() => navigation.goBack()} />
       </HStack>
 
-      <View flexGrow={1} bgColor="white">
+      <Box></Box>
+
+      <View flexGrow={1} bgColor={showAcc ? "yellow.50" : "white"}>
         <GiftedChat
           isLoadingEarlier
+          alwaysShowSend
           messagesContainerStyle={{
-            backgroundColor: "white",
+            backgroundColor: "#f5f5f5",
             paddingBottom: !isKeyboardVisible ? 50 : Platform.OS === "android" ? 50 : 0,
           }}
           messages={messages}
-          imageStyle={{ alignSelf: "center" }}
           onSend={(messages: any) => onSend(messages)}
-          onQuickReply={(reply) => onQuickReply(reply)}
           bottomOffset={0}
           renderInputToolbar={(props) => (
             <View>
@@ -188,15 +224,15 @@ const PrivateChat: React.FC<any> = ({ route, navigation }) => {
                 {...props}
                 containerStyle={{
                   display: "flex",
-                  justifyContent: "center",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
                   alignItems: "center",
                   borderTopWidth: 0,
-                  paddingHorizontal: 15,
+                  paddingHorizontal: 10,
                 }}
               />
             </View>
           )}
-          // renderActions={renderOpenActions}
           renderComposer={(props) => (
             <HStack flex={1} bgColor="white" justifyContent="center" alignItems="center">
               {!showAcc ? (
@@ -222,44 +258,46 @@ const PrivateChat: React.FC<any> = ({ route, navigation }) => {
                 placeholder="Nhập tin nhắn"
                 textInputStyle={{
                   fontFamily: "Montserrat-Regular",
+                  fontSize: 13,
                   backgroundColor: "white",
-                  paddingHorizontal: 10,
+                  paddingHorizontal: 15,
                   borderRadius: 60,
                   borderWidth: 1,
                   borderColor: "#e5e5e5",
-                  lineHeight: 0,
                 }}
                 textInputProps={{ blurOnSubmit: true, autoCorrect: false }}
               />
             </HStack>
           )}
           renderSend={(props) => (
-            <Send
-              {...props}
-              containerStyle={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Icon as={FaIcon} name="send" size={8} color="zuno" ml={2} />
+            <Send {...props}>
+              <Icon as={FaIcon} name="send" size={7} color="zuno" />
             </Send>
           )}
           renderBubble={(props) => (
             <Bubble
               {...props}
+              textStyle={{
+                left: { fontFamily: "Montserrat-Regular" },
+                right: { fontFamily: "Montserrat-Regular" },
+              }}
               wrapperStyle={{
                 left: {
                   backgroundColor: "#FFFBEE",
                   borderTopLeftRadius: 0,
-                  borderRadius: 20,
                   borderColor: "#FFC700",
                   borderWidth: 1,
                 },
-                right: {
-                  borderTopRightRadius: 0,
-                  borderRadius: 20,
-                },
+                right: { borderTopRightRadius: 0 },
+              }}
+            />
+          )}
+          renderTime={(props) => (
+            <Time
+              {...props}
+              timeTextStyle={{
+                left: { fontFamily: "Montserrat-Regular", fontSize: 10 },
+                right: { fontFamily: "Montserrat-Regular", fontSize: 10 },
               }}
             />
           )}
@@ -269,7 +307,13 @@ const PrivateChat: React.FC<any> = ({ route, navigation }) => {
           user={{ _id: user.id, name: user.phoneNumber, avatar: "https://i.pravatar.cc/300" }}
         />
         {!isKeyboardVisible && showAcc && (
-          <HStack justifyContent="center" alignItems="center" space={12} safeAreaBottom>
+          <HStack
+            bgColor="yellow.50"
+            justifyContent="center"
+            alignItems="center"
+            space={12}
+            safeAreaBottom
+          >
             <VStack alignItems="center">
               <Icon as={FeaIcon} name="image" size={8} onPress={() => handleUploadImage()} />
               <Text>Thư viện</Text>
@@ -278,10 +322,10 @@ const PrivateChat: React.FC<any> = ({ route, navigation }) => {
               <Icon as={FeaIcon} name="camera" size={8} onPress={() => handleCapture()} />
               <Text>Chụp ảnh</Text>
             </VStack>
-            <VStack alignItems="center">
+            {/* <VStack alignItems="center">
               <Icon as={MateIcon} name="attach-file" size={8} onPress={() => handleSendFile()} />
               <Text>Gởi tệp</Text>
-            </VStack>
+            </VStack> */}
           </HStack>
         )}
       </View>

@@ -1,5 +1,5 @@
 import React from "react"
-import { Box, Heading, Image, ScrollView, Stack, VStack } from "native-base"
+import { Box, Heading, Image, ScrollView, Stack, Text, VStack } from "native-base"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { EHome } from "../__types__"
 import { WIDTH, fetchGet } from "../utils/helper.util"
@@ -7,6 +7,8 @@ import { localSet } from "../utils/storage.util"
 import { config } from "../utils/config.util"
 import { useIsFocused } from "@react-navigation/native"
 import PhoneCallBtn from "../components/useable/PhoneCallBtn"
+import useAuth from "../context/AuthProvider"
+import LoadingBtn from "../components/useable/LoadingBtn"
 
 const SearchBar = React.lazy(() => import("../components/shop/search/SearchBar"))
 const CategoryBlock = React.lazy(() => import("../components/shop/category/CategoryBlock"))
@@ -34,37 +36,53 @@ const Profile = React.lazy(() => import("../components/profile/Profile"))
 
 const Information = React.lazy(() => import("../components/profile/Information"))
 const OrderHistory = React.lazy(() => import("../components/profile/OrderHistory"))
+const OrderDetail = React.lazy(() => import("../components/profile/OrderDetail"))
 const Transaction = React.lazy(() => import("../components/profile/Transaction"))
 const Topup = React.lazy(() => import("../components/profile/Topup"))
 
 const InitHome = ({ route }: any) => {
   const scrollRef = React.useRef(null)
 
+  const { setAuth } = useAuth()
+
   const getCategories = async () => {
     const res = await fetchGet(`${config.endpoint}/categories`)
-    if (res.success) localSet(config.cache.catelist, JSON.stringify(res.data.categories))
+    if (!res.success) return setAuth({ isAuth: false, user: null })
+    localSet(config.cache.catelist, JSON.stringify(res.data.categories))
   }
   // const getSubcategories = async () => {
   //   const res = await fetchGet(`${config.endpoint}/sizes`)
-  //   if (res.success) localSet(config.cache.sizelist, JSON.stringify(res.data.sizes))
+  // if (!res.success) return setAuth({ isAuth: false, user: null })
+  //   localSet(config.cache.sizelist, JSON.stringify(res.data.sizes))
   // }
   const getSizes = async () => {
     const res = await fetchGet(`${config.endpoint}/sizes`)
-    if (res.success) localSet(config.cache.sizelist, JSON.stringify(res.data.sizes))
+    if (!res.success) return setAuth({ isAuth: false, user: null })
+    localSet(config.cache.sizelist, JSON.stringify(res.data.sizes))
   }
   const getColors = async () => {
     const res = await fetchGet(`${config.endpoint}/colors`)
-    if (res.success) localSet(config.cache.colorlist, JSON.stringify(res.data.colors))
+    if (!res.success) return setAuth({ isAuth: false, user: null })
+    localSet(config.cache.colorlist, JSON.stringify(res.data.colors))
   }
 
   React.useEffect(() => {
     Promise.all([getCategories(), getSizes(), getColors()])
   }, [useIsFocused()])
 
+  const [isScrollEnd, setIsScrollEnd] = React.useState(false)
+
   return (
     <>
       <SearchBar />
-      <ScrollView ref={scrollRef}>
+      <ScrollView
+        ref={scrollRef}
+        onScrollEndDrag={({ nativeEvent }) => {
+          const { layoutMeasurement, contentOffset, contentSize } = nativeEvent
+          if (layoutMeasurement.height + contentOffset.y >= contentSize.height) setIsScrollEnd(true)
+        }}
+        scrollEventThrottle={2000}
+      >
         <Stack p={5} bgColor="white" space={4}>
           <Image
             source={require("../../public/child.jpg")}
@@ -88,10 +106,14 @@ const InitHome = ({ route }: any) => {
         <Box mx={1} pt={{ base: 3 }} pb={5} bgColor="white">
           <React.Suspense fallback={<SkeletonLoading />}>
             <BestSelling />
+            <Recommendation isScrollEnd={isScrollEnd} setIsScrollEnd={setIsScrollEnd} />
+            {/* {isScrollEnd ? (
+              <Recommendation isScrollEnd={isScrollEnd} setIsScrollEnd={setIsScrollEnd} />
+            ) : (
+              <Recommendation />
+            )} */}
           </React.Suspense>
-          <React.Suspense fallback={<SkeletonLoading />}>
-            <Recommendation />
-          </React.Suspense>
+          {isScrollEnd && <LoadingBtn />}
         </Box>
       </ScrollView>
       <Box position="absolute" right={2} bottom={24} opacity={80}>
@@ -127,7 +149,7 @@ const HomeScreen: React.FC<any> = ({ route }) => {
           <HomeStack.Screen name={EHome.ProductDetail} component={ProductDetail} />
         </HomeStack.Group>
         <HomeStack.Group screenOptions={{ headerShown: false }}>
-          <HomeStack.Screen name={EHome.Chat} component={Chat} initialParams={{ user }} />
+          {/* <HomeStack.Screen name={EHome.Chat} component={Chat} initialParams={{ user }} /> */}
           <HomeStack.Screen
             name={EHome.PrivateChat}
             component={PrivateChat}
@@ -144,6 +166,11 @@ const HomeScreen: React.FC<any> = ({ route }) => {
           <HomeStack.Screen
             name={EHome.OrderHistory}
             component={OrderHistory}
+            initialParams={{ user }}
+          />
+          <HomeStack.Screen
+            name={EHome.OrderDetail}
+            component={OrderDetail}
             initialParams={{ user }}
           />
           <HomeStack.Screen

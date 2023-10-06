@@ -1,7 +1,7 @@
 import React, { createContext } from "react"
 import { localGet } from "../utils/storage.util"
 import { config } from "../utils/config.util"
-import { fetchGet } from "../utils/helper.util"
+import { fetchGet, fetchPost } from "../utils/helper.util"
 
 type TAuth = {
   isAuth: boolean
@@ -24,8 +24,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const res = await fetchGet(`${config.endpoint}/fetch-me`, {
         Authorization: `Bearer ${accessToken}`,
       })
-      const { success, data } = res
-      if (!success) throw new Error("Fetch user failed!")
+      const { success, data, message } = res
+      if (!success) {
+        switch (message) {
+          case "jwt expired":
+            const refreshToken = localGet(config.cache.refreshToken)
+            // call api re-take accesstoken
+            const result = await fetchPost(
+              `${config.endpoint}/renew-token`,
+              JSON.stringify({ accessToken, refreshToken })
+            )
+            console.log(result)
+
+            break
+          default:
+            break
+        }
+      }
       setAuth({ isAuth: true, user: data.user })
       setIsLoading(false)
     } catch (error) {
@@ -38,7 +53,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     checkAuth()
   }, [])
 
-  const authValue = { isLoading, auth, checkAuth }
+  const authValue = { isLoading, auth, setAuth, checkAuth }
 
   return <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>
 }

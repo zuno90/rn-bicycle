@@ -39,7 +39,7 @@ const BestSelling: React.FC = () => {
           Xem tất cả {">"}
         </Text>
       </HStack>
-      <Grid rows={1} columns={2}>
+      <Grid>
         {products.length > 0 &&
           products.map((item, index) => (
             <React.Fragment key={index}>

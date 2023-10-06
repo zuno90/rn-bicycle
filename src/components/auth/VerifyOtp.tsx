@@ -7,7 +7,6 @@ import { fetchPost } from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
 import { localSet } from "../../utils/storage.util"
 import { EAuth, EScreen } from "../../__types__"
-import useAuth from "../../context/AuthProvider"
 import { HideOnKeyboard } from "react-native-hide-onkeyboard"
 import { EToastType } from "../../__types__/toast.type"
 import CountdownClock from "../useable/CountdownClock"
@@ -16,7 +15,7 @@ const Toast = React.lazy(() => import("../useable/Toast"))
 
 type TOtp = { otp: string }
 
-const VerifyOtp: React.FC = ({ route, navigation }: any) => {
+const VerifyOtp: React.FC<any> = ({ route, navigation }) => {
   const toast = useToast()
   const { from, phone, mockOtp } = route.params
   const {

@@ -14,6 +14,7 @@ export enum EHome {
   Profile = "Profile",
   Information = "Information",
   OrderHistory = "OrderHistory",
+  OrderDetail = "OrderDetail",
   Transaction = "Transaction",
   Topup = "Topup",
 }

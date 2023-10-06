@@ -57,8 +57,11 @@ export const addToCart = (prod: IProductCart) => {
   const index = cartList
     .map((v: IProductCart) => v.id)
     .findIndex(
-      ({ unit, id, sizes, colors }: IProductCart) =>
-        unit === prod.unit && id === prod.id && sizes === prod.sizes && colors === prod.colors
+      ({ unit, productVariantId, sizes, colors }: IProductCart) =>
+        unit === prod.unit &&
+        productVariantId === prod.productVariantId &&
+        sizes === prod.sizes &&
+        colors === prod.colors
     )
   if (index < 0) cartList.push(prod)
   else cartList[index].quantity += prod.quantity

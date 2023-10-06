@@ -21,6 +21,8 @@ export interface IProduct {
 }
 
 interface IProductItem {
+  id: number
+  price: number
   size: string
   color: string
   inventory: number
@@ -29,6 +31,7 @@ interface IProductItem {
 export interface IProductCart {
   unit: string
   id: number
+  productVariantId: number
   name: string
   slug: string
   colors: string

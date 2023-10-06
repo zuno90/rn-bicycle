@@ -13,6 +13,7 @@ import {
   Stack,
   Text,
   VStack,
+  View,
   useToast,
 } from "native-base"
 import CartIcon from "../cart/CartIcon"
@@ -135,17 +136,28 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
       })
     }
 
-    const { id, name, slug, images, price, discount } = product as IProduct
+    console.log(product?.productItem)
+
+    // productItem:[{id:1, size:"", color:"",inventory: 123,price: 456}]
+
+    const { name, id, productItem, slug, images, price, discount } = product as IProduct
+    const mappedProductItem = productItem?.filter(
+      (item) => item.size === data.sizes && item.color === data.colors
+    )[0]
     const cartItem = {
       unit: `no${new Date().getTime()}`,
       id,
+      productVariantId: mappedProductItem?.id,
       name,
       slug,
       image: images[0],
-      price,
+      price: mappedProductItem?.price,
       discount,
-      ...data,
+      sizes: mappedProductItem?.size,
+      colors: mappedProductItem?.color,
+      quantity: data.quantity,
     } as IProductCart
+ 
     addToCart(cartItem)
     setShowFilter({ isOpen: false, type: "", title: "", data: [] })
     methods.reset()
@@ -194,7 +206,6 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
             //   </Box>
             // )}
           />
-
           <Box
             w="full"
             bgColor="transparent"
@@ -217,7 +228,6 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
               <CartIcon />
             </HStack>
           </Box>
-
           <ScrollView bgColor="white">
             <SwiperFlatList
               ref={imgRef}
@@ -227,13 +237,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
               data={product.images}
               renderItem={({ item, index }) => (
                 <Pressable onPress={() => setIsOpenProductImg(true)}>
-                  <Image
-                    source={{ uri: item }}
-                    resizeMode="contain"
-                    alt="top-image"
-                    w={WIDTH}
-                    h={WIDTH}
-                  />
+                  <Image source={{ uri: item }} resizeMode="contain" alt="top-image" size={WIDTH} />
                 </Pressable>
               )}
               PaginationComponent={() => (
@@ -253,8 +257,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                         borderWidth={productImgIndex === index ? 2 : 1}
                         borderColor={productImgIndex === index ? "zuno" : "gray.300"}
                         alt="top-image"
-                        w={WIDTH / 5}
-                        h={WIDTH / 5}
+                        size={WIDTH / 5}
                       />
                     </Pressable>
                   ))}
@@ -348,7 +351,6 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                       fontWeight="bold"
                       color={methods.getValues("colors") === "" ? "zuno" : "white"}
                     >
-                      Màu{" "}
                       {colors.length > 0 &&
                         colors.filter((v: any) => v.value === methods.getValues("colors"))[0]
                           ?.title}
@@ -443,7 +445,6 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
               </Stack>
             </Box>
           </ScrollView>
-
           {/* bottom */}
           <Box
             w="full"
@@ -488,7 +489,6 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
             </LinearGradient>
           </Box>
           {/* </View> */}
-
           {showFilter.isOpen && (
             <Slide in={showFilter.isOpen} duration={200} placement="top">
               <FormProvider {...methods}>

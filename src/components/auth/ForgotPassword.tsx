@@ -8,7 +8,7 @@ import FaIcon from "react-native-vector-icons/FontAwesome"
 import { config } from "../../utils/config.util"
 import { HideOnKeyboard } from "react-native-hide-onkeyboard"
 
-const ForgotPassword: React.FC = ({ navigation }: any) => {
+const ForgotPassword: React.FC<any> = ({ navigation }) => {
   const {
     control,
     handleSubmit,
@@ -22,6 +22,7 @@ const ForgotPassword: React.FC = ({ navigation }: any) => {
       return navigation.navigate(EAuth.VerifyOtp, {
         from: EAuth.ForgotPassword,
         phone: data.phoneNumber,
+        mockOtp: res.message.substr(res.message.length - 4),
       })
     }
   }
@@ -73,7 +74,7 @@ const ForgotPassword: React.FC = ({ navigation }: any) => {
           >
             <Button
               variant="unstyled"
-              h="50px"
+              h={50}
               _pressed={{ bgColor: "yellow.400" }}
               onPress={handleSubmit(onForgotPasswordSubmit)}
               isLoading={isSubmitting}

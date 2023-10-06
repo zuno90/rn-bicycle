@@ -47,6 +47,7 @@ const Signin: React.FC = ({ navigation }: any) => {
       await checkAuth()
       return navigation.navigate(EScreen.Home)
     }
+    console.log(res)
     setErrMas(res.message)
   }
 
@@ -62,7 +63,7 @@ const Signin: React.FC = ({ navigation }: any) => {
             <Text fontSize="lg">Nhập số điện thoại</Text>
           </VStack>
 
-          <Stack space={4} alignItems="center">
+          <Stack alignItems="center" space={4}>
             <FormControl isRequired isInvalid={"phoneNumber" in errors}>
               <Controller
                 name="phoneNumber"
@@ -124,26 +125,16 @@ const Signin: React.FC = ({ navigation }: any) => {
                 )}
               />
             </FormControl>
-            <VStack space={2} alignSelf="flex-start" ml={2}>
-              {errors.phoneNumber && (
-                <HStack alignSelf="flex-start" alignItems="center" space={4}>
-                  <Icon as={IonIcon} name="alert-circle" color="red.500" />
-                  <Text color="red.500">{errors.phoneNumber?.message}</Text>
-                </HStack>
-              )}
-              {errors.password && (
-                <HStack alignSelf="flex-start" alignItems="center" space={4}>
-                  <Icon as={IonIcon} name="alert-circle" color="red.500" />
-                  <Text color="red.500">{errors.password?.message}</Text>
-                </HStack>
-              )}
-              {errMsg && (
-                <HStack alignSelf="flex-start" alignItems="center" space={4}>
-                  <Icon as={IonIcon} name="alert-circle" color="red.500" />
-                  <Text color="red.500">{errMsg}</Text>
-                </HStack>
-              )}
-            </VStack>
+
+            {(errors.phoneNumber || errors.password || errMsg) && (
+              <HStack alignItems="center" space={4}>
+                <Icon as={IonIcon} name="alert-circle" color="red.500" />
+                <Text color="red.500">
+                  {errors.phoneNumber?.message ? errors.password?.message : errMsg}
+                </Text>
+              </HStack>
+            )}
+
             <Stack alignSelf="flex-start">
               <Text
                 onPress={() => navigation.navigate(EAuth.ForgotPassword)}

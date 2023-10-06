@@ -18,25 +18,30 @@ import {
 import FaIcon from "react-native-vector-icons/FontAwesome"
 import FeaIcon from "react-native-vector-icons/Feather"
 import AntIcon from "react-native-vector-icons/AntDesign"
-import { HEIGHT, WIDTH, formatNumber } from "../../../utils/helper.util"
+import MateIcon from "react-native-vector-icons/MaterialIcons"
+import { HEIGHT, fetchPost, formatNumber } from "../../../utils/helper.util"
 import Svg, { Path } from "react-native-svg"
 import LinearGradient from "react-native-linear-gradient"
 import { EHome, EToastType, IProductCart, TInputInformation } from "../../../__types__"
 import LoadingBtn from "../../useable/LoadingBtn"
-import { FormProvider, SubmitHandler, useForm } from "react-hook-form"
+import { Controller, FormProvider, SubmitHandler, useForm } from "react-hook-form"
 import { localGet } from "../../../utils/storage.util"
 import { config } from "../../../utils/config.util"
-import { KeyboardAvoidingView, Platform } from "react-native"
+import { KeyboardAvoidingView } from "react-native"
+import { useIsFocused } from "@react-navigation/native"
 
 const Toast = React.lazy(() => import("../../useable/Toast"))
 const Address = React.lazy(() => import("./Address"))
+const ConfirmModal = React.lazy(() => import("../../useable/ConfirmModal"))
+
+type TProduct = { productVariantId: number; quantity: number }
 
 interface IOrder {
   information: TInputInformation
-  products: number[]
+  products: TProduct[]
   voucher: string
   shipping: string
-  method: string
+  paymentMethod: string
   note: string
 }
 
@@ -46,19 +51,42 @@ const Order: React.FC<any> = ({ route, navigation }) => {
 
   const [expandedAddress, setExpandedAddress] = React.useState<boolean>(false)
   const [expandedPaymentMethod, setExpandedPaymentMethod] = React.useState<boolean>(false)
+  const [expandedConfirmModal, setExpandedConfirmModal] = React.useState<boolean>(false)
+  const [isDone, setIsDone] = React.useState({ status: false, orderId: null })
 
   const methods = useForm<IOrder>({
     defaultValues: {
-      products: selectItems.map((item: IProductCart) => item.id),
+      products: selectItems.map((item: IProductCart) => ({
+        productVariantId: item.productVariantId,
+        quantity: item.quantity,
+      })),
       shipping: "shop",
     },
   })
 
-  const onSubmitPayment: SubmitHandler<IOrder> = async (data) => {
-    console.log(data, 67676)
-    try {
-    } catch {}
+  const onSubmitOrder: SubmitHandler<IOrder> = async (data) => {
+    const {
+      information: { name, phoneNumber, city, district, ward, address },
+      ...others
+    } = data
+    const payloadInformation = {
+      name,
+      phoneNumber,
+      city: city.label,
+      district: district.label,
+      ward: ward.label,
+      address,
+    }
+    const finalPayload = { information: payloadInformation, ...others }
+    const res = await fetchPost(`${config.endpoint}/order`, JSON.stringify(finalPayload), {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
+    console.log(res)
+    if (res.success) return setIsDone({ status: true, orderId: res.data.id })
+    return showToast(res.message)
   }
+
+  console.log(isDone)
 
   const toast = useToast()
   const showToast = (msg: string) => {
@@ -74,6 +102,8 @@ const Order: React.FC<any> = ({ route, navigation }) => {
         ),
       })
   }
+
+  React.useEffect(() => {}, [useIsFocused()])
 
   return (
     <>
@@ -93,12 +123,28 @@ const Order: React.FC<any> = ({ route, navigation }) => {
               <Box flex={1}>
                 <Heading fontSize="md">Địa chỉ nhận hàng</Heading>
                 <Text>
-                  {methods.getValues("information.address") ?? "[Địa chỉ giao hàng]"} ,{" "}
-                  {methods.getValues("information.district.label") ?? "[Quận/Huyện giao hàng]"} ,{" "}
-                  {methods.getValues("information.city.label") ?? "[Tỉnh/Thành giao hàng]"}
+                  {methods.getValues("information.address")
+                    ? methods.getValues("information.address")
+                    : "[Địa chỉ giao hàng]"}{" "}
+                  ,{" "}
+                  {methods.getValues("information.district.label")
+                    ? methods.getValues("information.district.label")
+                    : "[Quận/Huyện giao hàng]"}{" "}
+                  ,{" "}
+                  {methods.getValues("information.city.label")
+                    ? methods.getValues("information.city.label")
+                    : "[Tỉnh/Thành giao hàng]"}
                 </Text>
-                <Text>{methods.getValues("information.name") ?? "Tên của bạn"}</Text>
-                <Text>{methods.getValues("information.phoneNumber") ?? "SĐT của bạn"}</Text>
+                <Text>
+                  {methods.getValues("information.name")
+                    ? methods.getValues("information.name")
+                    : "Tên của bạn"}
+                </Text>
+                <Text>
+                  {methods.getValues("information.phoneNumber")
+                    ? methods.getValues("information.phoneNumber")
+                    : "SĐT của bạn"}
+                </Text>
               </Box>
               <Icon as={AntIcon} name="edit" size={5} onPress={() => setExpandedAddress(true)} />
             </Box>
@@ -115,7 +161,7 @@ const Order: React.FC<any> = ({ route, navigation }) => {
                   alt="cart-prod"
                 />
                 <Box flex={1} gap={2}>
-                  <Heading fontSize="md" numberOfLines={2} maxW={WIDTH * 0.6} isTruncated>
+                  <Heading fontSize="md" numberOfLines={2} isTruncated>
                     {order.name}
                   </Heading>
                   <Text>
@@ -123,11 +169,13 @@ const Order: React.FC<any> = ({ route, navigation }) => {
                     {colors.length > 0 &&
                       colors.filter((v: any) => v.value === order.colors)[0]?.title}{" "}
                   </Text>
-                  <Text color="red.500" fontWeight="semibold">
-                    đ {formatNumber(order.price)}
-                  </Text>
+                  <HStack justifyContent="space-between" alignItems="center">
+                    <Text color="red.500" fontWeight="semibold">
+                      đ {formatNumber(order.price)}
+                    </Text>
+                    <Text>Số lượng: {order.quantity}</Text>
+                  </HStack>
                 </Box>
-                <Text alignSelf="flex-end">Số lượng: {order.quantity}</Text>
               </HStack>
             ))}
 
@@ -143,16 +191,40 @@ const Order: React.FC<any> = ({ route, navigation }) => {
               >
                 <HStack space={2} alignItems="center">
                   <Icon as={VoucherIcon} />
-                  <Text fontWeight="semibold">Mã giảm giá</Text>
+                  <Text fontWeight="semibold">
+                    {methods.getValues("voucher") ? methods.getValues("voucher") : "Mã giảm giá"}
+                  </Text>
                 </HStack>
                 <HStack space={2} alignItems="center">
-                  <Text onPress={() => navigation.navigate(EHome.Voucher)}>Chọn hoặc nhập mã</Text>
-                  <Icon as={FaIcon} name="chevron-right" />
+                  <Text
+                    onPress={() =>
+                      navigation.navigate(EHome.Voucher, {
+                        voucher: (voucher: string) =>
+                          methods.setValue("voucher", voucher, { shouldDirty: true }),
+                      })
+                    }
+                  >
+                    {methods.getValues("voucher") ? (
+                      <Icon as={AntIcon} name="checkcircle" color="yellow.400" />
+                    ) : (
+                      "Chọn hoặc nhập mã"
+                    )}
+                  </Text>
+                  {methods.watch("voucher") ? (
+                    <Icon
+                      as={MateIcon}
+                      name="highlight-remove"
+                      size={5}
+                      onPress={() => methods.setValue("voucher", "", { shouldDirty: true })}
+                    />
+                  ) : (
+                    <Icon as={FaIcon} name="chevron-right" />
+                  )}
                 </HStack>
               </Box>
-              <Text fontSize="xs" color="red.400">
+              {/* <Text fontSize="xs" color="red.400">
                 Lỗi mã giảm giá, vui lòng chọn mã giảm giá khác
-              </Text>
+              </Text> */}
             </Stack>
 
             <Heading fontSize="lg">Đơn vị vận chuyển</Heading>
@@ -164,13 +236,18 @@ const Order: React.FC<any> = ({ route, navigation }) => {
               </HStack>
             </Box>
 
-            <Box gap={4}>
+            <Box
+              gap={4}
+              {...methods.register("paymentMethod", {
+                required: "Phương thức thanh toán không được bỏ trống!",
+              })}
+            >
               <Heading fontSize="lg">Phương thức thanh toán</Heading>
               {!expandedPaymentMethod ? (
                 <Pressable
                   onPress={() => {
                     setExpandedPaymentMethod(true)
-                    methods.setValue("method", "bank", { shouldDirty: true })
+                    methods.setValue("paymentMethod", "bank", { shouldDirty: true })
                   }}
                 >
                   <Box p={5} bgColor="#F4F4F4" rounded="md">
@@ -246,16 +323,16 @@ const Order: React.FC<any> = ({ route, navigation }) => {
 
             <Pressable
               onPress={() => {
-                methods.setValue("method", "coin", { shouldDirty: true })
+                methods.setValue("paymentMethod", "coin", { shouldDirty: true })
                 setExpandedPaymentMethod(false)
               }}
             >
               <Box
                 px={5}
                 py={2}
-                bgColor={methods.watch("method") === "coin" ? "yellow.100" : "#F4F4F4"}
-                borderWidth={methods.watch("method") === "coin" ? 1 : 0}
-                borderColor={methods.watch("method") === "coin" ? "yellow.400" : "none"}
+                bgColor={methods.watch("paymentMethod") === "coin" ? "yellow.100" : "#F4F4F4"}
+                borderWidth={methods.watch("paymentMethod") === "coin" ? 1 : 0}
+                borderColor={methods.watch("paymentMethod") === "coin" ? "yellow.400" : "none"}
                 rounded="md"
               >
                 <Text fontWeight="semibold">Dùng xu</Text>
@@ -267,7 +344,21 @@ const Order: React.FC<any> = ({ route, navigation }) => {
             </Pressable>
 
             <Heading fontSize="lg">Ghi chú</Heading>
-            <Input p={5} rounded="xl" placeholder="Ghi chú cho nhà bán hàng" />
+            <Controller
+              name="note"
+              defaultValue=""
+              control={methods.control}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  p={5}
+                  rounded="xl"
+                  placeholder="Ghi chú cho nhà bán hàng"
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  value={value}
+                />
+              )}
+            />
           </Stack>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -320,8 +411,20 @@ const Order: React.FC<any> = ({ route, navigation }) => {
             variant="unstyled"
             h={50}
             _pressed={{ bgColor: "yellow.400" }}
+            // isLoading={methods.formState.isSubmitting}
             // isDisabled={selectItems.length > 0 ? false : true}
-            onPress={methods.handleSubmit(onSubmitPayment)}
+            onPress={async () => {
+              const ok = await methods.trigger()
+              console.log(methods.formState.errors)
+              for (let e in methods.formState.errors) {
+                if (e === "information")
+                  for (let ee in methods.formState.errors[e])
+                    return showToast(methods.formState.errors[e][ee]?.message)
+                return showToast(methods.formState.errors[e]?.message)
+              }
+              if (!ok) return showToast("Vui lòng điền đầy đủ thông tin thanh toán!")
+              return setExpandedConfirmModal(true)
+            }}
           >
             <Text fontSize="lg" fontWeight="semibold">
               Thanh toán
@@ -330,12 +433,74 @@ const Order: React.FC<any> = ({ route, navigation }) => {
         </LinearGradient>
       </Box>
 
+      {expandedConfirmModal && (
+        <ConfirmModal
+          isOpen={expandedConfirmModal}
+          onClose={() => setExpandedConfirmModal(false)}
+          action={methods.handleSubmit(onSubmitOrder)}
+          title="Xác nhận"
+          desc="Bạn có muốn thanh toán đơn hàng này không?"
+        />
+      )}
+
       <Slide in={expandedAddress} duration={200} placement="bottom">
         <FormProvider {...methods}>
           <React.Suspense fallback={<LoadingBtn />}>
             <Address showToast={showToast} closePopup={() => setExpandedAddress(false)} />
           </React.Suspense>
         </FormProvider>
+      </Slide>
+
+      <Slide in={isDone.status} duration={200} placement="bottom">
+        <Box
+          flex={1}
+          px={5}
+          w="full"
+          bgColor="white"
+          justifyContent="center"
+          alignItems="center"
+          gap={6}
+        >
+          <Image source={require("../../../../public/handling.png")} size={200} alt="handling" />
+          <Heading fontSize="3xl">Đang xử lý</Heading>
+          <Text fontSize="md">
+            Đơn hàng đang được xử lý, chúng tôi sẽ thông báo cho bạn sau khi hoàn tất kiểm tra thông
+            tin thanh toán. Cám ơn bạn đã tin dùng sản phẩm tại Vuong Do Bicycle!
+          </Text>
+          <LinearGradient
+            colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
+            style={{ width: "100%", borderRadius: 100 }}
+          >
+            <Button
+              variant="unstyled"
+              h={50}
+              _pressed={{ bgColor: "yellow.400" }}
+              onPress={() => {
+                setIsDone({ ...isDone, status: false })
+                navigation.navigate(EHome.OrderDetail, { orderId: isDone.orderId })
+              }}
+            >
+              <Text fontSize="lg" fontWeight="semibold">
+                Kiểm tra đơn hàng
+              </Text>
+            </Button>
+          </LinearGradient>
+          <Button
+            variant="outline"
+            w="full"
+            h={50}
+            rounded="full"
+            borderColor="yellow.400"
+            onPress={() => {
+              setIsDone({ ...isDone, status: false })
+              navigation.navigate(EHome.InitHome)
+            }}
+          >
+            <Text fontSize="lg" fontWeight="semibold">
+              Quay lại trang chủ
+            </Text>
+          </Button>
+        </Box>
       </Slide>
     </>
   )

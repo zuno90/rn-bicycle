@@ -23,6 +23,7 @@ export default function App() {
 
   LogBox.ignoreLogs([
     "We can not support a function callback. See Github Issues for details https://github.com/adobe/react-spectrum/issues/2320",
+    // "Non-serializable values were found in the navigation state",
   ])
 
   return (

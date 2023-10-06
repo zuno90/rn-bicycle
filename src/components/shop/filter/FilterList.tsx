@@ -153,7 +153,7 @@ const WrapBox = ({ value }: { value: string }) => {
             <Controller
               name="price"
               control={control}
-              render={({ field: { onChange } }) => (
+              render={() => (
                 <RangeSlider
                   min={0}
                   max={20000000}

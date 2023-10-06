@@ -32,16 +32,16 @@ const FooterMenu: React.FC<TCurrentScreen> = ({ currentScreen }) => {
           </Center>
         </Pressable>
         <Pressable
-          opacity={currentScreen === EHome.Chat ? 1 : 0.5}
+          opacity={currentScreen === EHome.PrivateChat ? 1 : 0.5}
           py={4}
           flex={1}
-          onPress={() => navigation.navigate(EHome.Chat)}
+          onPress={() => navigation.navigate(EHome.PrivateChat)}
         >
           <Center>
             <Icon
               as={MateComIcon}
               name="facebook-messenger"
-              color={currentScreen === EHome.Chat ? "#966216" : "gray.900"}
+              color={currentScreen === EHome.PrivateChat ? "#966216" : "gray.900"}
               size="lg"
             />
           </Center>

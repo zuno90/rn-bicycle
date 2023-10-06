@@ -1,9 +1,8 @@
-import { Stack, VStack, Image as Img, Text, Button, Center } from "native-base"
+import { Stack, VStack, Image as Img, Text, Button } from "native-base"
 import LinearGradient from "react-native-linear-gradient"
-import { EScreen } from "../../__types__"
 import useAuth from "../../context/AuthProvider"
 
-const Success: React.FC = ({ route, navigation }: any) => {
+const Success: React.FC<any> = ({ route, navigation }) => {
   const { to, des, btn } = route.params
 
   const { checkAuth } = useAuth()
@@ -16,7 +15,7 @@ const Success: React.FC = ({ route, navigation }: any) => {
   return (
     <>
       <Stack flex={1} mx={5} my={10} space={10} safeAreaTop>
-        <VStack space={4} alignItems="center">
+        <VStack alignItems="center" space={4}>
           <Img source={require("../../../public/success.png")} size={200} alt="success" />
           <Text fontSize="3xl" fontWeight="bold">
             Thành công
@@ -34,7 +33,7 @@ const Success: React.FC = ({ route, navigation }: any) => {
           <Button
             variant="unstyled"
             onPress={handleDirectBtn}
-            h="50px"
+            h={50}
             _pressed={{ bgColor: "yellow.400" }}
           >
             <Text fontSize="lg" fontWeight="semibold">
