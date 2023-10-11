@@ -1,4 +1,4 @@
-import { addDoc, collection, onSnapshot, orderBy, query, where } from "firebase/firestore"
+import { addDoc, collection, onSnapshot, or, orderBy, query, where } from "firebase/firestore"
 import { Avatar, Box, HStack, Heading, Icon, ScrollView, Text, VStack, View } from "native-base"
 import React from "react"
 import { Keyboard, Platform } from "react-native"
@@ -18,11 +18,11 @@ import AntIcon from "react-native-vector-icons/AntDesign"
 import FeaIcon from "react-native-vector-icons/Feather"
 import FaIcon from "react-native-vector-icons/FontAwesome"
 import MateIcon from "react-native-vector-icons/MaterialIcons"
-import { db } from "../../utils/firebase"
+import { db } from "../../utils/firebase.util."
 import { config } from "../../utils/config.util"
 import env from "../../../app.json"
 import AWS from "aws-sdk"
-import { WIDTH } from "../../utils/helper.util"
+import { v4 as uuid } from "uuid"
 
 AWS.config.update({
   accessKeyId: env.AWS_ACCESS_KEY_ID,
@@ -43,52 +43,49 @@ const PrivateChat: React.FC<any> = ({ route, navigation }) => {
     addDoc(collection(db, "chat"), mess[0])
   }
 
-  // React.useEffect(() => {
-  //   handleKeyboard()
-  //   const c = collection(db, "chat")
-  //   const q = query(
-  //     c,
-  //     where("user.id", "==", ADMIN_ID),
-  //     where("chatTo", "==", user.id),
-  //     orderBy("createdAt", "desc")
-  //   )
-
-  //   const unsubscribe = onSnapshot(q, (snapshot) => {
-  //     // console.log("snapshop", snapshot)
-  //     setMessages(
-  //       snapshot.docs.map((doc) => ({
-  //         _id: doc.id,
-  //         text: doc.data().text,
-  //         user: doc.data().user,
-  //         createdAt: doc.data().createdAt.toDate(),
-  //       }))
-  //     )
-  //   })
-  //   return unsubscribe
-  // }, [])
-
   React.useEffect(() => {
-    setMessages([
-      {
-        _id: 99,
-        text: "Demo message",
-        createdAt: new Date(),
-        user: { _id: 2, avatar: "https://i.pravatar.cc/300" },
-        image: "https://i.pravatar.cc/300",
-        // You can also add a video prop:
-        // video:
-        //   "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-        // // Mark the message as sent, using one tick
-        // sent: true,
-        // // Mark the message as received, using two tick
-        // received: true,
-        // // Mark the message as pending with a clock loader
-        // pending: true,
-        // // Any additional custom parameters are passed through
-      },
-    ])
     handleKeyboard()
+    const c = collection(db, "chat")
+    const q = query(c, where("user._id", "==", user.id), orderBy("createdAt", "desc"))
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      // console.log("snapshop", snapshot)
+
+      setMessages(
+        snapshot.docs.map((doc) => ({
+          _id: doc.id,
+          text: doc.data().text,
+          image: doc.data().image,
+          user: doc.data().user,
+          createdAt: doc.data().createdAt.toDate(),
+        }))
+      )
+    })
+    return unsubscribe
   }, [])
+
+  // React.useEffect(() => {
+  //   setMessages([
+  //     {
+  //       _id: 99,
+  //       text: "Demo message",
+  //       createdAt: new Date(),
+  //       user: { _id: 2, avatar: "https://i.pravatar.cc/300" },
+  //       image: "https://i.pravatar.cc/300",
+  //       // You can also add a video prop:
+  //       // video:
+  //       //   "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+  //       // // Mark the message as sent, using one tick
+  //       // sent: true,
+  //       // // Mark the message as received, using two tick
+  //       // received: true,
+  //       // // Mark the message as pending with a clock loader
+  //       // pending: true,
+  //       // // Any additional custom parameters are passed through
+  //     },
+  //   ])
+  //   handleKeyboard()
+  // }, [])
 
   async function upLoadImage(image: any) {
     const res = await fetch(image.uri.replace("file://", ""))
@@ -98,44 +95,47 @@ const PrivateChat: React.FC<any> = ({ route, navigation }) => {
       Key: image.name,
       Body: rawBlob,
     }
+
     return s3.upload(params).promise()
   }
 
   const handleUploadImage = async () => {
     try {
-      const result = await launchImageLibrary({ mediaType: "photo" })
+      const result = await launchImageLibrary({ mediaType: "photo", maxWidth: 250, maxHeight: 250 })
       if (!result.assets) throw new Error("")
       if (result.assets[0]?.uri) {
         const image = {
           uri: result.assets[0].uri,
           type: result.assets[0].type,
-          name: result.assets[0].fileName,
+          name: "chats/" + result.assets[0].fileName,
         }
         const s3Img = await upLoadImage(image)
         const imgUrl = `${env.AWS_CDN_CLOUDFONT}/${s3Img.Key}`
+
         const message = {
-          _id: messages.length + 1,
+          _id: uuid(),
           text: "",
           createdAt: new Date(),
           user: { _id: user.id, name: user.phoneNumber, avatar: "https://i.pravatar.cc/300" },
           image: imgUrl,
         }
         setMessages((previousMessages) => GiftedChat.append(previousMessages, [message]))
-        // addDoc(collection(db, "chat"), message)
+        addDoc(collection(db, "chat"), message)
       }
     } catch (error) {
       // throw error
     }
   }
   const handleCapture = async () => {
+    console.log(333)
     try {
-      const result = await launchCamera({ mediaType: "photo" })
+      const result = await launchCamera({ mediaType: "photo", maxWidth: 250, maxHeight: 250 })
       if (!result.assets) throw new Error("")
       if (result.assets[0].uri) {
         // const image = {
         //   uri: result.assets[0].uri,
         //   type: result.assets[0].type,
-        //   name: result.assets[0].fileName,
+        //   name: "chats/" + result.assets[0].fileName,
         // }
 
         const message = {

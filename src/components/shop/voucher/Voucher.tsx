@@ -80,7 +80,7 @@ const Voucher: React.FC<any> = ({ route, navigation }) => {
         </Box>
         <Box mx={4}>
           {isNotFound ? (
-            <VStack mx={5} justifyContent="center" alignItems="center" space={2}>
+            <VStack m={5} justifyContent="center" alignItems="center" space={2}>
               <Heading fontSize="lg">Không tìm thấy mã giảm giá</Heading>
               <Text fontSize="sm">
                 Vui lòng kiểm tra lại thời hạn sử dụng của mã giảm giá hoặc nhập đúng chính tả mã

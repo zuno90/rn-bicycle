@@ -28,16 +28,10 @@ const Product: React.FC<{ data: IProduct }> = ({ data }) => {
         }
       >
         <AspectRatio ratio={1 / 1}>
-          <Image
-            source={{ uri: data.images[0] }}
-            // maxW={WIDTH}
-            // maxH={WIDTH}
-            resizeMode="contain"
-            alt="product-image"
-          />
+          <Image source={{ uri: data.images[0] }} resizeMode="contain" alt="product-image" />
         </AspectRatio>
       </Pressable>
-      {data.discount && (
+      {data.discount ? (
         <Button
           roundedTopLeft="lg"
           bgColor="yellow.100"
@@ -50,6 +44,8 @@ const Product: React.FC<{ data: IProduct }> = ({ data }) => {
         >
           {`-${data.discount} %`}
         </Button>
+      ) : (
+        <></>
       )}
       <Box px={2} py={4} flexDir="column" justifyContent="flex-end" gap={1.5}>
         <Text
@@ -72,7 +68,7 @@ const Product: React.FC<{ data: IProduct }> = ({ data }) => {
 
         <HStack justifyContent="space-between" alignItems="center">
           <Text fontSize="xs" strikeThrough>
-            đ{formatNumber(data.price * (1 + data.discount / 100))}
+            {data.discount ? `đ${formatNumber(data.price * (1 + data.discount / 100))}` : ""}
           </Text>
           <Text fontSize={8} color="yellow.700">
             Đã bán {data.sold}

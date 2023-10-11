@@ -1,10 +1,8 @@
 import React from "react"
-import { Box, HStack, Heading, Icon, Image, Text, useToast } from "native-base"
+import { Box, Button, HStack, Heading, Image, Text, VStack, useToast } from "native-base"
 import Clipboard from "@react-native-clipboard/clipboard"
-import IonIcon from "react-native-vector-icons/Ionicons"
+import Toast from "../useable/Toast"
 import { EToastType } from "../../__types__/toast.type"
-
-const Toast = React.lazy(() => import("../useable/Toast"))
 
 const NotificationList: React.FC<{ type: string }> = ({ type }) => {
   return (
@@ -21,22 +19,22 @@ const NotificationList: React.FC<{ type: string }> = ({ type }) => {
   )
 }
 
-const MyNoti = () => {
+const MyNoti: React.FC = () => {
   return (
-    <>
+    <HStack flex={1} justifyContent="space-between" alignItems="center" space={4}>
       <Image source={require("../../../public/home-banner.jpeg")} size={20} alt="noti-img" />
       <Box flex={1} gap={2}>
         <Heading size="sm">Đơn hàng đã giao thành công</Heading>
         <Text>Đơn hàng #123abc đã giao thành công đã giao thành công đến bạn</Text>
       </Box>
-    </>
+    </HStack>
   )
 }
 
-const MyVoucher = () => {
+const MyVoucher: React.FC = () => {
   const toast = useToast()
   return (
-    <>
+    <HStack flex={1} justifyContent="space-between" alignItems="center" space={4}>
       <Image
         source={require("../../../public/home-banner.jpeg")}
         size={20}
@@ -45,37 +43,38 @@ const MyVoucher = () => {
       />
       <Box flex={1} gap={2}>
         <Heading size="sm">VOUCHER HOT GIẢM 50%</Heading>
-        <HStack justifyContent="space-between">
+        <HStack justifyContent="space-between" alignItems="center">
           <Text>MGGHOT50</Text>
-          <Icon
-            as={IonIcon}
-            name="copy"
-            color="yellow.300"
+          <Button
+            bgColor="zuno"
+            size="xs"
+            rounded="full"
+            _text={{ fontWeight: "bold" }}
             onPress={() => {
-              Clipboard.setString("MGGHOT50")
+              Clipboard.setString(`MGGHOT50`)
               !toast.isActive("copytoclipboard") &&
                 toast.show({
                   id: "copytoclipboard",
                   placement: "top",
                   duration: 1500,
                   render: () => (
-                    <React.Suspense>
-                      <Toast
-                        type={EToastType.noti}
-                        content="Đã sao chép"
-                        close={() => toast.close("copytoclipboard")}
-                      />
-                    </React.Suspense>
+                    <Toast
+                      type={EToastType.noti}
+                      content="Đã sao chép mã giảm giá"
+                      close={() => toast.close("copytoclipboard")}
+                    />
                   ),
                 })
             }}
-          />
+          >
+            Sao chép
+          </Button>
         </HStack>
         <Text>
           Đơn hàng #123abc đã giao thành công đã giao thành công đến bạn tyhjrtyjtyjtyjtyjtyjtyj
         </Text>
       </Box>
-    </>
+    </HStack>
   )
 }
 

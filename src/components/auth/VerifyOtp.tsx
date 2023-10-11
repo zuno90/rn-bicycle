@@ -10,8 +10,7 @@ import { EAuth, EScreen } from "../../__types__"
 import { HideOnKeyboard } from "react-native-hide-onkeyboard"
 import { EToastType } from "../../__types__/toast.type"
 import CountdownClock from "../useable/CountdownClock"
-
-const Toast = React.lazy(() => import("../useable/Toast"))
+import Toast from "../useable/Toast"
 
 type TOtp = { otp: string }
 
@@ -79,9 +78,7 @@ const VerifyOtp: React.FC<any> = ({ route, navigation }) => {
         placement: "top",
         duration: 1500,
         render: () => (
-          <React.Suspense>
-            <Toast type={EToastType.err} content={msg} close={() => toast.close("verifyotp")} />
-          </React.Suspense>
+          <Toast type={EToastType.err} content={msg} close={() => toast.close("verifyotp")} />
         ),
       })
     }

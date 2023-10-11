@@ -1,5 +1,5 @@
 import React from "react"
-import { Box, Heading, Image, ScrollView, Stack, Text, VStack } from "native-base"
+import { Box, Heading, Image, ScrollView, Stack, VStack } from "native-base"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { EHome } from "../__types__"
 import { WIDTH, fetchGet } from "../utils/helper.util"
@@ -9,14 +9,14 @@ import { useIsFocused } from "@react-navigation/native"
 import PhoneCallBtn from "../components/useable/PhoneCallBtn"
 import useAuth from "../context/AuthProvider"
 import LoadingBtn from "../components/useable/LoadingBtn"
+import FooterMenu from "../components/home/FooterMenu"
 
 const SearchBar = React.lazy(() => import("../components/shop/search/SearchBar"))
 const CategoryBlock = React.lazy(() => import("../components/shop/category/CategoryBlock"))
 
 const BestSelling = React.lazy(() => import("../components/home/BestSelling"))
 const Recommendation = React.lazy(() => import("../components/home/Recommendation"))
-const FooterMenu = React.lazy(() => import("../components/home/FooterMenu"))
-const ScrollToTopBtn = React.lazy(() => import("../components/useable/ScrollToTopBtn"))
+// const ScrollToTopBtn = React.lazy(() => import("../components/useable/ScrollToTopBtn"))
 
 const SkeletonLoading = React.lazy(() => import("../components/useable/SkeletonLoading"))
 
@@ -27,7 +27,7 @@ const ProductDetail = React.lazy(() => import("../components/shop/product/Produc
 const Voucher = React.lazy(() => import("../components/shop/voucher/Voucher"))
 const Order = React.lazy(() => import("../components/shop/order/Order"))
 
-const Chat = React.lazy(() => import("../components/chat/Chat"))
+// const Chat = React.lazy(() => import("../components/chat/Chat"))
 const PrivateChat = React.lazy(() => import("../components/chat/PrivateChat"))
 const Cart = React.lazy(() => import("../components/shop/cart/Cart"))
 const Rank = React.lazy(() => import("../components/rank/Rank"))
@@ -40,7 +40,7 @@ const OrderDetail = React.lazy(() => import("../components/profile/OrderDetail")
 const Transaction = React.lazy(() => import("../components/profile/Transaction"))
 const Topup = React.lazy(() => import("../components/profile/Topup"))
 
-const InitHome = ({ route }: any) => {
+const InitHome: React.FC<any> = ({ route }) => {
   const scrollRef = React.useRef(null)
 
   const { setAuth } = useAuth()
@@ -66,9 +66,11 @@ const InitHome = ({ route }: any) => {
     localSet(config.cache.colorlist, JSON.stringify(res.data.colors))
   }
 
+  const isFocused = useIsFocused()
   React.useEffect(() => {
-    Promise.all([getCategories(), getSizes(), getColors()])
-  }, [useIsFocused()])
+    console.log("ve home")
+    if (isFocused) Promise.all([getCategories(), getSizes(), getColors()])
+  }, [isFocused])
 
   const [isScrollEnd, setIsScrollEnd] = React.useState(false)
 
@@ -76,6 +78,7 @@ const InitHome = ({ route }: any) => {
     <>
       <SearchBar />
       <ScrollView
+        bgColor="white"
         ref={scrollRef}
         onScrollEndDrag={({ nativeEvent }) => {
           const { layoutMeasurement, contentOffset, contentSize } = nativeEvent
@@ -83,7 +86,7 @@ const InitHome = ({ route }: any) => {
         }}
         scrollEventThrottle={2000}
       >
-        <Stack p={5} bgColor="white" space={4}>
+        <Stack p={{ base: 5 }} space={{ base: 4 }}>
           <Image
             source={require("../../public/child.jpg")}
             alignSelf="center"
@@ -95,7 +98,7 @@ const InitHome = ({ route }: any) => {
           />
           {/* component adding */}
         </Stack>
-        <VStack bgColor="white" space={{ base: 3 }}>
+        <VStack space={{ base: 3 }}>
           <Heading size="md" mx={{ base: 5 }}>
             Danh mục sản phẩm
           </Heading>
@@ -103,7 +106,7 @@ const InitHome = ({ route }: any) => {
             <CategoryBlock />
           </Box>
         </VStack>
-        <Box mx={1} pt={{ base: 3 }} pb={5} bgColor="white">
+        <Box mx={1} pt={{ base: 3 }} pb={5}>
           <React.Suspense fallback={<SkeletonLoading />}>
             <BestSelling />
             <Recommendation isScrollEnd={isScrollEnd} setIsScrollEnd={setIsScrollEnd} />
@@ -130,58 +133,56 @@ const HomeStack = createNativeStackNavigator()
 const HomeScreen: React.FC<any> = ({ route }) => {
   const { user } = route.params
   return (
-    <>
-      <HomeStack.Navigator>
-        <HomeStack.Group screenOptions={{ headerShown: false }}>
-          <HomeStack.Screen name={EHome.InitHome} component={InitHome} />
-          <HomeStack.Screen name={EHome.Rank} component={Rank} />
-          <HomeStack.Screen name={EHome.Notification} component={Notification} />
-        </HomeStack.Group>
-        <HomeStack.Group screenOptions={{ headerShown: false }}>
-          <HomeStack.Screen name={EHome.Shop} component={Shop} />
-          <HomeStack.Screen name={EHome.Category} component={Category} />
-          <HomeStack.Screen name={EHome.Cart} component={Cart} />
-          <HomeStack.Screen name={EHome.Order} component={Order} />
-          <HomeStack.Screen name={EHome.Voucher} component={Voucher} />
-        </HomeStack.Group>
-        <HomeStack.Group screenOptions={{ headerShown: false }}>
-          <HomeStack.Screen name={EHome.ProductList} component={ProductList} />
-          <HomeStack.Screen name={EHome.ProductDetail} component={ProductDetail} />
-        </HomeStack.Group>
-        <HomeStack.Group screenOptions={{ headerShown: false }}>
-          {/* <HomeStack.Screen name={EHome.Chat} component={Chat} initialParams={{ user }} /> */}
-          <HomeStack.Screen
-            name={EHome.PrivateChat}
-            component={PrivateChat}
-            initialParams={{ user }}
-          />
-        </HomeStack.Group>
-        <HomeStack.Group screenOptions={{ headerShown: false }}>
-          <HomeStack.Screen name={EHome.Profile} component={Profile} initialParams={{ user }} />
-          <HomeStack.Screen
-            name={EHome.Information}
-            component={Information}
-            initialParams={{ user }}
-          />
-          <HomeStack.Screen
-            name={EHome.OrderHistory}
-            component={OrderHistory}
-            initialParams={{ user }}
-          />
-          <HomeStack.Screen
-            name={EHome.OrderDetail}
-            component={OrderDetail}
-            initialParams={{ user }}
-          />
-          <HomeStack.Screen
-            name={EHome.Transaction}
-            component={Transaction}
-            initialParams={{ user }}
-          />
-          <HomeStack.Screen name={EHome.Topup} component={Topup} initialParams={{ user }} />
-        </HomeStack.Group>
-      </HomeStack.Navigator>
-    </>
+    <HomeStack.Navigator>
+      <HomeStack.Group screenOptions={{ headerShown: false }}>
+        <HomeStack.Screen name={EHome.InitHome} component={InitHome} />
+        <HomeStack.Screen name={EHome.Rank} component={Rank} />
+        <HomeStack.Screen name={EHome.Notification} component={Notification} />
+      </HomeStack.Group>
+      <HomeStack.Group screenOptions={{ headerShown: false }}>
+        <HomeStack.Screen name={EHome.Shop} component={Shop} />
+        <HomeStack.Screen name={EHome.Category} component={Category} />
+        <HomeStack.Screen name={EHome.Cart} component={Cart} />
+        <HomeStack.Screen name={EHome.Order} component={Order} />
+        <HomeStack.Screen name={EHome.Voucher} component={Voucher} />
+      </HomeStack.Group>
+      <HomeStack.Group screenOptions={{ headerShown: false }}>
+        <HomeStack.Screen name={EHome.ProductList} component={ProductList} />
+        <HomeStack.Screen name={EHome.ProductDetail} component={ProductDetail} />
+      </HomeStack.Group>
+      <HomeStack.Group screenOptions={{ headerShown: false }}>
+        {/* <HomeStack.Screen name={EHome.Chat} component={Chat} initialParams={{ user }} /> */}
+        <HomeStack.Screen
+          name={EHome.PrivateChat}
+          component={PrivateChat}
+          initialParams={{ user }}
+        />
+      </HomeStack.Group>
+      <HomeStack.Group screenOptions={{ headerShown: false }}>
+        <HomeStack.Screen name={EHome.Profile} component={Profile} initialParams={{ user }} />
+        <HomeStack.Screen
+          name={EHome.Information}
+          component={Information}
+          initialParams={{ user }}
+        />
+        <HomeStack.Screen
+          name={EHome.OrderHistory}
+          component={OrderHistory}
+          initialParams={{ user }}
+        />
+        <HomeStack.Screen
+          name={EHome.OrderDetail}
+          component={OrderDetail}
+          initialParams={{ user }}
+        />
+        <HomeStack.Screen
+          name={EHome.Transaction}
+          component={Transaction}
+          initialParams={{ user }}
+        />
+        <HomeStack.Screen name={EHome.Topup} component={Topup} initialParams={{ user }} />
+      </HomeStack.Group>
+    </HomeStack.Navigator>
   )
 }
 

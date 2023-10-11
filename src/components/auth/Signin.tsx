@@ -22,10 +22,10 @@ import MatIcon from "react-native-vector-icons/MaterialIcons"
 import React from "react"
 import { config } from "../../utils/config.util"
 import { HideOnKeyboard } from "react-native-hide-onkeyboard"
-import { localSet } from "../../utils/storage.util"
+import { localGet, localSet } from "../../utils/storage.util"
 import useAuth from "../../context/AuthProvider"
 
-type TSignin = { phoneNumber: string; password: string }
+type TSignin = { phoneNumber: string; password: string; deviceToken: string }
 
 const Signin: React.FC = ({ navigation }: any) => {
   const [showPass, setShowPass] = React.useState(false)
@@ -34,16 +34,16 @@ const Signin: React.FC = ({ navigation }: any) => {
     control,
     handleSubmit,
     formState: { isSubmitting, errors },
-  } = useForm<TSignin>()
+  } = useForm<TSignin>({ defaultValues: { deviceToken: localGet(config.cache.deviceToken) } })
 
   const { checkAuth } = useAuth()
 
   const onSignin: SubmitHandler<TSignin> = async (data) => {
     const res = await fetchPost(`${config.endpoint}/signin`, JSON.stringify(data))
     if (res.success) {
-      const signinData = res.data
-      localSet(config.cache.accessToken, signinData.accessToken)
-      localSet(config.cache.refreshToken, signinData.refreshToken)
+      const { accessToken, refreshToken } = res.data
+      localSet(config.cache.accessToken, accessToken)
+      localSet(config.cache.refreshToken, refreshToken)
       await checkAuth()
       return navigation.navigate(EScreen.Home)
     }

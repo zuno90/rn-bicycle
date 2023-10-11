@@ -1,9 +1,20 @@
 import React from "react"
-import { Box, Button, HStack, Icon, Image, ScrollView, Stack, Text, VStack } from "native-base"
-import { WIDTH, fetchPost, formatNumber } from "../../utils/helper.util"
+import {
+  Box,
+  Button,
+  HStack,
+  Heading,
+  Icon,
+  Image,
+  ScrollView,
+  Stack,
+  Text,
+  VStack,
+} from "native-base"
+import { WIDTH, fetchGet, fetchPost, formatNumber } from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
-import { localDel } from "../../utils/storage.util"
-import { EHome, EScreen } from "../../__types__"
+import { localDel, localGet } from "../../utils/storage.util"
+import { EHome, EScreen, IOrder } from "../../__types__"
 import useAuth from "../../context/AuthProvider"
 import CartIcon from "../shop/cart/CartIcon"
 import FooterMenu from "../home/FooterMenu"
@@ -19,7 +30,18 @@ import Svg, { Path } from "react-native-svg"
 import { useIsFocused } from "@react-navigation/native"
 
 const Profile: React.FC<any> = ({ route, navigation }) => {
-  const { checkAuth } = useAuth()
+  const {
+    auth: { user },
+    checkAuth,
+  } = useAuth()
+
+  const [orders, setOrders] = React.useState<IOrder[]>([])
+  const getOrders = async () => {
+    const res = await fetchGet(`${config.endpoint}/orders`, {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
+    if (res.success) setOrders(res.data.orders)
+  }
 
   const handleLogout = async () => {
     const res = await fetchPost(`${config.endpoint}/logout`, JSON.stringify({}))
@@ -34,8 +56,10 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
     //   return navigation.navigate(EScreen.Auth)
     // }
   }
-
-  React.useEffect(() => {}, [useIsFocused()])
+  const isFocused = useIsFocused()
+  React.useEffect(() => {
+    if (isFocused) getOrders()
+  }, [isFocused])
 
   return (
     <>
@@ -57,7 +81,7 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
             resizeMode="cover"
             alt="shop-banner"
           />
-          <Text>Tên người dùng</Text>
+          <Heading>{user.name ?? user.phoneNumber}</Heading>
         </VStack>
 
         <Stack my={5} space={5}>
@@ -123,7 +147,7 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
                     alignSelf="flex-end"
                   >
                     <Text fontSize={10} fontWeight="bold" color="white" alignSelf="center">
-                      10
+                      {orders.filter((order) => order.status === "waiting_payment").length}
                     </Text>
                   </Box>
                   <Icon as={MateComIcon} name="wallet-outline" size={8} />
@@ -142,7 +166,7 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
                     alignSelf="flex-end"
                   >
                     <Text fontSize={10} fontWeight="bold" color="white" alignSelf="center">
-                      10
+                      {orders.filter((order) => order.status === "pending").length}
                     </Text>
                   </Box>
                   <Icon as={handleCartIcon} />
@@ -162,7 +186,7 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
                     alignSelf="flex-end"
                   >
                     <Text fontSize={10} fontWeight="bold" color="white" alignSelf="center">
-                      10
+                      {orders.filter((order) => order.status === "transported").length}
                     </Text>
                   </Box>
                   <Icon as={FeaIcon} name="truck" size={8} />
@@ -226,8 +250,8 @@ const handleCartIcon = () => {
   return (
     <Svg width={32} height={32} viewBox="0 0 28 28" fill="none">
       <Path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M2.38995 0.410051C1.84322 -0.136684 0.956784 -0.136684 0.410051 0.410051C-0.136684 0.956784 -0.136684 1.84322 0.410051 2.38995L2.8 4.7799V19.839C1.16873 20.4156 2.08616e-08 21.9713 2.08616e-08 23.8C2.08616e-08 26.1196 1.8804 28 4.2 28C6.02871 28 7.58444 26.8313 8.16101 25.2H26.6C27.3732 25.2 28 24.5732 28 23.8C28 23.0268 27.3732 22.4 26.6 22.4H8.16101C7.73921 21.2066 6.79338 20.2608 5.6 19.839V4.2C5.6 3.8287 5.4525 3.4726 5.18995 3.21005L2.38995 0.410051ZM4.2 22.4C4.9732 22.4 5.6 23.0268 5.6 23.8C5.6 24.5732 4.9732 25.2 4.2 25.2C3.4268 25.2 2.8 24.5732 2.8 23.8C2.8 23.0268 3.4268 22.4 4.2 22.4Z"
         fill="#808089"
       />
@@ -236,8 +260,8 @@ const handleCartIcon = () => {
         fill="#808089"
       />
       <Path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M9.8 4.2C9.0268 4.2 8.4 4.8268 8.4 5.6V18.2C8.4 18.9732 9.0268 19.6 9.8 19.6H23.8C24.5732 19.6 25.2 18.9732 25.2 18.2V5.6C25.2 4.8268 24.5732 4.2 23.8 4.2H9.8ZM11.2 16.8V7H22.4V16.8H11.2Z"
         fill="#808089"
       />

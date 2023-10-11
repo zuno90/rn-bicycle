@@ -20,7 +20,6 @@ const Address: React.FC<any> = ({ showToast, closePopup }) => {
 
   const getCities = async () => {
     const res = await fetchGet(`${config.endpoint}/cities`)
-    console.log(res.data.cities.length)
     if (res.success)
       setCities(res.data.cities.map((city: any) => ({ label: city.name, value: city.id })))
   }
@@ -114,7 +113,7 @@ const Address: React.FC<any> = ({ showToast, closePopup }) => {
                   <Dropdown
                     style={{
                       height: 50,
-                      padding: 5,
+                      padding: 10,
                       borderRadius: 100,
                       borderColor: "#d4d4d4",
                       borderWidth: 1,
@@ -153,7 +152,7 @@ const Address: React.FC<any> = ({ showToast, closePopup }) => {
                   <Dropdown
                     style={{
                       height: 50,
-                      padding: 5,
+                      padding: 10,
                       borderRadius: 100,
                       borderColor: "#d4d4d4",
                       borderWidth: 1,
@@ -165,7 +164,7 @@ const Address: React.FC<any> = ({ showToast, closePopup }) => {
                     data={districts}
                     labelField="label"
                     valueField="value"
-                    disable={cities?.length === 0}
+                    disable={!getValues("information.city")}
                     searchPlaceholder="Search..."
                     value={value}
                     onFocus={() => getDistricts(getValues("information.city.value"))}
@@ -191,7 +190,7 @@ const Address: React.FC<any> = ({ showToast, closePopup }) => {
                   <Dropdown
                     style={{
                       height: 50,
-                      padding: 5,
+                      padding: 10,
                       borderRadius: 100,
                       borderColor: "#d4d4d4",
                       borderWidth: 1,
@@ -203,7 +202,7 @@ const Address: React.FC<any> = ({ showToast, closePopup }) => {
                     data={wards}
                     labelField="label"
                     valueField="value"
-                    disable={districts?.length === 0}
+                    disable={!getValues("information.district")}
                     searchPlaceholder="Search..."
                     value={value}
                     onFocus={() => getWards(getValues("information.district.value"))}

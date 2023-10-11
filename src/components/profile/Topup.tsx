@@ -1,14 +1,27 @@
 import React from "react"
-import { Box, Button, HStack, Heading, Icon, Slide, Stack, Text, VStack } from "native-base"
+import {
+  Box,
+  Button,
+  HStack,
+  Heading,
+  Icon,
+  Slide,
+  Stack,
+  Text,
+  VStack,
+  useToast,
+} from "native-base"
 import LinearGradient from "react-native-linear-gradient"
 import FaIcon from "react-native-vector-icons/FontAwesome"
-import { EHome } from "../../__types__"
+import { EHome, EToastType } from "../../__types__"
+import Clipboard from "@react-native-clipboard/clipboard"
+import Toast from "../useable/Toast"
 
 const Topup: React.FC<any> = ({ navigation }) => {
   const [isPaid, setIsPaid] = React.useState<boolean>(false)
-  const onSubmitConfirmPayment = () => {
-    setIsPaid(true)
-  }
+  const onSubmitConfirmPayment = () => setIsPaid(true)
+
+  const toast = useToast()
 
   return (
     <>
@@ -20,7 +33,7 @@ const Topup: React.FC<any> = ({ navigation }) => {
         <Text></Text>
       </HStack>
 
-      <Box flex={1} p={5} bgColor="white" gap={6}>
+      <Box flex={1} p={5} bgColor="white" gap={4}>
         <Text>Vui lòng chuyển khoản</Text>
         <VStack space={2}>
           <Heading fontSize="lg">Thông tin tài khoản</Heading>
@@ -32,6 +45,22 @@ const Topup: React.FC<any> = ({ navigation }) => {
               bgColor="zuno"
               rounded="full"
               _text={{ fontSize: "2xs", fontWeight: "bold" }}
+              onPress={() => {
+                Clipboard.setString(`68689988`)
+                !toast.isActive("copytoclipboard") &&
+                  toast.show({
+                    id: "copytoclipboard",
+                    placement: "top",
+                    duration: 1500,
+                    render: () => (
+                      <Toast
+                        type={EToastType.noti}
+                        content="Đã sao chép số tài khoản"
+                        close={() => toast.close("copytoclipboard")}
+                      />
+                    ),
+                  })
+              }}
             >
               Sao chép
             </Button>
@@ -51,7 +80,28 @@ const Topup: React.FC<any> = ({ navigation }) => {
             alignItems="center"
           >
             <Text>Thanh toan don hang #12</Text>
-            <Button bgColor="zuno" size="sm" rounded="full" _text={{ fontWeight: "bold" }}>
+            <Button
+              bgColor="zuno"
+              size="sm"
+              rounded="full"
+              _text={{ fontWeight: "bold" }}
+              onPress={() => {
+                Clipboard.setString(`68689988`)
+                !toast.isActive("copytoclipboard") &&
+                  toast.show({
+                    id: "copytoclipboard",
+                    placement: "top",
+                    duration: 1500,
+                    render: () => (
+                      <Toast
+                        type={EToastType.noti}
+                        content="Đã sao chép nội dung"
+                        close={() => toast.close("copytoclipboard")}
+                      />
+                    ),
+                  })
+              }}
+            >
               Sao chép
             </Button>
           </HStack>
@@ -78,7 +128,7 @@ const Topup: React.FC<any> = ({ navigation }) => {
         </Box>
       </Slide>
 
-      <Stack p={5} bgColor="white" alignItems="center" space={5}>
+      <Stack px={5} bgColor="white" alignItems="center" space={5} safeAreaBottom>
         <LinearGradient
           colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
           style={{ width: "100%", borderRadius: 100 }}

@@ -1,20 +1,27 @@
 import React from "react"
-import { Box, Button, Divider, HStack, Heading, Icon, Image, Text, View } from "native-base"
+import { Box, Button, Divider, HStack, Heading, Icon, Image, ScrollView, Text } from "native-base"
 import FaIcon from "react-native-vector-icons/FontAwesome"
 import { TabView, SceneMap, TabBar } from "react-native-tab-view"
-import { WIDTH, formatNumber } from "../../utils/helper.util"
-import { EHome } from "../../__types__"
+import { WIDTH, fetchGet, formatNumber } from "../../utils/helper.util"
+import { EHome, EOrderStatus, IOrder } from "../../__types__"
 import { useNavigation } from "@react-navigation/native"
+import { config } from "../../utils/config.util"
+import { localGet } from "../../utils/storage.util"
 
 const OrderHistory: React.FC<any> = ({ navigation }) => {
   const [index, setIndex] = React.useState<number>(0)
   const [routes] = React.useState([
     { key: "all", title: "Tất cả" },
-    { key: "second", title: "Chờ thanh toán" },
-    { key: "handling", title: "Đang xử lý" },
+    { key: "waiting_payment", title: "Chờ thanh toán" },
+    { key: "pending", title: "Đang xử lý" },
   ])
-  const [orders, setOrders] = React.useState([])
-  const getOrders = async () => {}
+  const [orders, setOrders] = React.useState<IOrder[]>([])
+  const getOrders = async () => {
+    const res = await fetchGet(`${config.endpoint}/orders`, {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
+    if (res.success) setOrders(res.data.orders)
+  }
 
   React.useEffect(() => {
     getOrders()
@@ -36,8 +43,8 @@ const OrderHistory: React.FC<any> = ({ navigation }) => {
       </HStack>
 
       <TabView
-        lazy
         style={{ backgroundColor: "white" }}
+        lazy
         navigationState={{ index, routes }}
         renderTabBar={(props) => (
           <TabBar
@@ -56,9 +63,21 @@ const OrderHistory: React.FC<any> = ({ navigation }) => {
           />
         )}
         renderScene={SceneMap({
-          all: () => <OrderList data={orders} />,
-          second: () => <OrderList data={orders} />,
-          handling: () => <OrderList data={orders} />,
+          all: () => (
+            <ScrollView>
+              <OrderList data={orders} />
+            </ScrollView>
+          ),
+          waiting_payment: () => (
+            <ScrollView>
+              <OrderList data={orders.filter((order: any) => order.status === "waiting_payment")} />
+            </ScrollView>
+          ),
+          pending: () => (
+            <ScrollView>
+              <OrderList data={orders.filter((order: any) => order.status === "pending")} />
+            </ScrollView>
+          ),
         })}
         onIndexChange={setIndex}
         initialLayout={{ width: WIDTH }}
@@ -67,22 +86,39 @@ const OrderHistory: React.FC<any> = ({ navigation }) => {
   )
 }
 
-const OrderList = ({ data }) => {
+const OrderList = ({ data }: { data: IOrder[] }) => {
   const navigation = useNavigation<any>()
-  return (
-    <>
+
+  return data.map((order, index) => (
+    <React.Fragment key={index}>
       <Box m={5}>
         <HStack justifyContent="space-between" alignItems="center">
-          <Text fontSize="xs">12/09/23</Text>
+          <Text fontSize="xs">
+            {new Date(order.updateAt).toLocaleDateString("vi-VN", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })}
+          </Text>
           <Button
             variant="unstyled"
             size="sm"
-            color="success.100"
-            bgColor="success.100"
+            bgColor={
+              order.status === "success"
+                ? "success.100"
+                : order.status === "transported"
+                ? "yellow.300"
+                : order.status === "waiting_payment"
+                ? "danger.300"
+                : order.status === "canceled"
+                ? "danger.300"
+                : "muted.300"
+            }
             rounded="full"
-            _text={{ color: "success.500" }}
           >
-            Đã giao
+            {(Object.keys(EOrderStatus) as (keyof typeof EOrderStatus)[]).map((key) => {
+              if (key === order.status) return EOrderStatus[key]
+            })}
           </Button>
         </HStack>
         <HStack justifyContent="space-between" alignItems="center" space={2}>
@@ -102,56 +138,20 @@ const OrderList = ({ data }) => {
               isTruncated
               onPress={() => navigation.navigate(EHome.OrderDetail)}
             >
-              Mã đơn hàng #12345678
+              Mã đơn hàng {order.codeOrder}
             </Heading>
             <HStack justifyContent="space-between" alignItems="center">
-              <Text fontSize="xs">4 sản phẩm</Text>
+              <Text fontSize="xs">{order.orderLines.length} sản phẩm</Text>
               <Text color="red.500" fontWeight="semibold">
-                đ {formatNumber(121212121212)}
+                đ {formatNumber(order.totalPrice)}
               </Text>
             </HStack>
           </Box>
         </HStack>
       </Box>
       <Divider />
-      <Box m={5}>
-        <HStack justifyContent="space-between" alignItems="center" space={2}>
-          <Text fontSize="xs">12/09/23</Text>
-          <Button
-            variant="unstyled"
-            size="sm"
-            color="success.100"
-            bgColor="success.100"
-            rounded="full"
-            _text={{ color: "success.500" }}
-          >
-            Đã giao
-          </Button>
-        </HStack>
-        <HStack justifyContent="space-between" space={2}>
-          <Image
-            // source={{ uri: cart.image }}
-            source={require("../../../public/profile.png")}
-            size="sm"
-            alignSelf="center"
-            resizeMode="contain"
-            alt="cart-prod"
-          />
-          <Box flex={1} gap={2}>
-            <Heading fontSize="md" numberOfLines={2} maxW={WIDTH * 0.6} isTruncated>
-              Mã đơn hàng #12345678
-            </Heading>
-            <HStack justifyContent="space-between" alignItems="center">
-              <Text fontSize="xs">4 sản phẩm</Text>
-              <Text color="red.500" fontWeight="semibold">
-                đ {formatNumber(121212121212)}
-              </Text>
-            </HStack>
-          </Box>
-        </HStack>
-      </Box>
-    </>
-  )
+    </React.Fragment>
+  ))
 }
 
 export default OrderHistory

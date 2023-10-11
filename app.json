@@ -8,9 +8,9 @@
   "messagingSenderId": "177363978819",
   "appId": "1:177363978819:web:a16e333e7d7b482ac4a2f6",
   "measurementId": "G-4BKRDZB7YB",
-  "AWS_ACCESS_KEY_ID": "AKIAUYLYB5SDUPLMREM7",
-  "AWS_SECRET_ACCESS_KEY": "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",
+  "AWS_ACCESS_KEY_ID": "AKIAUYLYB5SDXB2XX6UH",
+  "AWS_SECRET_ACCESS_KEY": "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",
   "AWS_REGION": "ap-southeast-1",
   "AWS_BUCKET_NAME": "bicycle-vuong-phat",
-  "AWS_CDN_CLOUDFONT": "https://d1owci5e1qz6d2.cloudfront.net"
+  "AWS_CDN_CLOUDFONT": "https://d2uw95hyyeoa8w.cloudfront.net"
 }

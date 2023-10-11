@@ -29,10 +29,12 @@ import {
 } from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
 import { HideOnKeyboard } from "react-native-hide-onkeyboard"
+import { localGet } from "../../utils/storage.util"
 
 type TSignup = {
   phoneNumber: string
   password: string
+  deviceToken: string
 }
 
 const Signup: React.FC = ({ navigation }: any) => {
@@ -43,7 +45,7 @@ const Signup: React.FC = ({ navigation }: any) => {
     watch,
     handleSubmit,
     formState: { isSubmitting, errors },
-  } = useForm<TSignup>()
+  } = useForm<TSignup>({ defaultValues: { deviceToken: localGet(config.cache.deviceToken) } })
 
   const onSignup: SubmitHandler<TSignup> = async (data) => {
     const res = await fetchPost(`${config.endpoint}/signup`, JSON.stringify(data))

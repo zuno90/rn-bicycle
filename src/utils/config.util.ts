@@ -1,6 +1,7 @@
 export const config = {
   endpoint: "https://gate.mamnonhoalu.online/api",
   cache: {
+    deviceToken: "device.token",
     accessToken: "auth.accessToken",
     refreshToken: "auth.refreshToken",
     searchHistory: "search.history",

@@ -37,8 +37,8 @@ import PhoneCallBtn from "../../useable/PhoneCallBtn"
 import { localGet } from "../../../utils/storage.util"
 import { SwiperFlatList } from "react-native-swiper-flatlist"
 import { ImageGallery, ImageObject } from "@georstat/react-native-image-gallery"
+import Toast from "../../useable/Toast"
 
-const Toast = React.lazy(() => import("../../useable/Toast"))
 const Grid = React.lazy(() => import("../../useable/Grid"))
 const Product = React.lazy(() => import("./Product"))
 const SkeletonLoading = React.lazy(() => import("../../useable/SkeletonLoading"))
@@ -64,7 +64,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
   const sizes = JSON.parse(localGet(config.cache.sizelist) as string)
   const colors = JSON.parse(localGet(config.cache.colorlist) as string)
 
-  const [product, setProduct] = React.useState<IProduct>()
+  const [product, setProduct] = React.useState<IProduct>(null)
   const [isSeeMore, setIsSeeMore] = React.useState<boolean>(false)
   const [relatedProduct, setRelatedProduct] = React.useState<IProduct[]>([])
 
@@ -78,9 +78,10 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
     if (res.success) setRelatedProduct(res.data.products)
   }
 
+  const isFocused = useIsFocused()
   React.useEffect(() => {
-    Promise.all([getProduct(), getRelatedProducts()])
-  }, [useIsFocused()])
+    if (isFocused) Promise.all([getProduct(), getRelatedProducts()])
+  }, [isFocused])
 
   // HANDLE GALLERY
   const imgRef = React.useRef(null)
@@ -112,14 +113,14 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
     })
   }
   const methods = useForm<TProductAttr>({ defaultValues: { sizes: "", colors: "", quantity: 1 } })
-  const handleAddToCart: SubmitHandler<TProductAttr> = (data) => {
+  const verifyCartItem = (data: TProductAttr, toastId: string) => {
     if (data.colors === "" || data.sizes === "" || data.quantity < 0) {
-      return toast.show({
-        id: "addtocart",
-        placement: "top",
-        duration: 1500,
-        render: () => (
-          <React.Suspense>
+      if (!toast.isActive(toastId))
+        toast.show({
+          id: toastId,
+          placement: "top",
+          duration: 1500,
+          render: () => (
             <Toast
               type={EToastType.err}
               content={
@@ -129,24 +130,21 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                   ? "Số lượng sản phẩm không thể < 1"
                   : "Lỗi thêm sản phẩm!"
               }
-              close={() => toast.close("addtocart")}
+              close={() => toast.close(toastId)}
             />
-          </React.Suspense>
-        ),
-      })
+          ),
+        })
+      return false
     }
 
-    console.log(product?.productItem)
-
-    // productItem:[{id:1, size:"", color:"",inventory: 123,price: 456}]
-
-    const { name, id, productItem, slug, images, price, discount } = product as IProduct
+    const { name, id, productItem, slug, images, discount } = product
     const mappedProductItem = productItem?.filter(
       (item) => item.size === data.sizes && item.color === data.colors
     )[0]
-    const cartItem = {
+    return {
       unit: `no${new Date().getTime()}`,
       id,
+      productItem,
       productVariantId: mappedProductItem?.id,
       name,
       slug,
@@ -157,24 +155,33 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
       colors: mappedProductItem?.color,
       quantity: data.quantity,
     } as IProductCart
- 
-    addToCart(cartItem)
-    setShowFilter({ isOpen: false, type: "", title: "", data: [] })
-    methods.reset()
-    return toast.show({
-      id: "addtocart",
-      placement: "top",
-      duration: 1500,
-      render: () => (
-        <React.Suspense>
-          <Toast
-            type={EToastType.noti}
-            content="Đã thêm vào giỏ hàng"
-            close={() => toast.close("addtocart")}
-          />
-        </React.Suspense>
-      ),
-    })
+  }
+  const handleAddToCart: SubmitHandler<TProductAttr> = async (data) => {
+    const cartItem = verifyCartItem(data, "addtocart")
+    if (cartItem) {
+      addToCart(cartItem)
+      // reset
+      setShowFilter({ isOpen: false, type: "", title: "", data: [] })
+      methods.reset()
+      if (!toast.isActive("addtocart"))
+        toast.show({
+          id: "addtocart",
+          placement: "top",
+          duration: 1500,
+          render: () => (
+            <Toast
+              type={EToastType.noti}
+              content="Đã thêm vào giỏ hàng"
+              close={() => toast.close("addtocart")}
+            />
+          ),
+        })
+    }
+  }
+
+  const handleBuyNow: SubmitHandler<TProductAttr> = (data) => {
+    const cartItem = verifyCartItem(data, "buynow")
+    cartItem && navigation.navigate(EHome.Order, { selectItems: [cartItem] })
   }
 
   return (
@@ -187,7 +194,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
             resizeMode="contain"
             thumbResizeMode="cover"
             isOpen={isOpenProductImg}
-            images={product.images.map((item, index) => ({
+            images={product.images?.map((item, index) => ({
               id: index,
               url: item,
               thumbUrl: item,
@@ -235,7 +242,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
               showPagination
               onChangeIndex={({ index }) => setProductImgIndex(index)}
               data={product.images}
-              renderItem={({ item, index }) => (
+              renderItem={({ item }) => (
                 <Pressable onPress={() => setIsOpenProductImg(true)}>
                   <Image source={{ uri: item }} resizeMode="contain" alt="top-image" size={WIDTH} />
                 </Pressable>
@@ -351,6 +358,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                       fontWeight="bold"
                       color={methods.getValues("colors") === "" ? "zuno" : "white"}
                     >
+                      {methods.getValues("colors") === "" && "Màu"}
                       {colors.length > 0 &&
                         colors.filter((v: any) => v.value === methods.getValues("colors"))[0]
                           ?.title}
@@ -483,6 +491,9 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                 rounded="full"
                 variant="unstyled"
                 _text={{ color: "black", fontWeight: "bold" }}
+                isLoading={methods.formState.isSubmitting}
+                isDisabled={methods.formState.isSubmitting}
+                onPress={methods.handleSubmit(handleBuyNow)}
               >
                 Mua ngay
               </Button>
@@ -511,7 +522,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
             </Slide>
           )}
           {/* button call */}
-          <Box position="absolute" right={2} bottom={24} opacity={80} safeAreaBottom>
+          <Box position="absolute" right={5} bottom={24} opacity={80} safeAreaBottom>
             <PhoneCallBtn />
           </Box>
         </>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyC6V2GutaAurAqmboqd39uxRDvr5i4o7gM</string>
+	<key>GCM_SENDER_ID</key>
+	<string>177363978819</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>org.bycicle.com</string>
+	<key>PROJECT_ID</key>
+	<string>bicycle-d13d7</string>
+	<key>STORAGE_BUCKET</key>
+	<string>bicycle-d13d7.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:177363978819:ios:78b5174f1a3b5c32c4a2f6</string>
+</dict>
+</plist>

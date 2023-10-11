@@ -29,14 +29,16 @@ import { localGet } from "../../../utils/storage.util"
 import { config } from "../../../utils/config.util"
 import { KeyboardAvoidingView } from "react-native"
 import { useIsFocused } from "@react-navigation/native"
+import Clipboard from "@react-native-clipboard/clipboard"
+import Toast from "../../useable/Toast"
 
-const Toast = React.lazy(() => import("../../useable/Toast"))
 const Address = React.lazy(() => import("./Address"))
 const ConfirmModal = React.lazy(() => import("../../useable/ConfirmModal"))
 
 type TProduct = { productVariantId: number; quantity: number }
 
 interface IOrder {
+  orderCode: string
   information: TInputInformation
   products: TProduct[]
   voucher: string
@@ -45,8 +47,11 @@ interface IOrder {
   note: string
 }
 
+const currentTime = new Date().getTime()
+
 const Order: React.FC<any> = ({ route, navigation }) => {
   const { selectItems } = route.params
+  const sizes = JSON.parse(localGet(config.cache.sizelist) as string)
   const colors = JSON.parse(localGet(config.cache.colorlist) as string)
 
   const [expandedAddress, setExpandedAddress] = React.useState<boolean>(false)
@@ -56,6 +61,7 @@ const Order: React.FC<any> = ({ route, navigation }) => {
 
   const methods = useForm<IOrder>({
     defaultValues: {
+      orderCode: `#VDB${currentTime}`,
       products: selectItems.map((item: IProductCart) => ({
         productVariantId: item.productVariantId,
         quantity: item.quantity,
@@ -81,12 +87,10 @@ const Order: React.FC<any> = ({ route, navigation }) => {
     const res = await fetchPost(`${config.endpoint}/order`, JSON.stringify(finalPayload), {
       Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
     })
-    console.log(res)
+    console.log(res, "res order")
     if (res.success) return setIsDone({ status: true, orderId: res.data.id })
     return showToast(res.message)
   }
-
-  console.log(isDone)
 
   const toast = useToast()
   const showToast = (msg: string) => {
@@ -96,14 +100,13 @@ const Order: React.FC<any> = ({ route, navigation }) => {
         placement: "top",
         duration: 1500,
         render: () => (
-          <React.Suspense>
-            <Toast type={EToastType.err} content={msg} close={() => toast.close("order")} />
-          </React.Suspense>
+          <Toast type={EToastType.err} content={msg} close={() => toast.close("order")} />
         ),
       })
   }
 
-  React.useEffect(() => {}, [useIsFocused()])
+  const isFocused = useIsFocused()
+  React.useEffect(() => {}, [isFocused])
 
   return (
     <>
@@ -165,9 +168,11 @@ const Order: React.FC<any> = ({ route, navigation }) => {
                     {order.name}
                   </Heading>
                   <Text>
-                    Size: {order.sizes.toUpperCase()} - Màu:{" "}
+                    {sizes.length > 0 &&
+                      sizes.filter((v: any) => v.value === order.sizes)[0]?.title}{" "}
+                    -{" "}
                     {colors.length > 0 &&
-                      colors.filter((v: any) => v.value === order.colors)[0]?.title}{" "}
+                      colors.filter((v: any) => v.value === order.colors)[0]?.title}
                   </Text>
                   <HStack justifyContent="space-between" alignItems="center">
                     <Text color="red.500" fontWeight="semibold">
@@ -304,12 +309,28 @@ const Order: React.FC<any> = ({ route, navigation }) => {
                           justifyContent="space-between"
                           alignItems="center"
                         >
-                          <Text>Thanh toan don hang #12</Text>
+                          <Text flex={1}>Thanh toan don hang #VDB{currentTime}</Text>
                           <Button
                             bgColor="zuno"
                             size="sm"
                             rounded="full"
                             _text={{ fontWeight: "bold" }}
+                            onPress={() => {
+                              Clipboard.setString(`#VDB${currentTime}`)
+                              !toast.isActive("copytoclipboard") &&
+                                toast.show({
+                                  id: "copytoclipboard",
+                                  placement: "top",
+                                  duration: 1500,
+                                  render: () => (
+                                    <Toast
+                                      type={EToastType.noti}
+                                      content="Đã sao chép"
+                                      close={() => toast.close("copytoclipboard")}
+                                    />
+                                  ),
+                                })
+                            }}
                           >
                             Sao chép
                           </Button>
@@ -415,7 +436,6 @@ const Order: React.FC<any> = ({ route, navigation }) => {
             // isDisabled={selectItems.length > 0 ? false : true}
             onPress={async () => {
               const ok = await methods.trigger()
-              console.log(methods.formState.errors)
               for (let e in methods.formState.errors) {
                 if (e === "information")
                   for (let ee in methods.formState.errors[e])
@@ -508,25 +528,25 @@ const Order: React.FC<any> = ({ route, navigation }) => {
 
 const VoucherIcon = () => {
   return (
-    <Svg width="19" height="12" viewBox="0 0 19 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <Svg width="19" height="12" viewBox="0 0 19 12" fill="none">
       <Path
         d="M16.375 6.00011C16.375 5.11094 17.0167 4.35928 17.86 4.20344C18.0708 4.16678 18.2083 3.97427 18.2083 3.76344V0.967611C18.2083 0.710944 18.0067 0.509277 17.75 0.509277H1.25C0.993335 0.509277 0.791668 0.710944 0.791668 0.967611V3.76344C0.791668 3.97427 0.938335 4.16678 1.14 4.20344C1.98333 4.36844 2.625 5.11094 2.625 6.00011C2.625 6.88928 1.98333 7.64094 1.14 7.79677C0.929168 7.83344 0.791668 8.02594 0.791668 8.23677V11.0326C0.791668 11.2893 0.993335 11.4909 1.25 11.4909H17.75C18.0067 11.4909 18.2083 11.2893 18.2083 11.0326V8.23677C18.2083 8.02594 18.0617 7.83344 17.86 7.79677C17.0167 7.64094 16.375 6.89844 16.375 6.00011Z"
         stroke="#FFC700"
-        stroke-miterlimit="10"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeMiterlimit="10"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <Path
         d="M10.875 3.7085H13.625V8.29183H10.875"
         stroke="#FFC700"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <Path
         d="M8.125 8.29183H5.375V3.7085H8.125"
         stroke="#FFC700"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </Svg>
   )

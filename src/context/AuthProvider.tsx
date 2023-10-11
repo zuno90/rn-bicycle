@@ -1,5 +1,5 @@
 import React, { createContext } from "react"
-import { localGet } from "../utils/storage.util"
+import { localGet, localSet } from "../utils/storage.util"
 import { config } from "../utils/config.util"
 import { fetchGet, fetchPost } from "../utils/helper.util"
 
@@ -35,7 +35,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               JSON.stringify({ accessToken, refreshToken })
             )
             console.log(result)
-
             break
           default:
             break

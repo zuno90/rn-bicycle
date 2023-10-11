@@ -15,7 +15,7 @@ import CartIcon from "../shop/cart/CartIcon"
 import { EHome } from "../../__types__"
 import { useIsFocused } from "@react-navigation/native"
 import { collection, getDocs, limit, orderBy, query, where } from "firebase/firestore"
-import { db } from "../../utils/firebase"
+import { db } from "../../utils/firebase.util."
 
 const FooterMenu = React.lazy(() => import("../home/FooterMenu"))
 
@@ -23,21 +23,23 @@ const Chat: React.FC<any> = ({ route, navigation }) => {
   const { user } = route.params
 
   const [lastMessage, setLastMessage] = React.useState<string>("")
-  React.useEffect(() => {
-    const getLastMessage = async () => {
-      try {
-        const c = collection(db, "chat")
-        const q = query(c, where("user._id", "==", user.id), orderBy("createdAt", "desc"), limit(1))
-        const querySnapshot = await getDocs(q)
-        querySnapshot.forEach((doc) => {
-          setLastMessage(doc.data().text)
-        })
-      } catch (error) {
-        console.error(error)
-      }
+  const getLastMessage = async () => {
+    try {
+      const c = collection(db, "chat")
+      const q = query(c, where("user._id", "==", user.id), orderBy("createdAt", "desc"), limit(1))
+      const querySnapshot = await getDocs(q)
+      querySnapshot.forEach((doc) => {
+        setLastMessage(doc.data().text)
+      })
+    } catch (error) {
+      console.error(error)
     }
-    getLastMessage()
-  }, [useIsFocused()])
+  }
+
+  const isFocused = useIsFocused()
+  React.useEffect(() => {
+    if (isFocused) getLastMessage()
+  }, [isFocused])
 
   return (
     <>

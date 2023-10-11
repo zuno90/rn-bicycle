@@ -7,7 +7,6 @@ import {
   Button,
   FormControl,
   Input,
-  useToast,
   HStack,
   KeyboardAvoidingView,
 } from "native-base"
@@ -16,18 +15,21 @@ import FaIcon from "react-native-vector-icons/FontAwesome"
 import FeaIcon from "react-native-vector-icons/Feather"
 import { Controller, SubmitHandler, useForm } from "react-hook-form"
 import { Dropdown } from "react-native-element-dropdown"
-import { allowOnlyNumber, fetchGet, fetchPost } from "../../utils/helper.util"
-import { EToastType, TInputInformation } from "../../__types__"
+import { allowOnlyNumber, fetchGet, fetchPut } from "../../utils/helper.util"
+import { EHome, TInputInformation } from "../../__types__"
 import { config } from "../../utils/config.util"
-
-const Toast = React.lazy(() => import("../useable/Toast"))
+import useAuth from "../../context/AuthProvider"
+import { localGet } from "../../utils/storage.util"
 
 const Information: React.FC<any> = ({ route, navigation }) => {
+  const { user } = route.params
+  const { checkAuth } = useAuth()
+  console.log(user)
   const {
     control,
     getValues,
     handleSubmit,
-    formState: { errors },
+    formState: { isSubmitting, errors },
   } = useForm<TInputInformation>()
 
   const [cities, setCities] = React.useState([])
@@ -49,7 +51,6 @@ const Information: React.FC<any> = ({ route, navigation }) => {
     const res = await fetchGet(`${config.endpoint}/wards/${districtId}`)
     setWards(res.data.wards.map((ward: any) => ({ label: ward.name, value: ward.id })))
   }
-
   const onSubmitInformation: SubmitHandler<TInputInformation> = async (data) => {
     const payload = {
       name: data.name,
@@ -59,24 +60,14 @@ const Information: React.FC<any> = ({ route, navigation }) => {
       ward: data.ward.label,
       address: data.address,
     }
-    const res = await fetchPost(`${config.endpoint}/user`, JSON.stringify(payload), {
-      Authorization: `Bearer ${config.cache.accessToken}`,
-    })
-  }
 
-  const toast = useToast()
-  const showToast = (msg: string) => {
-    if (!toast.isActive("information"))
-      toast.show({
-        id: "information",
-        placement: "top",
-        duration: 1500,
-        render: () => (
-          <React.Suspense>
-            <Toast type={EToastType.err} content={msg} close={() => toast.close("information")} />
-          </React.Suspense>
-        ),
-      })
+    const res = await fetchPut(`${config.endpoint}/user`, JSON.stringify(payload), {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
+    if (res.success) {
+      await checkAuth()
+      return navigation.navigate(EHome.Profile)
+    }
   }
 
   return (
@@ -99,7 +90,7 @@ const Information: React.FC<any> = ({ route, navigation }) => {
               <FormControl isRequired isInvalid={"name" in errors}>
                 <Controller
                   name="name"
-                  defaultValue=""
+                  defaultValue={user.name}
                   rules={{ required: "Tên không được để trống!" }}
                   control={control}
                   render={({ field: { onChange, onBlur, value } }) => (
@@ -128,7 +119,7 @@ const Information: React.FC<any> = ({ route, navigation }) => {
               <FormControl isRequired isInvalid={"phoneNumber" in errors}>
                 <Controller
                   name="phoneNumber"
-                  defaultValue=""
+                  defaultValue={user.phoneNumber}
                   rules={{
                     required: "Số điện thoại không được để trống!",
                     pattern: /^(?:\+\d{1,3})?[ -]?\(?\d{3}\)?[ -]?\d{3}[ -]?\d{4}$/,
@@ -157,20 +148,21 @@ const Information: React.FC<any> = ({ route, navigation }) => {
               </FormControl>
             </Box>
 
-            <Box gap={3}>
+            <Box gap={4}>
               <Text fontSize="md" fontWeight="semibold">
                 Địa chỉ nhận hàng (mặc định)
               </Text>
               <FormControl isRequired isInvalid={"city" in errors}>
                 <Controller
                   name="city"
+                  // defaultValue={}
                   rules={{ required: "Thành phố không được để trống!" }}
                   control={control}
                   render={({ field: { onChange, onBlur, value } }) => (
                     <Dropdown
                       style={{
                         height: 50,
-                        padding: 5,
+                        padding: 10,
                         borderRadius: 100,
                         borderColor: "#d4d4d4",
                         borderWidth: 1,
@@ -214,7 +206,7 @@ const Information: React.FC<any> = ({ route, navigation }) => {
                     <Dropdown
                       style={{
                         height: 50,
-                        padding: 5,
+                        padding: 10,
                         borderRadius: 100,
                         borderColor: "#d4d4d4",
                         borderWidth: 1,
@@ -226,7 +218,7 @@ const Information: React.FC<any> = ({ route, navigation }) => {
                       data={districts}
                       labelField="label"
                       valueField="value"
-                      disable={cities?.length === 0}
+                      disable={!getValues("city")}
                       searchPlaceholder="Search..."
                       value={value}
                       onFocus={() => getDistricts(getValues("city.value"))}
@@ -257,7 +249,7 @@ const Information: React.FC<any> = ({ route, navigation }) => {
                     <Dropdown
                       style={{
                         height: 50,
-                        padding: 5,
+                        padding: 10,
                         borderRadius: 100,
                         borderColor: "#d4d4d4",
                         borderWidth: 1,
@@ -269,7 +261,7 @@ const Information: React.FC<any> = ({ route, navigation }) => {
                       data={wards}
                       labelField="label"
                       valueField="value"
-                      disable={districts?.length === 0}
+                      disable={!getValues("district")}
                       searchPlaceholder="Search..."
                       value={value}
                       onFocus={() => getWards(getValues("district.value"))}
@@ -328,6 +320,7 @@ const Information: React.FC<any> = ({ route, navigation }) => {
             variant="unstyled"
             h={50}
             _pressed={{ bgColor: "yellow.400" }}
+            isLoading={isSubmitting}
             onPress={handleSubmit(onSubmitInformation)}
           >
             <Text fontSize="lg" fontWeight="semibold">

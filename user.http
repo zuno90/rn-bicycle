@@ -68,3 +68,7 @@ Content-Type: application/json
 {
     "phoneNumber": "0327476381",
 }
+
+###
+# 0356783912
+GET {{ baseURL }}/user/clear-cache

@@ -61,8 +61,8 @@ const Cart: React.FC<any> = ({ navigation }) => {
     const res = await fetchGet(`${config.endpoint}/user/get-carts`, {
       // Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
     })
-    if (res.success) return res.data
     console.log(res)
+    if (res.success) return res.data
   }
 
   const getCarts = async () => {
@@ -71,11 +71,10 @@ const Cart: React.FC<any> = ({ navigation }) => {
     setIsLoading(false)
   }
 
+  const isFocused = useIsFocused()
   React.useEffect(() => {
-    getCarts()
-  }, [])
-
-  React.useEffect(() => {}, [useIsFocused()])
+    if (isFocused) getCarts()
+  }, [isFocused])
 
   // EDIT ATTR
   const [showFilter, setShowFilter] = React.useState<TFilterModal>({
@@ -154,18 +153,14 @@ const Cart: React.FC<any> = ({ navigation }) => {
       {isLoading ? (
         <LoadingScreen />
       ) : !carts || !carts.length ? (
-        <ScrollView>
-          <Box bgColor="white">
+        <ScrollView bgColor="white">
+          <Box>
             <VStack justifyContent="space-between" alignItems="center" p={5} space={2}>
               <Heading fontSize="xl">Giỏ hàng trống</Heading>
               <Text fontSize="md">Tiếp tục khám phá các sản phẩm của chúng tôi</Text>
               <LinearGradient
                 colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
-                style={{
-                  width: "100%",
-                  borderRadius: 100,
-                  marginTop: 10,
-                }}
+                style={{ width: "100%", borderRadius: 100, marginTop: 10 }}
               >
                 <Button
                   variant="unstyled"
@@ -179,8 +174,8 @@ const Cart: React.FC<any> = ({ navigation }) => {
                 </Button>
               </LinearGradient>
             </VStack>
-            <Divider my={8} thickness={4} />
-            <Box mx={1} pb={5} bgColor="white">
+            <Divider my={8} pb={5} thickness={4} />
+            <Box mx={1} bgColor="white">
               <BestSelling />
             </Box>
           </Box>
@@ -267,7 +262,6 @@ const Cart: React.FC<any> = ({ navigation }) => {
                           }
                         >
                           <Text color="white" fontSize="xs" fontWeight="bold" isTruncated>
-                            Màu{" "}
                             {colors.length > 0 &&
                               colors.filter((v: any) => v.value === cart.colors)[0]?.title}
                           </Text>
@@ -405,9 +399,25 @@ const ProductAttributeSelect = ({ showFilter, closeFilter, carts, setCarts }: an
       if (item.unit === productAttr.unit) {
         switch (type) {
           case "sizes":
-            return { ...item, sizes: value }
+            const newItemBySize = item.productItem?.filter(
+              (i: any) => i.color === item.colors && i.size === value
+            )[0]
+            return {
+              ...item,
+              sizes: value,
+              price: newItemBySize.price,
+              productVariantId: newItemBySize.id,
+            }
           case "colors":
-            return { ...item, colors: value }
+            const newItemByColor = item.productItem?.filter(
+              (i: any) => i.size === item.sizes && i.color === value
+            )[0]
+            return {
+              ...item,
+              colors: value,
+              price: newItemByColor.price,
+              productVariantId: newItemByColor.id,
+            }
           default:
             break
         }

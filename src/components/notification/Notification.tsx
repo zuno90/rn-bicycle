@@ -1,5 +1,5 @@
 import React from "react"
-import { HStack, Box, Divider, Text, Button, ScrollView } from "native-base"
+import { HStack, Divider, Text, Button, ScrollView } from "native-base"
 import CartIcon from "../shop/cart/CartIcon"
 import NotificationList from "./NotificationList"
 import FooterMenu from "../home/FooterMenu"
@@ -10,10 +10,11 @@ const tabs = [
   { value: "voucher", title: "Khuyến mãi" },
 ]
 
-const Notification: React.FC<any> = ({ route, navigation }) => {
+const Notification: React.FC<any> = ({ route }) => {
   const [selected, setSelected] = React.useState<string>(tabs[0].value)
 
-  React.useEffect(() => {}, [useIsFocused()])
+  const isFocused = useIsFocused()
+  React.useEffect(() => {}, [isFocused])
 
   return (
     <>
@@ -32,10 +33,10 @@ const Notification: React.FC<any> = ({ route, navigation }) => {
             rounded="full"
             px={6}
             variant="outline"
-            borderColor="#966216"
-            bgColor={selected === tab.value ? "#966216" : "transparent"}
+            borderColor="zuno"
+            bgColor={selected === tab.value ? "zuno" : "transparent"}
             _text={{
-              color: selected === tab.value ? "white" : "#966216",
+              color: selected === tab.value ? "white" : "zuno",
               fontWeight: selected === tab.value ? "semibold" : "medium",
             }}
           >

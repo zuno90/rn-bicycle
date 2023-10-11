@@ -26,10 +26,13 @@ const ProductByCate: React.FC<TProductByCate> = ({ cateSlug }) => {
       if (resByCate.success) return setProducts(resByCate.data.products)
     }
   }
-
+  const isFocused = useIsFocused()
   React.useEffect(() => {
-    getProducts()
-  }, [useIsFocused(), cateSlug])
+    if (isFocused) {
+      getProducts()
+      console.log(12312312)
+    }
+  }, [isFocused, cateSlug])
 
   return (
     <Stack space={4}>
