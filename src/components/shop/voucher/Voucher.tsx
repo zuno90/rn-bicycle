@@ -21,15 +21,17 @@ import { useDebounce } from "use-debounce"
 
 const Voucher: React.FC<any> = ({ route, navigation }) => {
   const [vouchers, setVouchers] = React.useState([])
-  const [voucherCode, setVoucherCode] = React.useState<string>("")
-  const [searchTerm] = useDebounce(voucherCode, 300)
+  const [voucherCode, setVoucherCode] = React.useState({ code: "", unit: "", value: 0 })
+  const [searchTerm] = useDebounce(voucherCode.code, 300)
   const [isNotFound, setIsNotFound] = React.useState<boolean>(false)
 
   const handleApplyVoucher = () => {
     if (searchTerm === "") return
     if (vouchers.filter((vou: any) => vou.code === searchTerm).length === 0)
       return setIsNotFound(true)
-    route.params.voucher(searchTerm)
+    route.params.code(searchTerm)
+    route.params.unit(voucherCode.unit)
+    route.params.value(voucherCode.value)
     return navigation.goBack()
   }
 
@@ -57,8 +59,8 @@ const Voucher: React.FC<any> = ({ route, navigation }) => {
             size={5}
             type="text"
             placeholder="Nhập mã giảm giá"
-            defaultValue={voucherCode}
-            onChangeText={setVoucherCode}
+            defaultValue={voucherCode.code}
+            onChangeText={(code) => setVoucherCode({ ...voucherCode, code })}
             _focus={{ borderColor: "yellow.400", bgColor: "white" }}
             InputRightElement={
               <HStack mx={4} space={4}>
@@ -124,19 +126,24 @@ const Voucher: React.FC<any> = ({ route, navigation }) => {
                     alignSelf="center"
                   />
                 </Box>
-                <Box
+                <Pressable
                   flex={1}
-                  px={2}
-                  py={5}
-                  roundedRight="md"
-                  flexDir="row"
-                  bgColor="yellow.300"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  gap={2}
+                  onPress={() =>
+                    setVoucherCode({ code: voucher.code, unit: voucher.unit, value: voucher.value })
+                  }
                 >
-                  <Box flex={1}>
-                    <Pressable onPress={() => setVoucherCode(voucher.code)}>
+                  <Box
+                    flex={1}
+                    px={2}
+                    py={5}
+                    roundedRight="md"
+                    flexDir="row"
+                    bgColor="yellow.300"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    gap={2}
+                  >
+                    <Box flex={1}>
                       <Heading fontSize="md" fontWeight="semibold">
                         {voucher.title}
                       </Heading>
@@ -149,14 +156,14 @@ const Voucher: React.FC<any> = ({ route, navigation }) => {
                           day: "numeric",
                         })}
                       </Text>
-                    </Pressable>
+                    </Box>
+                    {voucherCode.code === voucher.code ? (
+                      <Icon as={AntIcon} name="checkcircle" color="#FD6A6A" />
+                    ) : (
+                      <Icon as={FaIcon} name="circle" color="white" />
+                    )}
                   </Box>
-                  {voucherCode === voucher.code ? (
-                    <Icon as={AntIcon} name="checkcircle" color="#FD6A6A" />
-                  ) : (
-                    <Icon opacity={0} />
-                  )}
-                </Box>
+                </Pressable>
               </Box>
             ))
           )}

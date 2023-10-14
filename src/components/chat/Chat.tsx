@@ -28,9 +28,7 @@ const Chat: React.FC<any> = ({ route, navigation }) => {
       const c = collection(db, "chat")
       const q = query(c, where("user._id", "==", user.id), orderBy("createdAt", "desc"), limit(1))
       const querySnapshot = await getDocs(q)
-      querySnapshot.forEach((doc) => {
-        setLastMessage(doc.data().text)
-      })
+      querySnapshot.forEach((doc) => setLastMessage(doc.data().text))
     } catch (error) {
       console.error(error)
     }

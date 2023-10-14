@@ -49,10 +49,7 @@ const OrderHistory: React.FC<any> = ({ navigation }) => {
         renderTabBar={(props) => (
           <TabBar
             {...props}
-            style={{
-              width: WIDTH,
-              backgroundColor: "white",
-            }}
+            style={{ width: WIDTH, backgroundColor: "white" }}
             // tabStyle={{ width: "auto" }}
             renderLabel={({ route, focused }) => (
               <Text color="black" fontSize="xs" fontWeight={focused ? "bold" : "normal"}>
@@ -136,7 +133,7 @@ const OrderList = ({ data }: { data: IOrder[] }) => {
               numberOfLines={2}
               maxW={WIDTH * 0.6}
               isTruncated
-              onPress={() => navigation.navigate(EHome.OrderDetail)}
+              onPress={() => navigation.navigate(EHome.OrderDetail, { id: order.id })}
             >
               Mã đơn hàng {order.codeOrder}
             </Heading>

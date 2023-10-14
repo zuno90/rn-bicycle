@@ -141,6 +141,15 @@ const Cart: React.FC<any> = ({ navigation }) => {
     navigation.navigate(EHome.Order, { selectItems: items })
   }
 
+  const beforeTotal = selectItems
+    .map((s: any) => {
+      const findItem = carts.filter((c) => c.unit === s)[0]
+      return findItem.price * findItem.quantity
+    })
+    .reduce((a: number, b: number) => a + b, 0)
+  const transportFee = selectItems.length ? 50000 : 0
+  const finalTotal = beforeTotal + transportFee
+
   return (
     <>
       <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
@@ -199,7 +208,6 @@ const Cart: React.FC<any> = ({ navigation }) => {
                             onChange={(ischecked) => handleCheckBox(cart.unit, ischecked)}
                           />
                         </Stack>
-
                         <Image
                           source={{ uri: cart.image }}
                           size="sm"
@@ -312,16 +320,11 @@ const Cart: React.FC<any> = ({ navigation }) => {
             <Text fontWeight="bold">Tổng đơn hàng</Text>
             <HStack justifyContent="space-between">
               <Text>Thành tiền</Text>
-              <Text>
-                đ{" "}
-                {formatNumber(
-                  carts.map((item) => item.price * item.quantity).reduce((a, b) => a + b, 0)
-                )}
-              </Text>
+              <Text>đ{formatNumber(beforeTotal)}</Text>
             </HStack>
             <HStack justifyContent="space-between">
               <Text>Vận chuyển</Text>
-              <Text>-</Text>
+              <Text>đ{formatNumber(transportFee)}</Text>
             </HStack>
             <HStack justifyContent="space-between">
               <Text>Mã khuyến mãi</Text>
@@ -329,12 +332,7 @@ const Cart: React.FC<any> = ({ navigation }) => {
             </HStack>
             <HStack justifyContent="space-between">
               <Text>Tổng cộng</Text>
-              <Text color="red.500">
-                đ{" "}
-                {formatNumber(
-                  carts.map((item) => item.price * item.quantity).reduce((a, b) => a + b, 0)
-                )}
-              </Text>
+              <Text color="red.500">đ{formatNumber(finalTotal)}</Text>
             </HStack>
             <LinearGradient
               colors={
@@ -399,7 +397,7 @@ const ProductAttributeSelect = ({ showFilter, closeFilter, carts, setCarts }: an
       if (item.unit === productAttr.unit) {
         switch (type) {
           case "sizes":
-            const newItemBySize = item.productItem?.filter(
+            const newItemBySize = item.productItem.filter(
               (i: any) => i.color === item.colors && i.size === value
             )[0]
             return {
@@ -409,7 +407,7 @@ const ProductAttributeSelect = ({ showFilter, closeFilter, carts, setCarts }: an
               productVariantId: newItemBySize.id,
             }
           case "colors":
-            const newItemByColor = item.productItem?.filter(
+            const newItemByColor = item.productItem.filter(
               (i: any) => i.size === item.sizes && i.color === value
             )[0]
             return {

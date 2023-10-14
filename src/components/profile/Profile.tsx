@@ -44,17 +44,15 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
   }
 
   const handleLogout = async () => {
-    const res = await fetchPost(`${config.endpoint}/logout`, JSON.stringify({}))
-    console.log(res, "logout")
-    localDel(config.cache.accessToken)
-    localDel(config.cache.refreshToken)
-    await checkAuth()
-    return navigation.navigate(EScreen.Auth)
-    // if (res.success) {
-    //   localDel(config.cache.accessToken)
-    //   localDel(config.cache.refreshToken)
-    //   return navigation.navigate(EScreen.Auth)
-    // }
+    const res = await fetchPost(`${config.endpoint}/logout`, JSON.stringify({}), {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
+    if (res.success) {
+      localDel(config.cache.accessToken)
+      localDel(config.cache.refreshToken)
+      await checkAuth()
+      return navigation.navigate(EScreen.Auth)
+    }
   }
   const isFocused = useIsFocused()
   React.useEffect(() => {
@@ -81,7 +79,7 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
             resizeMode="cover"
             alt="shop-banner"
           />
-          <Heading>{user.name ?? user.phoneNumber}</Heading>
+          <Heading>{user.name || user.phoneNumber}</Heading>
         </VStack>
 
         <Stack my={5} space={5}>

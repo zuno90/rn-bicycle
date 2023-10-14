@@ -41,7 +41,7 @@ interface IOrder {
   orderCode: string
   information: TInputInformation
   products: TProduct[]
-  voucher: string
+  voucher: { code: string; unit: string; value: number }
   shipping: string
   paymentMethod: string
   note: string
@@ -50,7 +50,7 @@ interface IOrder {
 const currentTime = new Date().getTime()
 
 const Order: React.FC<any> = ({ route, navigation }) => {
-  const { selectItems } = route.params
+  const { user, selectItems } = route.params
   const sizes = JSON.parse(localGet(config.cache.sizelist) as string)
   const colors = JSON.parse(localGet(config.cache.colorlist) as string)
 
@@ -108,6 +108,19 @@ const Order: React.FC<any> = ({ route, navigation }) => {
   const isFocused = useIsFocused()
   React.useEffect(() => {}, [isFocused])
 
+  // fomular of order cost
+  const beforeTotal = selectItems
+    .map((item: IProductCart) => item.price * item.quantity)
+    .reduce((a: number, b: number) => a + b, 0)
+  const transportFee = 50000
+  const voucherApplying =
+    methods.getValues("voucher.unit") === "cash"
+      ? methods.getValues("voucher.value")
+      : methods.getValues("voucher.unit") === "%"
+      ? (beforeTotal * methods.getValues("voucher.value")) / 100
+      : 0
+  const finalTotal = beforeTotal + transportFee - voucherApplying
+
   return (
     <>
       <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
@@ -126,27 +139,23 @@ const Order: React.FC<any> = ({ route, navigation }) => {
               <Box flex={1}>
                 <Heading fontSize="md">Địa chỉ nhận hàng</Heading>
                 <Text>
-                  {methods.getValues("information.address")
-                    ? methods.getValues("information.address")
-                    : "[Địa chỉ giao hàng]"}{" "}
+                  {methods.getValues("information.address") ||
+                    user.address ||
+                    "[Địa chỉ giao hàng]"}{" "}
                   ,{" "}
-                  {methods.getValues("information.district.label")
-                    ? methods.getValues("information.district.label")
-                    : "[Quận/Huyện giao hàng]"}{" "}
+                  {methods.getValues("information.district.label") ||
+                    user.district ||
+                    "[Quận/Huyện giao hàng]"}{" "}
                   ,{" "}
-                  {methods.getValues("information.city.label")
-                    ? methods.getValues("information.city.label")
-                    : "[Tỉnh/Thành giao hàng]"}
+                  {methods.getValues("information.city.label") ||
+                    user.city ||
+                    "[Tỉnh/Thành giao hàng]"}
                 </Text>
+                <Text>{methods.getValues("information.name") || user.name || "Tên của bạn"}</Text>
                 <Text>
-                  {methods.getValues("information.name")
-                    ? methods.getValues("information.name")
-                    : "Tên của bạn"}
-                </Text>
-                <Text>
-                  {methods.getValues("information.phoneNumber")
-                    ? methods.getValues("information.phoneNumber")
-                    : "SĐT của bạn"}
+                  {methods.getValues("information.phoneNumber") ||
+                    user.phoneNumber ||
+                    "SĐT của bạn"}
                 </Text>
               </Box>
               <Icon as={AntIcon} name="edit" size={5} onPress={() => setExpandedAddress(true)} />
@@ -197,30 +206,34 @@ const Order: React.FC<any> = ({ route, navigation }) => {
                 <HStack space={2} alignItems="center">
                   <Icon as={VoucherIcon} />
                   <Text fontWeight="semibold">
-                    {methods.getValues("voucher") ? methods.getValues("voucher") : "Mã giảm giá"}
+                    {methods.getValues("voucher.code") || "Mã giảm giá"}
                   </Text>
                 </HStack>
                 <HStack space={2} alignItems="center">
                   <Text
                     onPress={() =>
                       navigation.navigate(EHome.Voucher, {
-                        voucher: (voucher: string) =>
-                          methods.setValue("voucher", voucher, { shouldDirty: true }),
+                        code: (code: string) =>
+                          methods.setValue("voucher.code", code, { shouldDirty: true }),
+                        unit: (unit: string) =>
+                          methods.setValue("voucher.unit", unit, { shouldDirty: true }),
+                        value: (value: number) =>
+                          methods.setValue("voucher.value", value, { shouldDirty: true }),
                       })
                     }
                   >
-                    {methods.getValues("voucher") ? (
+                    {methods.getValues("voucher.code") ? (
                       <Icon as={AntIcon} name="checkcircle" color="yellow.400" />
                     ) : (
                       "Chọn hoặc nhập mã"
                     )}
                   </Text>
-                  {methods.watch("voucher") ? (
+                  {methods.watch("voucher.code") ? (
                     <Icon
                       as={MateIcon}
                       name="highlight-remove"
                       size={5}
-                      onPress={() => methods.setValue("voucher", "", { shouldDirty: true })}
+                      onPress={() => methods.setValue("voucher.code", "", { shouldDirty: true })}
                     />
                   ) : (
                     <Icon as={FaIcon} name="chevron-right" />
@@ -396,33 +409,19 @@ const Order: React.FC<any> = ({ route, navigation }) => {
         <Text fontWeight="bold">Tổng đơn hàng</Text>
         <HStack justifyContent="space-between">
           <Text>Thành tiền</Text>
-          <Text>
-            đ{" "}
-            {formatNumber(
-              selectItems
-                .map((item: IProductCart) => item.price * item.quantity)
-                .reduce((a: number, b: number) => a + b, 0)
-            )}
-          </Text>
+          <Text>đ{formatNumber(beforeTotal)}</Text>
         </HStack>
         <HStack justifyContent="space-between">
           <Text>Vận chuyển</Text>
-          <Text>-</Text>
+          <Text>+ đ{formatNumber(transportFee)}</Text>
         </HStack>
         <HStack justifyContent="space-between">
           <Text>Mã khuyến mãi</Text>
-          <Text color="red.500">-</Text>
+          <Text color="red.500">- đ{formatNumber(voucherApplying)}</Text>
         </HStack>
         <HStack justifyContent="space-between">
           <Text>Tổng cộng</Text>
-          <Text color="red.500">
-            đ{" "}
-            {formatNumber(
-              selectItems
-                .map((item: IProductCart) => item.price * item.quantity)
-                .reduce((a: number, b: number) => a + b, 0)
-            )}
-          </Text>
+          <Text color="red.500">đ{formatNumber(finalTotal)}</Text>
         </HStack>
         <LinearGradient
           colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
@@ -466,7 +465,11 @@ const Order: React.FC<any> = ({ route, navigation }) => {
       <Slide in={expandedAddress} duration={200} placement="bottom">
         <FormProvider {...methods}>
           <React.Suspense fallback={<LoadingBtn />}>
-            <Address showToast={showToast} closePopup={() => setExpandedAddress(false)} />
+            <Address
+              user={user}
+              showToast={showToast}
+              closePopup={() => setExpandedAddress(false)}
+            />
           </React.Suspense>
         </FormProvider>
       </Slide>

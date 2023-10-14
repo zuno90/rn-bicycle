@@ -1,4 +1,4 @@
-import { addDoc, collection, onSnapshot, or, orderBy, query, where } from "firebase/firestore"
+import { addDoc, arrayUnion, collection, doc, getDoc, setDoc, updateDoc } from "firebase/firestore"
 import { Avatar, Box, HStack, Heading, Icon, ScrollView, Text, VStack, View } from "native-base"
 import React from "react"
 import { Keyboard, Platform } from "react-native"
@@ -19,7 +19,6 @@ import FeaIcon from "react-native-vector-icons/Feather"
 import FaIcon from "react-native-vector-icons/FontAwesome"
 import MateIcon from "react-native-vector-icons/MaterialIcons"
 import { db } from "../../utils/firebase.util."
-import { config } from "../../utils/config.util"
 import env from "../../../app.json"
 import AWS from "aws-sdk"
 import { v4 as uuid } from "uuid"
@@ -38,54 +37,39 @@ const PrivateChat: React.FC<any> = ({ route, navigation }) => {
   const [messages, setMessages] = React.useState<IMessage[]>([])
   const [showAcc, setShowAcc] = React.useState<boolean>(false)
 
-  const onSend = (mess = []) => {
+  const d = doc(db, "chat", `user:${user.id}`)
+  const onSend = async (mess = []) => {
     setMessages((previousMessages: any) => GiftedChat.append(previousMessages, mess))
-    addDoc(collection(db, "chat"), mess[0])
+    return addMsg(mess[0])
   }
 
+  const addMsg = async (message: IMessage) => {
+    let { user, ...others } = message
+    try {
+      await updateDoc(d, { user, messages: arrayUnion(others) })
+    } catch (error) {
+      await setDoc(d, { user, messages: arrayUnion(others) })
+    }
+  }
+  const getMsgs = async () => {
+    const userDoc = await getDoc(d)
+    let { user, messages } = userDoc.data() as any
+    const msgArr: IMessage[] = []
+    messages.forEach((msg: IMessage) =>
+      msgArr.push({
+        _id: msg._id,
+        text: msg.text,
+        image: msg.image,
+        user,
+        createdAt: msg.createdAt.toDate(),
+      })
+    )
+    setMessages(msgArr)
+  }
   React.useEffect(() => {
     handleKeyboard()
-    const c = collection(db, "chat")
-    const q = query(c, where("user._id", "==", user.id), orderBy("createdAt", "desc"))
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      // console.log("snapshop", snapshot)
-
-      setMessages(
-        snapshot.docs.map((doc) => ({
-          _id: doc.id,
-          text: doc.data().text,
-          image: doc.data().image,
-          user: doc.data().user,
-          createdAt: doc.data().createdAt.toDate(),
-        }))
-      )
-    })
-    return unsubscribe
+    getMsgs()
   }, [])
-
-  // React.useEffect(() => {
-  //   setMessages([
-  //     {
-  //       _id: 99,
-  //       text: "Demo message",
-  //       createdAt: new Date(),
-  //       user: { _id: 2, avatar: "https://i.pravatar.cc/300" },
-  //       image: "https://i.pravatar.cc/300",
-  //       // You can also add a video prop:
-  //       // video:
-  //       //   "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-  //       // // Mark the message as sent, using one tick
-  //       // sent: true,
-  //       // // Mark the message as received, using two tick
-  //       // received: true,
-  //       // // Mark the message as pending with a clock loader
-  //       // pending: true,
-  //       // // Any additional custom parameters are passed through
-  //     },
-  //   ])
-  //   handleKeyboard()
-  // }, [])
 
   async function upLoadImage(image: any) {
     const res = await fetch(image.uri.replace("file://", ""))
@@ -95,14 +79,17 @@ const PrivateChat: React.FC<any> = ({ route, navigation }) => {
       Key: image.name,
       Body: rawBlob,
     }
-
     return s3.upload(params).promise()
   }
 
   const handleUploadImage = async () => {
     try {
-      const result = await launchImageLibrary({ mediaType: "photo", maxWidth: 250, maxHeight: 250 })
-      if (!result.assets) throw new Error("")
+      const result = await launchImageLibrary({
+        mediaType: "photo",
+        maxWidth: 1000,
+        maxHeight: 500,
+      })
+      if (!result.assets) throw new Error("No Photo found!")
       if (result.assets[0]?.uri) {
         const image = {
           uri: result.assets[0].uri,
@@ -120,17 +107,16 @@ const PrivateChat: React.FC<any> = ({ route, navigation }) => {
           image: imgUrl,
         }
         setMessages((previousMessages) => GiftedChat.append(previousMessages, [message]))
-        addDoc(collection(db, "chat"), message)
+        return addMsg(message)
       }
     } catch (error) {
-      // throw error
+      console.error(error)
     }
   }
   const handleCapture = async () => {
-    console.log(333)
     try {
-      const result = await launchCamera({ mediaType: "photo", maxWidth: 250, maxHeight: 250 })
-      if (!result.assets) throw new Error("")
+      const result = await launchCamera({ mediaType: "photo", maxWidth: 1000, maxHeight: 500 })
+      if (!result.assets) throw new Error("No Photo found!")
       if (result.assets[0].uri) {
         // const image = {
         //   uri: result.assets[0].uri,
@@ -146,10 +132,10 @@ const PrivateChat: React.FC<any> = ({ route, navigation }) => {
           image: result.assets[0].uri,
         }
         setMessages((previousMessages) => GiftedChat.append(previousMessages, [message]))
-        addDoc(collection(db, "chat"), message)
+        return addMsg(message)
       }
     } catch (error) {
-      // throw error
+      console.error(error)
     }
   }
   const handleSendFile = async () => {

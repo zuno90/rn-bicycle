@@ -32,6 +32,7 @@ export interface IProductCart {
   unit: string
   id: number
   productVariantId: number
+  productItem: IProductItem[]
   name: string
   slug: string
   colors: string

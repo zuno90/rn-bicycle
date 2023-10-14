@@ -68,7 +68,6 @@ const InitHome: React.FC<any> = ({ route }) => {
 
   const isFocused = useIsFocused()
   React.useEffect(() => {
-    console.log("ve home")
     if (isFocused) Promise.all([getCategories(), getSizes(), getColors()])
   }, [isFocused])
 
@@ -143,8 +142,8 @@ const HomeScreen: React.FC<any> = ({ route }) => {
         <HomeStack.Screen name={EHome.Shop} component={Shop} />
         <HomeStack.Screen name={EHome.Category} component={Category} />
         <HomeStack.Screen name={EHome.Cart} component={Cart} />
-        <HomeStack.Screen name={EHome.Order} component={Order} />
-        <HomeStack.Screen name={EHome.Voucher} component={Voucher} />
+        <HomeStack.Screen name={EHome.Order} component={Order} initialParams={{ user }} />
+        <HomeStack.Screen name={EHome.Voucher} component={Voucher} initialParams={{ user }} />
       </HomeStack.Group>
       <HomeStack.Group screenOptions={{ headerShown: false }}>
         <HomeStack.Screen name={EHome.ProductList} component={ProductList} />

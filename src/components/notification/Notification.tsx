@@ -10,7 +10,7 @@ const tabs = [
   { value: "voucher", title: "Khuyến mãi" },
 ]
 
-const Notification: React.FC<any> = ({ route }) => {
+const Notification: React.FC<any> = ({ route, navigation }) => {
   const [selected, setSelected] = React.useState<string>(tabs[0].value)
 
   const isFocused = useIsFocused()
@@ -48,7 +48,7 @@ const Notification: React.FC<any> = ({ route }) => {
       <ScrollView bgColor="white">
         <NotificationList type={selected} />
       </ScrollView>
-      <FooterMenu currentScreen={route.name} />
+      <FooterMenu currentScreen={route.name} navigation={navigation} />
     </>
   )
 }

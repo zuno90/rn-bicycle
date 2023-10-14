@@ -20,36 +20,68 @@ import { EHome, TInputInformation } from "../../__types__"
 import { config } from "../../utils/config.util"
 import useAuth from "../../context/AuthProvider"
 import { localGet } from "../../utils/storage.util"
+import LoadingScreen from "../../screens/LoadingScreen"
 
 const Information: React.FC<any> = ({ route, navigation }) => {
-  const { user } = route.params
+  const user = route.params.user
   const { checkAuth } = useAuth()
-  console.log(user)
-  const {
-    control,
-    getValues,
-    handleSubmit,
-    formState: { isSubmitting, errors },
-  } = useForm<TInputInformation>()
 
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const [cities, setCities] = React.useState([])
   const [districts, setDistricts] = React.useState([])
   const [wards, setWards] = React.useState([])
 
+  const {
+    control,
+    setValue,
+    getValues,
+    watch,
+    handleSubmit,
+    formState: { isSubmitting, errors },
+  } = useForm<TInputInformation>()
+
+  React.useEffect(() => {
+    if (user.city) {
+      setIsLoading(true)
+      getCities()
+    }
+  }, [])
+
   const getCities = async () => {
     const res = await fetchGet(`${config.endpoint}/cities`)
-    if (res.success)
-      setCities(res.data.cities.map((city: any) => ({ label: city.name, value: city.id })))
+    if (res.success) {
+      const cList = res.data.cities.map((city: any) => ({ label: city.name, value: city.id }))
+      const currentC = cList.filter((city: any) => city.label === user.city)[0]
+      setCities(cList)
+      setValue("city", currentC, { shouldDirty: true })
+
+      getDistricts(currentC.value)
+    }
   }
   const getDistricts = async (cityId: number) => {
     const res = await fetchGet(`${config.endpoint}/districts/${cityId}`)
-    setDistricts(
-      res.data.districts.map((district: any) => ({ label: district.name, value: district.id }))
-    )
+    if (res.success) {
+      const dList = res.data.districts.map((district: any) => ({
+        label: district.name,
+        value: district.id,
+      }))
+      const currentD = dList.filter((district: any) => district.label === user.district)[0]
+      setDistricts(dList)
+      setValue("district", currentD, { shouldDirty: true })
+
+      getWards(currentD.value)
+    }
   }
   const getWards = async (districtId: number) => {
     const res = await fetchGet(`${config.endpoint}/wards/${districtId}`)
-    setWards(res.data.wards.map((ward: any) => ({ label: ward.name, value: ward.id })))
+    if (res.success) {
+      const wList = res.data.wards.map((ward: any) => ({ label: ward.name, value: ward.id }))
+      const currentW = wList.filter((ward: any) => ward.label === user.ward)[0]
+      setWards(wList)
+      setValue("ward", currentW, { shouldDirty: true })
+
+      setIsLoading(false)
+    }
   }
   const onSubmitInformation: SubmitHandler<TInputInformation> = async (data) => {
     const payload = {
@@ -70,6 +102,7 @@ const Information: React.FC<any> = ({ route, navigation }) => {
     }
   }
 
+  if (isLoading) return <LoadingScreen />
   return (
     <>
       <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
@@ -97,7 +130,6 @@ const Information: React.FC<any> = ({ route, navigation }) => {
                     <Input
                       p={4}
                       size={5}
-                      color="muted.400"
                       rounded="full"
                       _focus={{ borderColor: "yellow.400", bgColor: "white" }}
                       placeholder="Tên"
@@ -129,7 +161,6 @@ const Information: React.FC<any> = ({ route, navigation }) => {
                     <Input
                       p={4}
                       size={5}
-                      color="muted.400"
                       rounded="full"
                       _focus={{ borderColor: "yellow.400", bgColor: "white" }}
                       placeholder="Số điện thoại"
@@ -155,7 +186,6 @@ const Information: React.FC<any> = ({ route, navigation }) => {
               <FormControl isRequired isInvalid={"city" in errors}>
                 <Controller
                   name="city"
-                  // defaultValue={}
                   rules={{ required: "Thành phố không được để trống!" }}
                   control={control}
                   render={({ field: { onChange, onBlur, value } }) => (
@@ -168,7 +198,11 @@ const Information: React.FC<any> = ({ route, navigation }) => {
                         borderWidth: 1,
                       }}
                       fontFamily="Montserrat-Regular"
-                      placeholderStyle={{ color: "#a3a3a3", fontSize: 14, padding: 8 }}
+                      placeholderStyle={{
+                        color: "#a3a3a3",
+                        fontSize: 14,
+                        padding: 8,
+                      }}
                       placeholder="Chọn thành phố"
                       selectedTextStyle={{ color: "black", fontSize: 14, padding: 8 }}
                       data={cities}
@@ -218,7 +252,7 @@ const Information: React.FC<any> = ({ route, navigation }) => {
                       data={districts}
                       labelField="label"
                       valueField="value"
-                      disable={!getValues("city")}
+                      disable={!watch("city")}
                       searchPlaceholder="Search..."
                       value={value}
                       onFocus={() => getDistricts(getValues("city.value"))}
@@ -261,7 +295,7 @@ const Information: React.FC<any> = ({ route, navigation }) => {
                       data={wards}
                       labelField="label"
                       valueField="value"
-                      disable={!getValues("district")}
+                      disable={!watch("district")}
                       searchPlaceholder="Search..."
                       value={value}
                       onFocus={() => getWards(getValues("district.value"))}
@@ -283,14 +317,13 @@ const Information: React.FC<any> = ({ route, navigation }) => {
               <FormControl isRequired isInvalid={"address" in errors}>
                 <Controller
                   name="address"
-                  defaultValue=""
+                  defaultValue={user.address}
                   rules={{ required: "Địa chỉ không được để trống!" }}
                   control={control}
                   render={({ field: { onChange, onBlur, value } }) => (
                     <Input
                       p={4}
                       size={5}
-                      color="muted.400"
                       rounded="full"
                       _focus={{ borderColor: "yellow.400", bgColor: "white" }}
                       placeholder="Địa chỉ"

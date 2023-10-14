@@ -1,10 +1,12 @@
 import messaging from "@react-native-firebase/messaging"
 import { localGet, localSet } from "./storage.util"
 import { config } from "./config.util"
-import { Alert, Platform } from "react-native"
+import { PermissionsAndroid, Platform } from "react-native"
 
 export const requestUserPermissionAndroid = async () => {
+  await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS)
   const authStatus = await messaging().requestPermission()
+
   const enabled =
     authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
     authStatus === messaging.AuthorizationStatus.PROVISIONAL

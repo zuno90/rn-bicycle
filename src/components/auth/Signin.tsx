@@ -37,7 +37,6 @@ const Signin: React.FC = ({ navigation }: any) => {
   } = useForm<TSignin>({ defaultValues: { deviceToken: localGet(config.cache.deviceToken) } })
 
   const { checkAuth } = useAuth()
-
   const onSignin: SubmitHandler<TSignin> = async (data) => {
     const res = await fetchPost(`${config.endpoint}/signin`, JSON.stringify(data))
     if (res.success) {

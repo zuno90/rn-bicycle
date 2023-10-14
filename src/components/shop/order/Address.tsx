@@ -6,32 +6,63 @@ import { Controller, useFormContext } from "react-hook-form"
 import { Dropdown } from "react-native-element-dropdown"
 import { allowOnlyNumber, fetchGet } from "../../../utils/helper.util"
 import { config } from "../../../utils/config.util"
+import LoadingScreen from "../../../screens/LoadingScreen"
 
-const Address: React.FC<any> = ({ showToast, closePopup }) => {
+const Address: React.FC<any> = ({ user, showToast, closePopup }) => {
   const {
     control,
+    setValue,
     getValues,
     formState: { errors },
   } = useFormContext()
 
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const [cities, setCities] = React.useState([])
   const [districts, setDistricts] = React.useState([])
   const [wards, setWards] = React.useState([])
 
+  React.useEffect(() => {
+    if (user.city) {
+      setIsLoading(true)
+      getCities()
+    }
+  }, [])
+
   const getCities = async () => {
     const res = await fetchGet(`${config.endpoint}/cities`)
-    if (res.success)
-      setCities(res.data.cities.map((city: any) => ({ label: city.name, value: city.id })))
+    if (res.success) {
+      const cList = res.data.cities.map((city: any) => ({ label: city.name, value: city.id }))
+      const currentC = cList.filter((city: any) => city.label === user.city)[0]
+      setCities(cList)
+      setValue("information.city", currentC, { shouldDirty: true })
+
+      getDistricts(currentC.value)
+    }
   }
   const getDistricts = async (cityId: number) => {
     const res = await fetchGet(`${config.endpoint}/districts/${cityId}`)
-    setDistricts(
-      res.data.districts.map((district: any) => ({ label: district.name, value: district.id }))
-    )
+    if (res.success) {
+      const dList = res.data.districts.map((district: any) => ({
+        label: district.name,
+        value: district.id,
+      }))
+      const currentD = dList.filter((district: any) => district.label === user.district)[0]
+      setDistricts(dList)
+      setValue("information.district", currentD, { shouldDirty: true })
+
+      getWards(currentD.value)
+    }
   }
   const getWards = async (districtId: number) => {
     const res = await fetchGet(`${config.endpoint}/wards/${districtId}`)
-    setWards(res.data.wards.map((ward: any) => ({ label: ward.name, value: ward.id })))
+    if (res.success) {
+      const wList = res.data.wards.map((ward: any) => ({ label: ward.name, value: ward.id }))
+      const currentW = wList.filter((ward: any) => ward.label === user.ward)[0]
+      setWards(wList)
+      setValue("information.ward", currentW, { shouldDirty: true })
+
+      setIsLoading(false)
+    }
   }
 
   const onSubmitAddress = async () => {
@@ -41,6 +72,7 @@ const Address: React.FC<any> = ({ showToast, closePopup }) => {
     } else closePopup()
   }
 
+  if (isLoading) return <LoadingScreen />
   return (
     <Box flexDir="column" justifyContent="space-between" bgColor="white" size="full">
       <Box px={5} safeAreaTop>
@@ -54,14 +86,13 @@ const Address: React.FC<any> = ({ showToast, closePopup }) => {
             <FormControl isRequired isInvalid={"information.name" in errors}>
               <Controller
                 name="information.name"
-                defaultValue=""
+                defaultValue={user.name}
                 rules={{ required: "Tên không được để trống!" }}
                 control={control}
                 render={({ field: { onChange, onBlur, value } }) => (
                   <Input
                     p={4}
                     size={5}
-                    color="muted.400"
                     rounded="full"
                     _focus={{ borderColor: "yellow.400", bgColor: "white" }}
                     placeholder="Tên"
@@ -75,7 +106,7 @@ const Address: React.FC<any> = ({ showToast, closePopup }) => {
             <FormControl isRequired isInvalid={"information.phoneNumber" in errors}>
               <Controller
                 name="information.phoneNumber"
-                defaultValue=""
+                defaultValue={user.phoneNumber}
                 rules={{
                   required: "Số điện thoại không được để trống!",
                   pattern: {
@@ -88,7 +119,6 @@ const Address: React.FC<any> = ({ showToast, closePopup }) => {
                   <Input
                     p={4}
                     size={5}
-                    color="muted.400"
                     rounded="full"
                     _focus={{ borderColor: "yellow.400", bgColor: "white" }}
                     placeholder="Số điện thoại"
@@ -219,14 +249,13 @@ const Address: React.FC<any> = ({ showToast, closePopup }) => {
             <FormControl isRequired isInvalid={"information.address" in errors}>
               <Controller
                 name="information.address"
-                defaultValue=""
+                defaultValue={user.address}
                 rules={{ required: "Địa chỉ không được để trống!" }}
                 control={control}
                 render={({ field: { onChange, onBlur, value } }) => (
                   <Input
                     p={4}
                     size={5}
-                    color="muted.400"
                     rounded="full"
                     _focus={{ borderColor: "yellow.400", bgColor: "white" }}
                     placeholder="Địa chỉ"
