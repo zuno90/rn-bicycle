@@ -15,7 +15,7 @@ import {
 import FaIcon from "react-native-vector-icons/FontAwesome"
 import AntIcon from "react-native-vector-icons/AntDesign"
 import MateIcon from "react-native-vector-icons/MaterialIcons"
-import { WIDTH, fetchGet } from "../../../utils/helper.util"
+import { WIDTH, authHeader, fetchGet } from "../../../utils/helper.util"
 import { config } from "../../../utils/config.util"
 import { useDebounce } from "use-debounce"
 
@@ -36,7 +36,7 @@ const Voucher: React.FC<any> = ({ route, navigation }) => {
   }
 
   const getVouchers = async () => {
-    const res = await fetchGet(`${config.endpoint}/vouchers`)
+    const res = await fetchGet(`${config.endpoint}/vouchers`, authHeader)
     if (res.success) setVouchers(res.data.vouchers)
   }
 

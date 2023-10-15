@@ -4,7 +4,7 @@ import LinearGradient from "react-native-linear-gradient"
 import FeaIcon from "react-native-vector-icons/Feather"
 import { Controller, useFormContext } from "react-hook-form"
 import { Dropdown } from "react-native-element-dropdown"
-import { allowOnlyNumber, fetchGet } from "../../../utils/helper.util"
+import { allowOnlyNumber, authHeader, fetchGet } from "../../../utils/helper.util"
 import { config } from "../../../utils/config.util"
 import LoadingScreen from "../../../screens/LoadingScreen"
 
@@ -29,38 +29,42 @@ const Address: React.FC<any> = ({ user, showToast, closePopup }) => {
   }, [])
 
   const getCities = async () => {
-    const res = await fetchGet(`${config.endpoint}/cities`)
+    const res = await fetchGet(`${config.endpoint}/cities`, authHeader)
     if (res.success) {
       const cList = res.data.cities.map((city: any) => ({ label: city.name, value: city.id }))
-      const currentC = cList.filter((city: any) => city.label === user.city)[0]
       setCities(cList)
-      setValue("information.city", currentC, { shouldDirty: true })
-
-      getDistricts(currentC.value)
+      const currentC = cList.filter((city: any) => city.label === user.city)[0]
+      if (currentC) {
+        setValue("information.city", currentC, { shouldDirty: true })
+        getDistricts(currentC.value)
+      }
     }
   }
   const getDistricts = async (cityId: number) => {
-    const res = await fetchGet(`${config.endpoint}/districts/${cityId}`)
+    const res = await fetchGet(`${config.endpoint}/districts/${cityId}`, authHeader)
     if (res.success) {
       const dList = res.data.districts.map((district: any) => ({
         label: district.name,
         value: district.id,
       }))
-      const currentD = dList.filter((district: any) => district.label === user.district)[0]
       setDistricts(dList)
-      setValue("information.district", currentD, { shouldDirty: true })
-
-      getWards(currentD.value)
+      const currentD = dList.filter((district: any) => district.label === user.district)[0]
+      if (currentD) {
+        setValue("information.district", currentD, { shouldDirty: true })
+        getWards(currentD.value)
+      }
     }
   }
   const getWards = async (districtId: number) => {
-    const res = await fetchGet(`${config.endpoint}/wards/${districtId}`)
+    const res = await fetchGet(`${config.endpoint}/wards/${districtId}`, authHeader)
+
     if (res.success) {
       const wList = res.data.wards.map((ward: any) => ({ label: ward.name, value: ward.id }))
       const currentW = wList.filter((ward: any) => ward.label === user.ward)[0]
       setWards(wList)
-      setValue("information.ward", currentW, { shouldDirty: true })
-
+      if (currentW) {
+        setValue("information.ward", currentW, { shouldDirty: true })
+      }
       setIsLoading(false)
     }
   }
@@ -69,7 +73,8 @@ const Address: React.FC<any> = ({ user, showToast, closePopup }) => {
     const { name, phoneNumber, city, district, ward, address } = getValues("information")
     if (name === "" || phoneNumber === "" || !city || !district || !ward || address === "") {
       return showToast("Vui lòng điền đầy đủ thông tin giao hàng!")
-    } else closePopup()
+    }
+    closePopup()
   }
 
   if (isLoading) return <LoadingScreen />

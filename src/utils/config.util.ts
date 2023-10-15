@@ -6,7 +6,6 @@ export const config = {
     refreshToken: "auth.refreshToken",
     searchHistory: "search.history",
     cartList: "cart.list",
-    payCartList: "paycart.list",
     catelist: "cate.list",
     subcatelist: "subcate.list",
     sizelist: "size.list",

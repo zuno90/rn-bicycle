@@ -19,7 +19,7 @@ import FaIcon from "react-native-vector-icons/FontAwesome"
 import FeaIcon from "react-native-vector-icons/Feather"
 import AntIcon from "react-native-vector-icons/AntDesign"
 import MateIcon from "react-native-vector-icons/MaterialIcons"
-import { HEIGHT, fetchPost, formatNumber } from "../../../utils/helper.util"
+import { HEIGHT, authHeader, fetchPost, formatNumber } from "../../../utils/helper.util"
 import Svg, { Path } from "react-native-svg"
 import LinearGradient from "react-native-linear-gradient"
 import { EHome, EToastType, IProductCart, TInputInformation } from "../../../__types__"
@@ -84,9 +84,11 @@ const Order: React.FC<any> = ({ route, navigation }) => {
       address,
     }
     const finalPayload = { information: payloadInformation, ...others }
-    const res = await fetchPost(`${config.endpoint}/order`, JSON.stringify(finalPayload), {
-      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
-    })
+    const res = await fetchPost(
+      `${config.endpoint}/order`,
+      JSON.stringify(finalPayload),
+      authHeader
+    )
     console.log(res, "res order")
     if (res.success) return setIsDone({ status: true, orderId: res.data.id })
     return showToast(res.message)
@@ -413,11 +415,11 @@ const Order: React.FC<any> = ({ route, navigation }) => {
         </HStack>
         <HStack justifyContent="space-between">
           <Text>Vận chuyển</Text>
-          <Text>+ đ{formatNumber(transportFee)}</Text>
+          <Text>đ{formatNumber(transportFee)}</Text>
         </HStack>
         <HStack justifyContent="space-between">
           <Text>Mã khuyến mãi</Text>
-          <Text color="red.500">- đ{formatNumber(voucherApplying)}</Text>
+          <Text color="red.500">đ{formatNumber(voucherApplying)}</Text>
         </HStack>
         <HStack justifyContent="space-between">
           <Text>Tổng cộng</Text>
@@ -500,7 +502,7 @@ const Order: React.FC<any> = ({ route, navigation }) => {
               _pressed={{ bgColor: "yellow.400" }}
               onPress={() => {
                 setIsDone({ ...isDone, status: false })
-                navigation.navigate(EHome.OrderDetail, { orderId: isDone.orderId })
+                navigation.navigate(EHome.OrderDetail, { id: isDone.orderId })
               }}
             >
               <Text fontSize="lg" fontWeight="semibold">

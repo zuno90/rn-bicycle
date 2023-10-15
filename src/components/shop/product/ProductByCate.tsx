@@ -3,7 +3,7 @@ import { Stack } from "native-base"
 import { useIsFocused, useNavigation } from "@react-navigation/native"
 import { IProduct } from "../../../__types__"
 import Grid from "../../useable/Grid"
-import { fetchGet } from "../../../utils/helper.util"
+import { authHeader, fetchGet } from "../../../utils/helper.util"
 import { config } from "../../../utils/config.util"
 
 const SkeletonLoading = React.lazy(() => import("../../useable/SkeletonLoading"))
@@ -19,10 +19,10 @@ const ProductByCate: React.FC<TProductByCate> = ({ cateSlug }) => {
 
   const getProducts = async () => {
     if (!cateSlug || cateSlug === "") {
-      const resAll = await fetchGet(`${config.endpoint}/products`)
+      const resAll = await fetchGet(`${config.endpoint}/products`, authHeader)
       if (resAll.success) return setProducts(resAll.data.products)
     } else {
-      const resByCate = await fetchGet(`${config.endpoint}/category/${cateSlug}`)
+      const resByCate = await fetchGet(`${config.endpoint}/category/${cateSlug}`, authHeader)
       if (resByCate.success) return setProducts(resByCate.data.products)
     }
   }

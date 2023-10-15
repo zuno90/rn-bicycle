@@ -27,6 +27,7 @@ import FeaIcon from "react-native-vector-icons/Feather"
 import {
   HEIGHT,
   WIDTH,
+  authHeader,
   deduplicateArray,
   fetchGet,
   formatNumber,
@@ -58,9 +59,7 @@ const Cart: React.FC<any> = ({ navigation }) => {
   const colors = JSON.parse(localGet(config.cache.colorlist) as string)
 
   const getCart = async () => {
-    const res = await fetchGet(`${config.endpoint}/user/get-carts`, {
-      // Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
-    })
+    const res = await fetchGet(`${config.endpoint}/user/get-carts`, authHeader)
     console.log(res)
     if (res.success) return res.data
   }
@@ -86,7 +85,7 @@ const Cart: React.FC<any> = ({ navigation }) => {
   })
 
   const setFilterByProduct = async (type: any, value: string, unit: string, slug: string) => {
-    const res = await fetchGet(`${config.endpoint}/product/${slug}`)
+    const res = await fetchGet(`${config.endpoint}/product/${slug}`, authHeader)
     if (res.success) {
       const fType = type === "sizes" ? "size" : "color"
       const tempData = res.data.product.productItem

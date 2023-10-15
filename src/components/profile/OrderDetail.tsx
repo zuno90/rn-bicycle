@@ -12,7 +12,7 @@ import {
   VStack,
 } from "native-base"
 import FaIcon from "react-native-vector-icons/FontAwesome"
-import { fetchGet, formatNumber } from "../../utils/helper.util"
+import { authHeader, fetchGet, formatNumber } from "../../utils/helper.util"
 import { EHome, EOrderStatus, IOrderResponse } from "../../__types__"
 import { config } from "../../utils/config.util"
 import { localGet } from "../../utils/storage.util"
@@ -23,7 +23,7 @@ const OrderDetail: React.FC<any> = ({ route, navigation }) => {
   const colors = JSON.parse(localGet(config.cache.colorlist) as string)
   const [order, setOrder] = React.useState<IOrderResponse>({})
   const getOrder = async () => {
-    const res = await fetchGet(`${config.endpoint}/order/${id}`)
+    const res = await fetchGet(`${config.endpoint}/order/${id}`, authHeader)
     if (res.success) {
       setOrder(res.data.order)
     }

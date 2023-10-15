@@ -2,7 +2,7 @@ import React from "react"
 import { Box, Heading, Image, ScrollView, Stack, VStack } from "native-base"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { EHome } from "../__types__"
-import { WIDTH, fetchGet } from "../utils/helper.util"
+import { WIDTH, authHeader, fetchGet } from "../utils/helper.util"
 import { localSet } from "../utils/storage.util"
 import { config } from "../utils/config.util"
 import { useIsFocused } from "@react-navigation/native"
@@ -41,34 +41,36 @@ const Transaction = React.lazy(() => import("../components/profile/Transaction")
 const Topup = React.lazy(() => import("../components/profile/Topup"))
 
 const InitHome: React.FC<any> = ({ route }) => {
+  const [isHome, setIsHome] = React.useState<boolean>(true)
   const scrollRef = React.useRef(null)
-
   const { setAuth } = useAuth()
 
   const getCategories = async () => {
-    const res = await fetchGet(`${config.endpoint}/categories`)
+    const res = await fetchGet(`${config.endpoint}/categories`, authHeader)
     if (!res.success) return setAuth({ isAuth: false, user: null })
     localSet(config.cache.catelist, JSON.stringify(res.data.categories))
   }
   // const getSubcategories = async () => {
-  //   const res = await fetchGet(`${config.endpoint}/sizes`)
+  //   const res = await fetchGet(`${config.endpoint}/sizes`,authHeader)
   // if (!res.success) return setAuth({ isAuth: false, user: null })
   //   localSet(config.cache.sizelist, JSON.stringify(res.data.sizes))
   // }
   const getSizes = async () => {
-    const res = await fetchGet(`${config.endpoint}/sizes`)
+    const res = await fetchGet(`${config.endpoint}/sizes`, authHeader)
     if (!res.success) return setAuth({ isAuth: false, user: null })
     localSet(config.cache.sizelist, JSON.stringify(res.data.sizes))
   }
   const getColors = async () => {
-    const res = await fetchGet(`${config.endpoint}/colors`)
+    const res = await fetchGet(`${config.endpoint}/colors`, authHeader)
     if (!res.success) return setAuth({ isAuth: false, user: null })
     localSet(config.cache.colorlist, JSON.stringify(res.data.colors))
   }
 
   const isFocused = useIsFocused()
   React.useEffect(() => {
-    if (isFocused) Promise.all([getCategories(), getSizes(), getColors()])
+    if (isFocused) {
+      Promise.all([getCategories(), getSizes(), getColors()])
+    }
   }, [isFocused])
 
   const [isScrollEnd, setIsScrollEnd] = React.useState(false)

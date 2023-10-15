@@ -17,19 +17,25 @@ import { EHome, EToastType } from "../../__types__"
 import Clipboard from "@react-native-clipboard/clipboard"
 import Toast from "../useable/Toast"
 import useAuth from "../../context/AuthProvider"
-import { formatNumber } from "../../utils/helper.util"
+import { authHeader, fetchPost, formatNumber } from "../../utils/helper.util"
+import { config } from "../../utils/config.util"
 
 const Topup: React.FC<any> = ({ route, navigation }) => {
   const { amount } = route.params
   const {
     auth: { user },
   } = useAuth()
-  const [isPaid, setIsPaid] = React.useState<boolean>(false)
-  const onSubmitConfirmPayment = () => setIsPaid(true)
-
   const toast = useToast()
 
-  console.log(amount, 55)
+  const [isPaid, setIsPaid] = React.useState<boolean>(false)
+  const onSubmitConfirmPayment = async () => {
+    const res = await fetchPost(
+      `${config.endpoint}/payment`,
+      JSON.stringify({ type: "topup", amount: Number(amount) }),
+      authHeader
+    )
+    if (res.success) setIsPaid(true)
+  }
 
   return (
     <>

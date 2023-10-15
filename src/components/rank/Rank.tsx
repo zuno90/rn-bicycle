@@ -3,7 +3,7 @@ import { Box, Center, HStack, Heading, Icon, Image, ScrollView, Text, VStack } f
 import CartIcon from "../shop/cart/CartIcon"
 import { Circle, Defs, Ellipse, LinearGradient, Path, Rect, Stop, Svg } from "react-native-svg"
 import FooterMenu from "../home/FooterMenu"
-import { fetchGet } from "../../utils/helper.util"
+import { authHeader, fetchGet } from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
 import LoadingBtn from "../useable/LoadingBtn"
 
@@ -12,7 +12,7 @@ const Rank: React.FC<any> = ({ route }) => {
   const [ranks, setRanks] = React.useState([])
   const getRanks = async () => {
     setIsLoading(true)
-    const res = await fetchGet(`${config.endpoint}/users/ranking`)
+    const res = await fetchGet(`${config.endpoint}/users/ranking`, authHeader)
     if (res.success) setRanks(res.data.users)
     setIsLoading(false)
   }

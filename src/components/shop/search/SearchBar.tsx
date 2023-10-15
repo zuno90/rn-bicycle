@@ -8,7 +8,7 @@ import { EHome, EProductList } from "../../../__types__"
 import { localGet, localSet } from "../../../utils/storage.util"
 import { config } from "../../../utils/config.util"
 import { useDebounce } from "use-debounce"
-import { fetchGet } from "../../../utils/helper.util"
+import { authHeader, fetchGet } from "../../../utils/helper.util"
 
 const SearchHistory = React.lazy(() => import("./SearchHistory"))
 const SearchResult = React.lazy(() => import("./SearchResult"))
@@ -23,7 +23,10 @@ const SearchBar: React.FC = () => {
   const [debouncedLSearch] = useDebounce(lSearch, 500)
 
   const handleLiveSearch = async () => {
-    const res = await fetchGet(`${config.endpoint}/products/search?name=${debouncedLSearch}`)
+    const res = await fetchGet(
+      `${config.endpoint}/products/search?name=${debouncedLSearch}`,
+      authHeader
+    )
     if (res.success) setLSearchList(res.data.products)
   }
 
@@ -31,11 +34,9 @@ const SearchBar: React.FC = () => {
     handleLiveSearch()
   }, [debouncedLSearch])
 
-  const handlePopup = () => setOpenPopup(true)
-
   const closePopup = () => {
-    setOpenPopup(false)
     searchInputRef.current?.blur()
+    setOpenPopup(false)
   }
 
   const onSubmitSearch = async () => {
@@ -54,10 +55,7 @@ const SearchBar: React.FC = () => {
     }
     closePopup()
     // redirect screen
-    navigation.navigate(EHome.ProductList, {
-      from: EProductList.Search,
-      search,
-    })
+    navigation.navigate(EHome.ProductList, { from: EProductList.Search, search })
   }
 
   return (
@@ -80,7 +78,7 @@ const SearchBar: React.FC = () => {
             placeholder="Xe đạp"
             defaultValue={lSearch}
             onChangeText={setLSearch}
-            onFocus={handlePopup}
+            onFocus={() => setOpenPopup(true)}
             returnKeyType="go"
             onSubmitEditing={onSubmitSearch}
           />
@@ -100,7 +98,7 @@ const SearchBar: React.FC = () => {
             <Box bgColor="gray.100" h="full">
               <ScrollView>
                 <React.Suspense>
-                  <SearchResult data={lSearchList} />
+                  <SearchResult data={lSearchList} onClose={closePopup} />
                 </React.Suspense>
               </ScrollView>
             </Box>

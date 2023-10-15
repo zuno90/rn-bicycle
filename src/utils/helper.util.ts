@@ -89,6 +89,7 @@ export const squareWH = (ratio: number) => {
 }
 
 // API CALL
+export const authHeader = { Authorization: `Bearer ${localGet(config.cache.accessToken)}` }
 export const fetchGet = async (url: string, header?: any) => {
   try {
     const r = await fetch(url, {

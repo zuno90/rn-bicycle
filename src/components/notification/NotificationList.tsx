@@ -3,78 +3,121 @@ import { Box, Button, HStack, Heading, Image, Text, VStack, useToast } from "nat
 import Clipboard from "@react-native-clipboard/clipboard"
 import Toast from "../useable/Toast"
 import { EToastType } from "../../__types__/toast.type"
+import { authHeader, fetchGet } from "../../utils/helper.util"
+import { config } from "../../utils/config.util"
+import LoadingBtn from "../useable/LoadingBtn"
 
 const NotificationList: React.FC<{ type: string }> = ({ type }) => {
   return (
-    <>
-      <Box p={4}>
-        <Box flexDir="column" flexWrap="wrap" alignItems="center">
-          <HStack justifyContent="space-between" space={4}>
-            {type === "notification" && <MyNoti />}
-            {type === "voucher" && <MyVoucher />}
-          </HStack>
-        </Box>
+    <Box p={4}>
+      <Box flexDir="column" flexWrap="wrap" alignItems="center">
+        <HStack justifyContent="space-between" space={4}>
+          {type === "notification" && <MyNoti />}
+          {type === "voucher" && <MyVoucher />}
+        </HStack>
       </Box>
-    </>
+    </Box>
   )
 }
 
 const MyNoti: React.FC = () => {
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const [notifications, setNotifications] = React.useState([])
+  const getNotifications = async () => {
+    setIsLoading(true)
+    const res = await fetchGet(`${config.endpoint}/notifications?type=other`, authHeader)
+    if (res.success) setNotifications(res.data.notifications)
+    setIsLoading(false)
+  }
+
+  React.useEffect(() => {
+    getNotifications()
+  }, [])
+
   return (
-    <HStack flex={1} justifyContent="space-between" alignItems="center" space={4}>
-      <Image source={require("../../../public/home-banner.jpeg")} size={20} alt="noti-img" />
-      <Box flex={1} gap={2}>
-        <Heading size="sm">Đơn hàng đã giao thành công</Heading>
-        <Text>Đơn hàng #123abc đã giao thành công đã giao thành công đến bạn</Text>
-      </Box>
-    </HStack>
+    <Box flex={1} gap={5}>
+      {!isLoading ? (
+        notifications.length > 0 &&
+        notifications.map((noti: any, index) => (
+          <HStack key={index} flex={1} justifyContent="space-between" alignItems="center" space={4}>
+            <Image source={require("../../../public/home-banner.jpeg")} size={20} alt="noti-img" />
+            <Box flex={1} gap={2}>
+              <Heading size="sm">{noti.title}</Heading>
+              <Text>{noti.content}</Text>
+            </Box>
+          </HStack>
+        ))
+      ) : (
+        <LoadingBtn />
+      )}
+    </Box>
   )
 }
 
 const MyVoucher: React.FC = () => {
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const [promotionNotifications, setPromotionNotifications] = React.useState([])
+  const getPromotionNotifications = async () => {
+    setIsLoading(true)
+    const res = await fetchGet(`${config.endpoint}/notifications?type=promotion`, authHeader)
+    if (res.success) setPromotionNotifications(res.data.notifications)
+    setIsLoading(false)
+  }
+
+  React.useEffect(() => {
+    getPromotionNotifications()
+  }, [])
   const toast = useToast()
+
   return (
-    <HStack flex={1} justifyContent="space-between" alignItems="center" space={4}>
-      <Image
-        source={require("../../../public/home-banner.jpeg")}
-        size={20}
-        alignSelf="center"
-        alt="noti-img"
-      />
-      <Box flex={1} gap={2}>
-        <Heading size="sm">VOUCHER HOT GIẢM 50%</Heading>
-        <HStack justifyContent="space-between" alignItems="center">
-          <Text>MGGHOT50</Text>
-          <Button
-            bgColor="zuno"
-            size="xs"
-            rounded="full"
-            _text={{ fontWeight: "bold" }}
-            onPress={() => {
-              Clipboard.setString(`MGGHOT50`)
-              !toast.isActive("copytoclipboard") &&
-                toast.show({
-                  id: "copytoclipboard",
-                  placement: "top",
-                  duration: 1500,
-                  render: () => (
-                    <Toast
-                      type={EToastType.noti}
-                      content="Đã sao chép mã giảm giá"
-                      close={() => toast.close("copytoclipboard")}
-                    />
-                  ),
-                })
-            }}
-          >
-            Sao chép
-          </Button>
-        </HStack>
-        <Text>
-          Đơn hàng #123abc đã giao thành công đã giao thành công đến bạn tyhjrtyjtyjtyjtyjtyjtyj
-        </Text>
-      </Box>
-    </HStack>
+    <Box flex={1} gap={5}>
+      {!isLoading ? (
+        promotionNotifications.length > 0 &&
+        promotionNotifications.map((proNoti: any, index) => (
+          <HStack key={index} flex={1} justifyContent="space-between" alignItems="center" space={4}>
+            <Image
+              source={require("../../../public/home-banner.jpeg")}
+              size={20}
+              alignSelf="center"
+              alt="noti-img"
+            />
+            <Box flex={1} gap={2}>
+              <Heading size="sm">{proNoti.title}</Heading>
+              <HStack justifyContent="space-between" alignItems="center">
+                <Text>{proNoti.code}</Text>
+                <Button
+                  bgColor="zuno"
+                  size="xs"
+                  rounded="full"
+                  _text={{ fontWeight: "bold" }}
+                  onPress={() => {
+                    Clipboard.setString(proNoti.code)
+                    !toast.isActive("copytoclipboard") &&
+                      toast.show({
+                        id: "copytoclipboard",
+                        placement: "top",
+                        duration: 1500,
+                        render: () => (
+                          <Toast
+                            type={EToastType.noti}
+                            content="Đã sao chép mã giảm giá"
+                            close={() => toast.close("copytoclipboard")}
+                          />
+                        ),
+                      })
+                  }}
+                >
+                  Sao chép
+                </Button>
+              </HStack>
+              <Text>{proNoti.content}</Text>
+            </Box>
+          </HStack>
+        ))
+      ) : (
+        <LoadingBtn />
+      )}
+    </Box>
   )
 }
 

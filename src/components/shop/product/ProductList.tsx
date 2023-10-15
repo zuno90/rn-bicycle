@@ -5,7 +5,7 @@ import SearchBar from "../search/SearchBar"
 import FilterBtn from "../filter/FilterBtn"
 import { EHome, EProductList, IProduct } from "../../../__types__"
 import { useIsFocused } from "@react-navigation/native"
-import { fetchGet } from "../../../utils/helper.util"
+import { authHeader, fetchGet } from "../../../utils/helper.util"
 import { config } from "../../../utils/config.util"
 import LoadingBtn from "../../useable/LoadingBtn"
 
@@ -26,14 +26,17 @@ const ProductList: React.FC = ({ route }: any) => {
       setIsLoading(true)
       switch (from) {
         case EProductList.BestSelling:
-          const resBestSelling = await fetchGet(`${config.endpoint}/products?soldBy=desc`)
+          const resBestSelling = await fetchGet(
+            `${config.endpoint}/products?soldBy=desc`,
+            authHeader
+          )
           if (resBestSelling.success) {
             setProducts(resBestSelling.data.products)
             setIsLoading(false)
           }
           break
         case EProductList.Recommendation:
-          const resRecommendation = await fetchGet(`${config.endpoint}/products`)
+          const resRecommendation = await fetchGet(`${config.endpoint}/products`, authHeader)
           if (resRecommendation.success) {
             setProducts(resRecommendation.data.products)
             setIsLoading(false)
@@ -41,7 +44,8 @@ const ProductList: React.FC = ({ route }: any) => {
           break
         case EProductList.Search:
           const searchRes = await fetchGet(
-            `${config.endpoint}/products/search?name=${encodeURIComponent(search)}`
+            `${config.endpoint}/products/search?name=${encodeURIComponent(search)}`,
+            authHeader
           )
           if (searchRes.success) {
             setProducts(searchRes.data.products)
@@ -49,7 +53,7 @@ const ProductList: React.FC = ({ route }: any) => {
           }
           break
         case EProductList.Category:
-          const resCate = await fetchGet(`${config.endpoint}/category/${slug}`)
+          const resCate = await fetchGet(`${config.endpoint}/category/${slug}`, authHeader)
           if (resCate.success) {
             setProducts(resCate.data.products)
             setIsLoading(false)
@@ -61,7 +65,8 @@ const ProductList: React.FC = ({ route }: any) => {
               JSON.stringify(filter.category)
             )}&size=${encodeURIComponent(JSON.stringify(filter.size))}&color=${encodeURIComponent(
               JSON.stringify(filter.color)
-            )}&fromPrice=${filter.price.l}&toPrice=${filter.price.h}`
+            )}&fromPrice=${filter.price.l}&toPrice=${filter.price.h}`,
+            authHeader
           )
           if (resFilter.success) {
             console.log(resFilter.data)

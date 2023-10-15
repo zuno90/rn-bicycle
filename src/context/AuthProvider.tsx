@@ -1,7 +1,7 @@
 import React, { createContext } from "react"
 import { localGet, localSet } from "../utils/storage.util"
 import { config } from "../utils/config.util"
-import { fetchGet, fetchPost } from "../utils/helper.util"
+import { authHeader, fetchGet, fetchPost } from "../utils/helper.util"
 
 type TAuth = {
   isAuth: boolean
@@ -18,12 +18,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   })
 
   const checkAuth = async () => {
+    const accessToken = localGet(config.cache.accessToken)
     try {
-      const accessToken = localGet(config.cache.accessToken)
-      if (!accessToken) throw new Error("Token is not existing!")
-      const res = await fetchGet(`${config.endpoint}/fetch-me`, {
-        Authorization: `Bearer ${accessToken}`,
-      })
+      if (!accessToken) throw new Error("Have no permission!")
+      const res = await fetchGet(`${config.endpoint}/fetch-me`, authHeader)
       const { success, data, message } = res
       if (!success) {
         switch (message) {
@@ -32,7 +30,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             // call api re-take accesstoken
             const result = await fetchPost(
               `${config.endpoint}/renew-token`,
-              JSON.stringify({ accessToken, refreshToken })
+              JSON.stringify({ accessToken, refreshToken }),
+              authHeader
             )
             console.log(result)
             break

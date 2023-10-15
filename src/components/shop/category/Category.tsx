@@ -3,7 +3,7 @@ import SearchBar from "../search/SearchBar"
 import { Stack, Heading, ScrollView, Text, Box, Pressable, Image, AspectRatio } from "native-base"
 import { EHome, IProduct, ISubCategory } from "../../../__types__"
 import { config } from "../../../utils/config.util"
-import { WIDTH, fetchGet } from "../../../utils/helper.util"
+import { WIDTH, authHeader, fetchGet } from "../../../utils/helper.util"
 import Grid from "../../useable/Grid"
 import LoadingBtn from "../../useable/LoadingBtn"
 
@@ -22,7 +22,7 @@ const Category: React.FC<any> = ({ route }) => {
 
   const getSubCates = async () => {
     setIsLoading(true)
-    const res = await fetchGet(`${config.endpoint}/sub-categories/${slug}`)
+    const res = await fetchGet(`${config.endpoint}/sub-categories/${slug}`, authHeader)
     if (res.success) setSubCates(res.data.subCategories)
 
     setIsLoading(false)
@@ -31,10 +31,16 @@ const Category: React.FC<any> = ({ route }) => {
   const getProductBySubCate = async (brand?: string | null) => {
     setIsLoading(true)
     if (!brand) {
-      const res = await fetchGet(`${config.endpoint}/products/category/${slug}?page=${page}`)
+      const res = await fetchGet(
+        `${config.endpoint}/products/category/${slug}?page=${page}`,
+        authHeader
+      )
       if (res.success) return setProducts(res.data.products)
     } else {
-      const res = await fetchGet(`${config.endpoint}/products/${slug}/${currentBrand}?page=${page}`)
+      const res = await fetchGet(
+        `${config.endpoint}/products/${slug}/${currentBrand}?page=${page}`,
+        authHeader
+      )
       if (res.success) return setProducts(res.data.products)
     }
     setIsLoading(false)

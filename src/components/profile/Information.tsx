@@ -15,7 +15,7 @@ import FaIcon from "react-native-vector-icons/FontAwesome"
 import FeaIcon from "react-native-vector-icons/Feather"
 import { Controller, SubmitHandler, useForm } from "react-hook-form"
 import { Dropdown } from "react-native-element-dropdown"
-import { allowOnlyNumber, fetchGet, fetchPut } from "../../utils/helper.util"
+import { allowOnlyNumber, authHeader, fetchGet, fetchPut } from "../../utils/helper.util"
 import { EHome, TInputInformation } from "../../__types__"
 import { config } from "../../utils/config.util"
 import useAuth from "../../context/AuthProvider"
@@ -48,38 +48,41 @@ const Information: React.FC<any> = ({ route, navigation }) => {
   }, [])
 
   const getCities = async () => {
-    const res = await fetchGet(`${config.endpoint}/cities`)
+    const res = await fetchGet(`${config.endpoint}/cities`, authHeader)
     if (res.success) {
       const cList = res.data.cities.map((city: any) => ({ label: city.name, value: city.id }))
-      const currentC = cList.filter((city: any) => city.label === user.city)[0]
       setCities(cList)
-      setValue("city", currentC, { shouldDirty: true })
-
-      getDistricts(currentC.value)
+      const currentC = cList.filter((city: any) => city.label === user.city)[0]
+      if (currentC) {
+        setValue("city", currentC, { shouldDirty: true })
+        getDistricts(currentC.value)
+      }
     }
   }
   const getDistricts = async (cityId: number) => {
-    const res = await fetchGet(`${config.endpoint}/districts/${cityId}`)
+    const res = await fetchGet(`${config.endpoint}/districts/${cityId}`, authHeader)
     if (res.success) {
       const dList = res.data.districts.map((district: any) => ({
         label: district.name,
         value: district.id,
       }))
-      const currentD = dList.filter((district: any) => district.label === user.district)[0]
       setDistricts(dList)
-      setValue("district", currentD, { shouldDirty: true })
-
-      getWards(currentD.value)
+      const currentD = dList.filter((district: any) => district.label === user.district)[0]
+      if (currentD) {
+        setValue("district", currentD, { shouldDirty: true })
+        getWards(currentD.value)
+      }
     }
   }
   const getWards = async (districtId: number) => {
-    const res = await fetchGet(`${config.endpoint}/wards/${districtId}`)
+    const res = await fetchGet(`${config.endpoint}/wards/${districtId}`, authHeader)
     if (res.success) {
       const wList = res.data.wards.map((ward: any) => ({ label: ward.name, value: ward.id }))
-      const currentW = wList.filter((ward: any) => ward.label === user.ward)[0]
       setWards(wList)
-      setValue("ward", currentW, { shouldDirty: true })
-
+      const currentW = wList.filter((ward: any) => ward.label === user.ward)[0]
+      if (currentW) {
+        setValue("ward", currentW, { shouldDirty: true })
+      }
       setIsLoading(false)
     }
   }
@@ -93,9 +96,7 @@ const Information: React.FC<any> = ({ route, navigation }) => {
       address: data.address,
     }
 
-    const res = await fetchPut(`${config.endpoint}/user`, JSON.stringify(payload), {
-      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
-    })
+    const res = await fetchPut(`${config.endpoint}/user`, JSON.stringify(payload), authHeader)
     if (res.success) {
       await checkAuth()
       return navigation.navigate(EHome.Profile)
