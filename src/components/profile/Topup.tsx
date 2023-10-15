@@ -16,12 +16,20 @@ import FaIcon from "react-native-vector-icons/FontAwesome"
 import { EHome, EToastType } from "../../__types__"
 import Clipboard from "@react-native-clipboard/clipboard"
 import Toast from "../useable/Toast"
+import useAuth from "../../context/AuthProvider"
+import { formatNumber } from "../../utils/helper.util"
 
-const Topup: React.FC<any> = ({ navigation }) => {
+const Topup: React.FC<any> = ({ route, navigation }) => {
+  const { amount } = route.params
+  const {
+    auth: { user },
+  } = useAuth()
   const [isPaid, setIsPaid] = React.useState<boolean>(false)
   const onSubmitConfirmPayment = () => setIsPaid(true)
 
   const toast = useToast()
+
+  console.log(amount, 55)
 
   return (
     <>
@@ -79,14 +87,16 @@ const Topup: React.FC<any> = ({ navigation }) => {
             justifyContent="space-between"
             alignItems="center"
           >
-            <Text>Thanh toan don hang #12</Text>
+            <Text flex={1}>
+              {user.phoneNumber} nap {formatNumber(amount)} đ
+            </Text>
             <Button
               bgColor="zuno"
               size="sm"
               rounded="full"
               _text={{ fontWeight: "bold" }}
               onPress={() => {
-                Clipboard.setString(`68689988`)
+                Clipboard.setString(`${user.phoneNumber} nap ${amount}`)
                 !toast.isActive("copytoclipboard") &&
                   toast.show({
                     id: "copytoclipboard",

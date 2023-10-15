@@ -2,16 +2,20 @@ import React from "react"
 import {
   Box,
   Button,
+  Center,
+  FormControl,
   HStack,
   Heading,
   Icon,
   Image,
+  Input,
   ScrollView,
+  Slide,
   Stack,
   Text,
   VStack,
 } from "native-base"
-import { WIDTH, fetchGet, fetchPost, formatNumber } from "../../utils/helper.util"
+import { WIDTH, allowOnlyNumber, fetchGet, fetchPost, formatNumber } from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
 import { localDel, localGet } from "../../utils/storage.util"
 import { EHome, EScreen, IOrder } from "../../__types__"
@@ -20,20 +24,27 @@ import CartIcon from "../shop/cart/CartIcon"
 import FooterMenu from "../home/FooterMenu"
 import PhoneCallBtn from "../useable/PhoneCallBtn"
 import LinearGradient from "react-native-linear-gradient"
-
 import AntIcon from "react-native-vector-icons/AntDesign"
 import FeaIcon from "react-native-vector-icons/Feather"
 import MateIcon from "react-native-vector-icons/MaterialIcons"
 import MateComIcon from "react-native-vector-icons/MaterialCommunityIcons"
-
 import Svg, { Path } from "react-native-svg"
 import { useIsFocused } from "@react-navigation/native"
+import { Controller, SubmitHandler, useForm } from "react-hook-form"
+import InputModal from "../useable/InputModal"
+
+const ConfirmModal = React.lazy(() => import("../useable/ConfirmModal"))
+
+type TTopup = { topupAmount: string }
 
 const Profile: React.FC<any> = ({ route, navigation }) => {
   const {
     auth: { user },
     checkAuth,
   } = useAuth()
+
+  const [isShowPopup, setIsShowPopup] = React.useState<boolean>(false)
+  const [isShowPopupInput, setIsShowPopupInput] = React.useState<boolean>(false)
 
   const [orders, setOrders] = React.useState<IOrder[]>([])
   const getOrders = async () => {
@@ -58,6 +69,18 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
   React.useEffect(() => {
     if (isFocused) getOrders()
   }, [isFocused])
+
+  const {
+    control,
+    reset,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<TTopup>()
+
+  const onSubmitTopup: SubmitHandler<TTopup> = ({ topupAmount }) => {
+    setIsShowPopupInput(false)
+    navigation.navigate(EHome.Topup, { amount: topupAmount })
+  }
 
   return (
     <>
@@ -109,7 +132,7 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
                     variant="unstyled"
                     h={50}
                     _pressed={{ bgColor: "yellow.400" }}
-                    onPress={() => navigation.navigate(EHome.Topup)}
+                    onPress={() => setIsShowPopup(true)}
                   >
                     <Text fontSize="lg" fontWeight="semibold">
                       Nạp tiền
@@ -240,6 +263,64 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
         <PhoneCallBtn />
       </Box>
       <FooterMenu currentScreen={route.name} />
+
+      {isShowPopup && (
+        <ConfirmModal
+          isOpen={isShowPopup}
+          onClose={() => setIsShowPopup(false)}
+          action={() => {
+            reset()
+            setIsShowPopupInput(true)
+          }}
+          title="1000 VNĐ = 1 xu"
+          desc="Vui lòng nạp tối thiểu 100.000 VND"
+          confirm="Bạn có muốn tiếp tục?"
+        />
+      )}
+      {isShowPopupInput && (
+        <InputModal
+          isOpen={isShowPopupInput}
+          onClose={() => setIsShowPopupInput(false)}
+          action={handleSubmit(onSubmitTopup)}
+          title="Vui lòng nhập số tiền"
+          body={
+            <FormControl w="full" isRequired isInvalid={"topupAmount" in errors}>
+              <Controller
+                name="topupAmount"
+                defaultValue=""
+                rules={{
+                  required: "Số tiền không được để trống!",
+                  min: { value: 1, message: "Số tiền phải lớn hơn 0" },
+                  pattern: {
+                    value: /^(0|[1-9]\d*)(\.\d+)?$/,
+                    message: "Chỉ cho phép nhập số!",
+                  },
+                  validate: { isRealNumber: (v) => Number(v) > 0 },
+                }}
+                control={control}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    placeholder="Nhập số tiền"
+                    rounded="full"
+                    p={4}
+                    size="lg"
+                    bgColor="gray.200"
+                    keyboardType="numeric"
+                    onBlur={onBlur}
+                    onChangeText={(v) => onChange(allowOnlyNumber(v))}
+                    value={value}
+                  />
+                )}
+              />
+              {errors.topupAmount && (
+                <Text mt={2} color="red.500" fontSize="xs">
+                  {errors.topupAmount.message}
+                </Text>
+              )}
+            </FormControl>
+          }
+        />
+      )}
     </>
   )
 }

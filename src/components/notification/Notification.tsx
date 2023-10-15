@@ -48,7 +48,7 @@ const Notification: React.FC<any> = ({ route, navigation }) => {
       <ScrollView bgColor="white">
         <NotificationList type={selected} />
       </ScrollView>
-      <FooterMenu currentScreen={route.name} navigation={navigation} />
+      <FooterMenu currentScreen={route.name} />
     </>
   )
 }

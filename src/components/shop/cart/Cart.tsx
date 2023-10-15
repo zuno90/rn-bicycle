@@ -150,6 +150,13 @@ const Cart: React.FC<any> = ({ navigation }) => {
   const transportFee = selectItems.length ? 50000 : 0
   const finalTotal = beforeTotal + transportFee
 
+  const selectedQuantity = selectItems
+    .map((s: any) => {
+      const findItem = carts.filter((c) => c.unit === s)[0]
+      return findItem.quantity
+    })
+    .reduce((a: number, b: number) => a + b, 0)
+
   return (
     <>
       <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
@@ -336,7 +343,7 @@ const Cart: React.FC<any> = ({ navigation }) => {
             </HStack>
             <LinearGradient
               colors={
-                selectItems.length > 0
+                selectItems.length && selectItems.length && selectedQuantity >= 5
                   ? ["#F7E98B", "#FFF9A3", "#E2AD3B"]
                   : ["#E3E3E3", "#E3E3E3", "#E3E3E3"]
               }
@@ -346,7 +353,7 @@ const Cart: React.FC<any> = ({ navigation }) => {
                 variant="unstyled"
                 h={50}
                 _pressed={{ bgColor: "yellow.400" }}
-                isDisabled={selectItems.length > 0 ? false : true}
+                isDisabled={selectItems.length && selectedQuantity >= 5 ? false : true}
                 onPress={() => handleCheckout()}
               >
                 <Text fontSize="lg" fontWeight="semibold">

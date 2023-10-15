@@ -499,7 +499,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
               </Button>
             </LinearGradient>
           </Box>
-          {/* </View> */}
+
           {showFilter.isOpen && (
             <Slide in={showFilter.isOpen} duration={200} placement="top">
               <FormProvider {...methods}>
