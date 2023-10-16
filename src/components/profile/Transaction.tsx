@@ -3,13 +3,17 @@ import { Box, Divider, HStack, Icon, ScrollView, Text } from "native-base"
 import { authHeader, fetchGet, formatNumber } from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
 import FaIcon from "react-native-vector-icons/FontAwesome"
+import LoadingBtn from "../useable/LoadingBtn"
+import { ITransaction, ETopup } from "../../__types__"
 
 const Transaction: React.FC<any> = ({ navigation }) => {
-  const [transactions, setTransactions] = React.useState([])
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const [transactions, setTransactions] = React.useState<ITransaction[]>([])
   const getPayments = async () => {
-    const res = await fetchGet(`${config.cache}/payments`, authHeader)
-    console.log(res)
+    setIsLoading(true)
+    const res = await fetchGet(`${config.endpoint}/payments`, authHeader)
     if (res.success) setTransactions(res.data.payments)
+    setIsLoading(false)
   }
   React.useEffect(() => {
     getPayments()
@@ -25,21 +29,35 @@ const Transaction: React.FC<any> = ({ navigation }) => {
       </HStack>
 
       <ScrollView bgColor="white">
-        <Box m={5}>
-          <Text>14:27 02/09/2023</Text>
-          <HStack justifyContent="space-between" alignItems="center">
-            <Text fontSize="md">Thanh toán đơn hàng</Text>
-            <Text fontSize="md">- {formatNumber(10000000)}đ</Text>
-          </HStack>
-        </Box>
-        <Divider />
-        <Box m={5}>
-          <Text>14:27 02/09/2023</Text>
-          <HStack justifyContent="space-between" alignItems="center">
-            <Text fontSize="md">Thanh toán đơn hàng</Text>
-            <Text fontSize="md">- {formatNumber(10000000)}đ</Text>
-          </HStack>
-        </Box>
+        {!isLoading ? (
+          transactions.length > 0 &&
+          transactions.map((trans, index) => (
+            <React.Fragment key={index}>
+              <Box m={5}>
+                <Text>
+                  {new Date(trans.updateAt).toLocaleDateString("vi-VN", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </Text>
+                <HStack alignItems="center" space={4}>
+                  <Text flex={1} fontSize="md">
+                    {(Object.keys(ETopup) as (keyof typeof ETopup)[]).map((key) => {
+                      if (key === trans.type) return ETopup[key]
+                    })}
+                  </Text>
+                  <Text fontSize="md" color={trans.type === "topup" ? "black" : "red.500"}>
+                    {trans.type === "topup" ? "+" : "-"} {formatNumber(trans.amount)}đ
+                  </Text>
+                </HStack>
+              </Box>
+              {transactions.length - index === 1 ? null : <Divider />}
+            </React.Fragment>
+          ))
+        ) : (
+          <LoadingBtn />
+        )}
       </ScrollView>
     </>
   )
