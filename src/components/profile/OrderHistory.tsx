@@ -2,7 +2,7 @@ import React from "react"
 import { Box, Button, Divider, HStack, Heading, Icon, Image, ScrollView, Text } from "native-base"
 import FaIcon from "react-native-vector-icons/FontAwesome"
 import { TabView, SceneMap, TabBar } from "react-native-tab-view"
-import { WIDTH, authHeader, fetchGet, formatNumber } from "../../utils/helper.util"
+import { WIDTH, fetchGet, formatNumber } from "../../utils/helper.util"
 import { EHome, EOrderStatus, IOrder } from "../../__types__"
 import { useNavigation } from "@react-navigation/native"
 import { config } from "../../utils/config.util"
@@ -17,7 +17,9 @@ const OrderHistory: React.FC<any> = ({ navigation }) => {
 
   const [orders, setOrders] = React.useState<IOrder[]>([])
   const getOrders = async () => {
-    const res = await fetchGet(`${config.endpoint}/orders`, authHeader)
+    const res = await fetchGet(`${config.endpoint}/orders`, {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
     if (res.success) setOrders(res.data.orders)
   }
 

@@ -3,8 +3,9 @@ import { Stack, HStack, Heading, Text } from "native-base"
 import Grid from "../useable/Grid"
 import { useNavigation } from "@react-navigation/native"
 import { EHome, EProductList, IProduct } from "../../__types__"
-import { authHeader, fetchGet } from "../../utils/helper.util"
+import { fetchGet } from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
+import { localGet } from "../../utils/storage.util"
 
 const SkeletonLoading = React.lazy(() => import("../useable/SkeletonLoading"))
 const Product = React.lazy(() => import("../shop/product/Product"))
@@ -14,7 +15,9 @@ const Recommendation: React.FC<any> = ({ isScrollEnd, setIsScrollEnd }) => {
   const [products, setProducts] = React.useState<IProduct[]>([])
   const [page, setPage] = React.useState<number>(1)
   const getProducts = async () => {
-    const res = await fetchGet(`${config.endpoint}/products?page=${page}`, authHeader)
+    const res = await fetchGet(`${config.endpoint}/products?page=${page}`, {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
     if (res.success) {
       setProducts(res.data.products)
       setIsScrollEnd(false)

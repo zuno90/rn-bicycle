@@ -3,8 +3,9 @@ import { Stack } from "native-base"
 import { useIsFocused, useNavigation } from "@react-navigation/native"
 import { IProduct } from "../../../__types__"
 import Grid from "../../useable/Grid"
-import { authHeader, fetchGet } from "../../../utils/helper.util"
+import { fetchGet } from "../../../utils/helper.util"
 import { config } from "../../../utils/config.util"
+import { localGet } from "../../../utils/storage.util"
 
 const SkeletonLoading = React.lazy(() => import("../../useable/SkeletonLoading"))
 const Product = React.lazy(() => import("./Product"))
@@ -19,10 +20,14 @@ const ProductByCate: React.FC<TProductByCate> = ({ cateSlug }) => {
 
   const getProducts = async () => {
     if (!cateSlug || cateSlug === "") {
-      const resAll = await fetchGet(`${config.endpoint}/products`, authHeader)
+      const resAll = await fetchGet(`${config.endpoint}/products`, {
+        Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+      })
       if (resAll.success) return setProducts(resAll.data.products)
     } else {
-      const resByCate = await fetchGet(`${config.endpoint}/category/${cateSlug}`, authHeader)
+      const resByCate = await fetchGet(`${config.endpoint}/category/${cateSlug}`, {
+        Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+      })
       if (resByCate.success) return setProducts(resByCate.data.products)
     }
   }

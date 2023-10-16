@@ -29,7 +29,7 @@ const ForgotPassword: React.FC<any> = ({ navigation }) => {
 
   return (
     <>
-      <Stack flex={1} p={5} space={5} bgColor="white" safeAreaTop>
+      <Stack flex={1} p={5} bgColor="white" space={5} safeAreaTop>
         <VStack space={4}>
           <Icon as={FaIcon} name="arrow-left" size={30} onPress={() => navigation.goBack()} />
           <Text fontSize="3xl" fontWeight="bold">
@@ -37,7 +37,7 @@ const ForgotPassword: React.FC<any> = ({ navigation }) => {
           </Text>
           <Text fontSize="lg">Nhập số điện thoại</Text>
         </VStack>
-        <Stack space={8} alignItems="center">
+        <Stack alignItems="center" space={8}>
           <FormControl isRequired isInvalid={"phoneNumber" in errors}>
             <Controller
               name="phoneNumber"
@@ -67,10 +67,7 @@ const ForgotPassword: React.FC<any> = ({ navigation }) => {
 
           <LinearGradient
             colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
-            style={{
-              width: "100%",
-              borderRadius: 100,
-            }}
+            style={{ width: "100%", borderRadius: 100 }}
           >
             <Button
               variant="unstyled"
@@ -96,7 +93,7 @@ const ForgotPassword: React.FC<any> = ({ navigation }) => {
         </Center>
       </Stack>
       <HideOnKeyboard>
-        <Stack bgColor="white" alignItems="center" py={5}>
+        <Stack py={5} bgColor="white" alignItems="center">
           <Text>Hotline hỗ trợ: 1900 8558 68</Text>
           <Text>
             Fanpage:{" "}

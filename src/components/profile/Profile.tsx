@@ -10,19 +10,11 @@ import {
   Image,
   Input,
   ScrollView,
-  Slide,
   Stack,
   Text,
   VStack,
 } from "native-base"
-import {
-  WIDTH,
-  allowOnlyNumber,
-  authHeader,
-  fetchGet,
-  fetchPost,
-  formatNumber,
-} from "../../utils/helper.util"
+import { WIDTH, allowOnlyNumber, fetchGet, fetchPost, formatNumber } from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
 import { localDel, localGet } from "../../utils/storage.util"
 import { EHome, EScreen, IOrder } from "../../__types__"
@@ -39,7 +31,7 @@ import Svg, { Path } from "react-native-svg"
 import { useIsFocused } from "@react-navigation/native"
 import { Controller, SubmitHandler, useForm } from "react-hook-form"
 
-const InputModal = React.lazy(()=>import("../useable/InputModal"))
+const InputModal = React.lazy(() => import("../useable/InputModal"))
 const ConfirmModal = React.lazy(() => import("../useable/ConfirmModal"))
 
 type TTopup = { topupAmount: string }
@@ -55,12 +47,17 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
 
   const [orders, setOrders] = React.useState<IOrder[]>([])
   const getOrders = async () => {
-    const res = await fetchGet(`${config.endpoint}/orders`, authHeader)
+    const res = await fetchGet(`${config.endpoint}/orders`, {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
     if (res.success) setOrders(res.data.orders)
   }
 
   const handleLogout = async () => {
-    const res = await fetchPost(`${config.endpoint}/logout`, JSON.stringify({}), authHeader)
+    const res = await fetchPost(`${config.endpoint}/logout`, JSON.stringify({}), {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
+    console.log(res)
     if (res.success) {
       localDel(config.cache.accessToken)
       localDel(config.cache.refreshToken)

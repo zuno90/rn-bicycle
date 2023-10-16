@@ -3,8 +3,9 @@ import { HStack, Heading, Stack, Text } from "native-base"
 import Grid from "../useable/Grid"
 import { EHome, EProductList, IProduct } from "../../__types__"
 import { useNavigation } from "@react-navigation/native"
-import { authHeader, fetchGet } from "../../utils/helper.util"
+import { fetchGet } from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
+import { localGet } from "../../utils/storage.util"
 
 const SkeletonLoading = React.lazy(() => import("../useable/SkeletonLoading"))
 const Product = React.lazy(() => import("../shop/product/Product"))
@@ -14,7 +15,9 @@ const BestSelling: React.FC = () => {
   const [products, setProducts] = React.useState<IProduct[]>([])
 
   const getProducts = async () => {
-    const res = await fetchGet(`${config.endpoint}/products?soldBy=desc`, authHeader)
+    const res = await fetchGet(`${config.endpoint}/products?soldBy=desc`, {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
     if (res.success) return setProducts(res.data.products.slice(0, 6))
   }
 

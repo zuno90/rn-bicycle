@@ -9,7 +9,7 @@ const Success: React.FC<any> = ({ route, navigation }) => {
 
   const handleDirectBtn = async () => {
     await checkAuth()
-    navigation.navigate(to)
+    return navigation.navigate(to)
   }
 
   return (
@@ -25,10 +25,7 @@ const Success: React.FC<any> = ({ route, navigation }) => {
 
         <LinearGradient
           colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
-          style={{
-            width: "100%",
-            borderRadius: 100,
-          }}
+          style={{ width: "100%", borderRadius: 100 }}
         >
           <Button
             variant="unstyled"

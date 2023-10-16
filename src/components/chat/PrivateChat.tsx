@@ -34,6 +34,7 @@ const ADMIN_ID = 99
 
 const PrivateChat: React.FC<any> = ({ route, navigation }) => {
   const { user } = route.params
+
   const [messages, setMessages] = React.useState<IMessage[]>([])
   const [showAcc, setShowAcc] = React.useState<boolean>(false)
 
@@ -53,18 +54,20 @@ const PrivateChat: React.FC<any> = ({ route, navigation }) => {
   }
   const getMsgs = async () => {
     const userDoc = await getDoc(d)
-    let { user, messages } = userDoc.data() as any
-    const msgArr: IMessage[] = []
-    messages.forEach((msg: IMessage) =>
-      msgArr.push({
-        _id: msg._id,
-        text: msg.text,
-        image: msg.image,
-        user,
-        createdAt: msg.createdAt.toDate(),
-      })
-    )
-    setMessages(msgArr)
+    if (userDoc.data()) {
+      let { user, messages } = userDoc.data() as any
+      const msgArr: IMessage[] = []
+      messages.forEach((msg: IMessage) =>
+        msgArr.push({
+          _id: msg._id,
+          text: msg.text,
+          image: msg.image,
+          user,
+          createdAt: msg.createdAt.toDate(),
+        })
+      )
+      setMessages(msgArr)
+    }
   }
   React.useEffect(() => {
     handleKeyboard()

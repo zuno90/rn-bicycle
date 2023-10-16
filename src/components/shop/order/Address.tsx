@@ -4,9 +4,10 @@ import LinearGradient from "react-native-linear-gradient"
 import FeaIcon from "react-native-vector-icons/Feather"
 import { Controller, useFormContext } from "react-hook-form"
 import { Dropdown } from "react-native-element-dropdown"
-import { allowOnlyNumber, authHeader, fetchGet } from "../../../utils/helper.util"
+import { allowOnlyNumber, fetchGet } from "../../../utils/helper.util"
 import { config } from "../../../utils/config.util"
 import LoadingScreen from "../../../screens/LoadingScreen"
+import { localGet } from "../../../utils/storage.util"
 
 const Address: React.FC<any> = ({ user, showToast, closePopup }) => {
   const {
@@ -29,7 +30,9 @@ const Address: React.FC<any> = ({ user, showToast, closePopup }) => {
   }, [])
 
   const getCities = async () => {
-    const res = await fetchGet(`${config.endpoint}/cities`, authHeader)
+    const res = await fetchGet(`${config.endpoint}/cities`, {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
     if (res.success) {
       const cList = res.data.cities.map((city: any) => ({ label: city.name, value: city.id }))
       setCities(cList)
@@ -41,7 +44,9 @@ const Address: React.FC<any> = ({ user, showToast, closePopup }) => {
     }
   }
   const getDistricts = async (cityId: number) => {
-    const res = await fetchGet(`${config.endpoint}/districts/${cityId}`, authHeader)
+    const res = await fetchGet(`${config.endpoint}/districts/${cityId}`, {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
     if (res.success) {
       const dList = res.data.districts.map((district: any) => ({
         label: district.name,
@@ -56,7 +61,9 @@ const Address: React.FC<any> = ({ user, showToast, closePopup }) => {
     }
   }
   const getWards = async (districtId: number) => {
-    const res = await fetchGet(`${config.endpoint}/wards/${districtId}`, authHeader)
+    const res = await fetchGet(`${config.endpoint}/wards/${districtId}`, {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
 
     if (res.success) {
       const wList = res.data.wards.map((ward: any) => ({ label: ward.name, value: ward.id }))

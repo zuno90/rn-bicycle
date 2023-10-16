@@ -1,16 +1,19 @@
 import React from "react"
 import { AspectRatio, Box, Image, Pressable, Text } from "native-base"
 import Svg, { Path } from "react-native-svg"
-import { authHeader, fetchGet, WIDTH } from "../../../utils/helper.util"
+import { fetchGet, WIDTH } from "../../../utils/helper.util"
 import { config } from "../../../utils/config.util"
 import { EHome, ICategory } from "../../../__types__"
 import { useNavigation } from "@react-navigation/native"
+import { localGet } from "../../../utils/storage.util"
 
 const CategoryBlock: React.FC = () => {
   const navigation = useNavigation<any>()
   const [categories, setCategories] = React.useState<ICategory[]>([])
   const getCategories = async () => {
-    const res = await fetchGet(`${config.endpoint}/categories`, authHeader)
+    const res = await fetchGet(`${config.endpoint}/categories`, {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
     if (res.success) setCategories(res.data.categories)
   }
 

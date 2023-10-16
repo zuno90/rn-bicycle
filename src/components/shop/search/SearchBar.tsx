@@ -8,7 +8,7 @@ import { EHome, EProductList } from "../../../__types__"
 import { localGet, localSet } from "../../../utils/storage.util"
 import { config } from "../../../utils/config.util"
 import { useDebounce } from "use-debounce"
-import { authHeader, fetchGet } from "../../../utils/helper.util"
+import { fetchGet } from "../../../utils/helper.util"
 
 const SearchHistory = React.lazy(() => import("./SearchHistory"))
 const SearchResult = React.lazy(() => import("./SearchResult"))
@@ -23,10 +23,9 @@ const SearchBar: React.FC = () => {
   const [debouncedLSearch] = useDebounce(lSearch, 500)
 
   const handleLiveSearch = async () => {
-    const res = await fetchGet(
-      `${config.endpoint}/products/search?name=${debouncedLSearch}`,
-      authHeader
-    )
+    const res = await fetchGet(`${config.endpoint}/products/search?name=${debouncedLSearch}`, {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
     if (res.success) setLSearchList(res.data.products)
   }
 

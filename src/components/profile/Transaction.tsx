@@ -1,17 +1,20 @@
 import React from "react"
 import { Box, Divider, HStack, Icon, ScrollView, Text } from "native-base"
-import { authHeader, fetchGet, formatNumber } from "../../utils/helper.util"
+import { fetchGet, formatNumber } from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
 import FaIcon from "react-native-vector-icons/FontAwesome"
 import LoadingBtn from "../useable/LoadingBtn"
 import { ITransaction, ETopup } from "../../__types__"
+import { localGet } from "../../utils/storage.util"
 
 const Transaction: React.FC<any> = ({ navigation }) => {
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const [transactions, setTransactions] = React.useState<ITransaction[]>([])
   const getPayments = async () => {
     setIsLoading(true)
-    const res = await fetchGet(`${config.endpoint}/payments`, authHeader)
+    const res = await fetchGet(`${config.endpoint}/payments`, {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
     if (res.success) setTransactions(res.data.payments)
     setIsLoading(false)
   }

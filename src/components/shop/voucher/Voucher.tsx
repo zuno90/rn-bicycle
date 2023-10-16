@@ -15,9 +15,10 @@ import {
 import FaIcon from "react-native-vector-icons/FontAwesome"
 import AntIcon from "react-native-vector-icons/AntDesign"
 import MateIcon from "react-native-vector-icons/MaterialIcons"
-import { WIDTH, authHeader, fetchGet } from "../../../utils/helper.util"
+import { WIDTH, fetchGet } from "../../../utils/helper.util"
 import { config } from "../../../utils/config.util"
 import { useDebounce } from "use-debounce"
+import { localGet } from "../../../utils/storage.util"
 
 const Voucher: React.FC<any> = ({ route, navigation }) => {
   const [vouchers, setVouchers] = React.useState([])
@@ -36,7 +37,9 @@ const Voucher: React.FC<any> = ({ route, navigation }) => {
   }
 
   const getVouchers = async () => {
-    const res = await fetchGet(`${config.endpoint}/vouchers`, authHeader)
+    const res = await fetchGet(`${config.endpoint}/vouchers`, {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
     if (res.success) setVouchers(res.data.vouchers)
   }
 

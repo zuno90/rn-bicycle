@@ -82,14 +82,12 @@ export const removeCartItem = (unit: string) => {
   return newCarts
 }
 
-export const removeAllCart = () => {}
-
 export const squareWH = (ratio: number) => {
   return WIDTH * ratio
 }
 
 // API CALL
-export const authHeader = { Authorization: `Bearer ${localGet(config.cache.accessToken)}` }
+
 export const fetchGet = async (url: string, header?: any) => {
   try {
     const r = await fetch(url, {

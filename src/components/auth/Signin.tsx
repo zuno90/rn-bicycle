@@ -36,7 +36,10 @@ const Signin: React.FC = ({ navigation }: any) => {
     formState: { isSubmitting, errors },
   } = useForm<TSignin>({ defaultValues: { deviceToken: localGet(config.cache.deviceToken) } })
 
-  const { checkAuth } = useAuth()
+  const {
+    auth: { isAuth },
+    checkAuth,
+  } = useAuth()
   const onSignin: SubmitHandler<TSignin> = async (data) => {
     const res = await fetchPost(`${config.endpoint}/signin`, JSON.stringify(data))
     if (res.success) {
@@ -156,7 +159,7 @@ const Signin: React.FC = ({ navigation }: any) => {
               <Button
                 variant="unstyled"
                 onPress={handleSubmit(onSignin)}
-                h="50px"
+                h={50}
                 _pressed={{ bgColor: "yellow.400" }}
                 isLoading={isSubmitting}
                 isDisabled={isSubmitting}
@@ -179,7 +182,7 @@ const Signin: React.FC = ({ navigation }: any) => {
         </Stack>
       </ScrollView>
       <HideOnKeyboard>
-        <Stack bgColor="white" alignItems="center" py={5}>
+        <Stack py={5} bgColor="white" alignItems="center">
           <Text>Hotline hỗ trợ: 1900 8558 68</Text>
           <Text>
             Fanpage:{" "}

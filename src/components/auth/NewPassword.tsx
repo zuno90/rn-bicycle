@@ -27,10 +27,7 @@ import {
 import { config } from "../../utils/config.util"
 import { HideOnKeyboard } from "react-native-hide-onkeyboard"
 
-type TNewPassword = {
-  password: string
-  confirmPassword: string
-}
+type TNewPassword = { password: string; confirmPassword: string }
 
 const NewPassword: React.FC<any> = ({ route, navigation }) => {
   const { phone } = route.params
@@ -47,7 +44,7 @@ const NewPassword: React.FC<any> = ({ route, navigation }) => {
     const payload = { phoneNumber: phone, password: data.password }
     const res = await fetchPost(`${config.endpoint}/user/change-password`, JSON.stringify(payload))
     if (res.success)
-      return navigation.navigate(EAuth.Success, {
+      navigation.navigate(EAuth.Success, {
         to: EAuth.Signin,
         des: "Bạn đã tạo mật khẩu thành công!",
         btn: "Quay lại đăng nhập",
@@ -59,13 +56,12 @@ const NewPassword: React.FC<any> = ({ route, navigation }) => {
       <ScrollView>
         <Stack flex={1} m={5} space={5} safeAreaTop>
           <VStack space={4}>
-            {/* <Icon as={FaIcon} name="chevron-left" size={30} onPress={() => navigation.goBack()} /> */}
             <Text fontSize="3xl" fontWeight="bold">
               Tạo mật khẩu mới
             </Text>
             <Text fontSize="lg">Mật khẩu mới không được trùng với mật khẩu cũ</Text>
           </VStack>
-          <Stack space={4} alignItems="center">
+          <Stack alignItems="center" space={4}>
             <FormControl isRequired isInvalid={"password" in errors}>
               <Controller
                 name="password"
@@ -142,7 +138,7 @@ const NewPassword: React.FC<any> = ({ route, navigation }) => {
               />
             </FormControl>
 
-            <VStack space={1} alignSelf="flex-start" ml={5}>
+            <VStack ml={5} alignSelf="flex-start" space={1}>
               <Text fontSize="xs">Mật khẩu phải có ít nhất 6 kí tự bao gồm:</Text>
               <HStack alignItems="center" space={4}>
                 {containsUpperCase(watch("password")) ? (
@@ -202,7 +198,7 @@ const NewPassword: React.FC<any> = ({ route, navigation }) => {
         </Stack>
       </ScrollView>
       <HideOnKeyboard>
-        <Stack alignItems="center" my={5}>
+        <Stack my={5} alignItems="center">
           <Text>Hotline hỗ trợ: 1900 8558 68</Text>
           <Text>
             Fanpage:{" "}

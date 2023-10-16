@@ -17,8 +17,9 @@ import { EHome, EToastType } from "../../__types__"
 import Clipboard from "@react-native-clipboard/clipboard"
 import Toast from "../useable/Toast"
 import useAuth from "../../context/AuthProvider"
-import { authHeader, fetchPost, formatNumber } from "../../utils/helper.util"
+import { fetchPost, formatNumber } from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
+import { localGet } from "../../utils/storage.util"
 
 const Topup: React.FC<any> = ({ route, navigation }) => {
   const { amount } = route.params
@@ -32,7 +33,7 @@ const Topup: React.FC<any> = ({ route, navigation }) => {
     const res = await fetchPost(
       `${config.endpoint}/payment`,
       JSON.stringify({ type: "topup", amount: Number(amount) }),
-      authHeader
+      { Authorization: `Bearer ${localGet(config.cache.accessToken)}` }
     )
     if (res.success) setIsPaid(true)
   }

@@ -69,7 +69,7 @@ const Signup: React.FC = ({ navigation }: any) => {
             </Text>
             <Text fontSize="lg">Nhập số điện thoại</Text>
           </VStack>
-          <Stack space={4} alignItems="center">
+          <Stack alignItems="center" space={4}>
             <FormControl isRequired isInvalid={"phoneNumber" in errors}>
               <Controller
                 name="phoneNumber"
@@ -138,7 +138,7 @@ const Signup: React.FC = ({ navigation }: any) => {
             </FormControl>
 
             {watch("password") && (
-              <VStack space={1} alignSelf="flex-start" ml={5}>
+              <VStack ml={5} alignSelf="flex-start" space={1}>
                 <Text fontSize="xs">Mật khẩu phải có ít nhất 6 kí tự bao gồm:</Text>
                 <HStack alignItems="center" space={4}>
                   {containsUpperCase(watch("password")) ? (
@@ -207,7 +207,7 @@ const Signup: React.FC = ({ navigation }: any) => {
         </Stack>
       </ScrollView>
       <HideOnKeyboard>
-        <Stack bgColor="white" alignItems="center" py={5}>
+        <Stack py={5} bgColor="white" alignItems="center">
           <Text>Hotline hỗ trợ: 1900 8558 68</Text>
           <Text>
             Fanpage:{" "}

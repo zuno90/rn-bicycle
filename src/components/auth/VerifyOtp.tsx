@@ -3,7 +3,7 @@ import { Stack, VStack, Text, Button, FormControl, useToast } from "native-base"
 import { Controller, SubmitHandler, useForm } from "react-hook-form"
 import OTPTextView from "react-native-otp-textinput"
 import LinearGradient from "react-native-linear-gradient"
-import { fetchPost } from "../../utils/helper.util"
+import { allowOnlyNumber, fetchPost } from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
 import { localSet } from "../../utils/storage.util"
 import { EAuth, EScreen } from "../../__types__"
@@ -19,19 +19,18 @@ const VerifyOtp: React.FC<any> = ({ route, navigation }) => {
   const { from, phone, mockOtp } = route.params
   const {
     control,
+    setValue,
     trigger,
     handleSubmit,
     formState: { isSubmitting, errors },
   } = useForm<TOtp>()
   const [isExpired, setIsExpired] = React.useState<boolean>(false)
-  const otpRef = React.useRef(null)
+  const otpRef = React.useRef<any>(null)
 
   const onVerify: SubmitHandler<TOtp> = async (data) => {
-    console.log(data, 4545454)
     // call api verify
     const payload = { phoneNumber: phone, code: data.otp }
     const res = await fetchPost(`${config.endpoint}/user/verify-otp`, JSON.stringify(payload))
-    console.log(res, "data accesstoken")
     if (res.success) {
       switch (from) {
         case EAuth.Signup:
@@ -44,13 +43,6 @@ const VerifyOtp: React.FC<any> = ({ route, navigation }) => {
             btn: "Bắt đầu mua sắm",
           })
           break
-        // case EAuth.Signin:
-        //   const signinData = res.data
-        //   localSet(config.cache.accessToken, signinData.accessToken)
-        //   localSet(config.cache.refreshToken, signinData.refreshToken)
-        //   await checkAuth()
-        //   navigation.navigate(EScreen.Home)
-        //   break
         case EAuth.ForgotPassword:
           navigation.navigate(EAuth.NewPassword, { phone })
           break
@@ -67,7 +59,10 @@ const VerifyOtp: React.FC<any> = ({ route, navigation }) => {
       `${config.endpoint}/user/resend-otp`,
       JSON.stringify({ phoneNumber: phone })
     )
-    if (res.success) setIsExpired(false)
+    if (res.success) {
+      otpRef.current?.clear()
+      setIsExpired(false)
+    }
     console.log(res, "resend otp")
   }
 
@@ -98,7 +93,7 @@ const VerifyOtp: React.FC<any> = ({ route, navigation }) => {
             </Text>
           )}
         </VStack>
-        <Stack space={5} alignItems="center">
+        <Stack alignItems="center" space={5}>
           <FormControl isRequired isInvalid={"otp" in errors}>
             <Controller
               name="otp"
@@ -160,7 +155,7 @@ const VerifyOtp: React.FC<any> = ({ route, navigation }) => {
               if (!ok) return showToast(errors.otp?.message ?? "Bad input!")
               return handleSubmit(onVerify)()
             }}
-            h="50px"
+            h={50}
             _pressed={{ bgColor: "yellow.400" }}
             isLoading={isSubmitting}
             isDisabled={isSubmitting}
@@ -170,7 +165,7 @@ const VerifyOtp: React.FC<any> = ({ route, navigation }) => {
         </LinearGradient>
       </Stack>
       <HideOnKeyboard>
-        <Stack alignItems="center" my={5}>
+        <Stack my={5} alignItems="center">
           <Text>Hotline hỗ trợ: 1900 8558 68</Text>
           <Text>
             Fanpage:{" "}

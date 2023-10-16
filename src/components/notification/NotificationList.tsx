@@ -3,9 +3,10 @@ import { Box, Button, HStack, Heading, Image, Text, VStack, useToast } from "nat
 import Clipboard from "@react-native-clipboard/clipboard"
 import Toast from "../useable/Toast"
 import { EToastType } from "../../__types__/toast.type"
-import { authHeader, fetchGet } from "../../utils/helper.util"
+import { fetchGet } from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
 import LoadingBtn from "../useable/LoadingBtn"
+import { localGet } from "../../utils/storage.util"
 
 const NotificationList: React.FC<{ type: string }> = ({ type }) => {
   return (
@@ -25,7 +26,9 @@ const MyNoti: React.FC = () => {
   const [notifications, setNotifications] = React.useState([])
   const getNotifications = async () => {
     setIsLoading(true)
-    const res = await fetchGet(`${config.endpoint}/notifications?type=other`, authHeader)
+    const res = await fetchGet(`${config.endpoint}/notifications?type=other`, {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
     if (res.success) setNotifications(res.data.notifications)
     setIsLoading(false)
   }
@@ -59,7 +62,9 @@ const MyVoucher: React.FC = () => {
   const [promotionNotifications, setPromotionNotifications] = React.useState([])
   const getPromotionNotifications = async () => {
     setIsLoading(true)
-    const res = await fetchGet(`${config.endpoint}/notifications?type=promotion`, authHeader)
+    const res = await fetchGet(`${config.endpoint}/notifications?type=promotion`, {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
     if (res.success) setPromotionNotifications(res.data.notifications)
     setIsLoading(false)
   }

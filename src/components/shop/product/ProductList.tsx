@@ -5,9 +5,10 @@ import SearchBar from "../search/SearchBar"
 import FilterBtn from "../filter/FilterBtn"
 import { EHome, EProductList, IProduct } from "../../../__types__"
 import { useIsFocused } from "@react-navigation/native"
-import { authHeader, fetchGet } from "../../../utils/helper.util"
+import { fetchGet } from "../../../utils/helper.util"
 import { config } from "../../../utils/config.util"
 import LoadingBtn from "../../useable/LoadingBtn"
+import { localGet } from "../../../utils/storage.util"
 
 const Grid = React.lazy(() => import("../../useable/Grid"))
 const SkeletonLoading = React.lazy(() => import("../../useable/SkeletonLoading"))
@@ -26,17 +27,18 @@ const ProductList: React.FC = ({ route }: any) => {
       setIsLoading(true)
       switch (from) {
         case EProductList.BestSelling:
-          const resBestSelling = await fetchGet(
-            `${config.endpoint}/products?soldBy=desc`,
-            authHeader
-          )
+          const resBestSelling = await fetchGet(`${config.endpoint}/products?soldBy=desc`, {
+            Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+          })
           if (resBestSelling.success) {
             setProducts(resBestSelling.data.products)
             setIsLoading(false)
           }
           break
         case EProductList.Recommendation:
-          const resRecommendation = await fetchGet(`${config.endpoint}/products`, authHeader)
+          const resRecommendation = await fetchGet(`${config.endpoint}/products`, {
+            Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+          })
           if (resRecommendation.success) {
             setProducts(resRecommendation.data.products)
             setIsLoading(false)
@@ -45,7 +47,7 @@ const ProductList: React.FC = ({ route }: any) => {
         case EProductList.Search:
           const searchRes = await fetchGet(
             `${config.endpoint}/products/search?name=${encodeURIComponent(search)}`,
-            authHeader
+            { Authorization: `Bearer ${localGet(config.cache.accessToken)}` }
           )
           if (searchRes.success) {
             setProducts(searchRes.data.products)
@@ -53,7 +55,9 @@ const ProductList: React.FC = ({ route }: any) => {
           }
           break
         case EProductList.Category:
-          const resCate = await fetchGet(`${config.endpoint}/category/${slug}`, authHeader)
+          const resCate = await fetchGet(`${config.endpoint}/category/${slug}`, {
+            Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+          })
           if (resCate.success) {
             setProducts(resCate.data.products)
             setIsLoading(false)
@@ -66,7 +70,7 @@ const ProductList: React.FC = ({ route }: any) => {
             )}&size=${encodeURIComponent(JSON.stringify(filter.size))}&color=${encodeURIComponent(
               JSON.stringify(filter.color)
             )}&fromPrice=${filter.price.l}&toPrice=${filter.price.h}`,
-            authHeader
+            { Authorization: `Bearer ${localGet(config.cache.accessToken)}` }
           )
           if (resFilter.success) {
             console.log(resFilter.data)

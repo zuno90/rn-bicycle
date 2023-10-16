@@ -25,7 +25,6 @@ import { EHome, EToastType, IProduct, IProductCart } from "../../../__types__"
 import {
   WIDTH,
   addToCart,
-  authHeader,
   deduplicateArray,
   fetchGet,
   formatNumber,
@@ -70,12 +69,16 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
   const [relatedProduct, setRelatedProduct] = React.useState<IProduct[]>([])
 
   const getProduct = async () => {
-    const res = await fetchGet(`${config.endpoint}/product/${slug}`, authHeader)
+    const res = await fetchGet(`${config.endpoint}/product/${slug}`, {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
     if (res.success) setProduct(res.data.product)
   }
 
   const getRelatedProducts = async () => {
-    const res = await fetchGet(`${config.endpoint}/products/related?id=${id}`, authHeader)
+    const res = await fetchGet(`${config.endpoint}/products/related?id=${id}`, {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
     if (res.success) setRelatedProduct(res.data.products)
   }
 

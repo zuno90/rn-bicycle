@@ -1,9 +1,9 @@
 import React from "react"
-import { Box, Heading, Image, ScrollView, Stack, VStack } from "native-base"
+import { Box, Button, Heading, Image, ScrollView, Stack, VStack } from "native-base"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { EHome } from "../__types__"
-import { WIDTH, authHeader, fetchGet } from "../utils/helper.util"
-import { localSet } from "../utils/storage.util"
+import { WIDTH, fetchGet } from "../utils/helper.util"
+import { localGet, localSet } from "../utils/storage.util"
 import { config } from "../utils/config.util"
 import { useIsFocused } from "@react-navigation/native"
 import PhoneCallBtn from "../components/useable/PhoneCallBtn"
@@ -46,22 +46,28 @@ const InitHome: React.FC<any> = ({ route }) => {
   const { setAuth } = useAuth()
 
   const getCategories = async () => {
-    const res = await fetchGet(`${config.endpoint}/categories`, authHeader)
+    const res = await fetchGet(`${config.endpoint}/categories`, {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
     if (!res.success) return setAuth({ isAuth: false, user: null })
     localSet(config.cache.catelist, JSON.stringify(res.data.categories))
   }
   // const getSubcategories = async () => {
-  //   const res = await fetchGet(`${config.endpoint}/sizes`,authHeader)
+  //   const res = await fetchGet(`${config.endpoint}/sizes`,{ Authorization: `Bearer ${localGet(config.cache.accessToken)}` })
   // if (!res.success) return setAuth({ isAuth: false, user: null })
   //   localSet(config.cache.sizelist, JSON.stringify(res.data.sizes))
   // }
   const getSizes = async () => {
-    const res = await fetchGet(`${config.endpoint}/sizes`, authHeader)
+    const res = await fetchGet(`${config.endpoint}/sizes`, {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
     if (!res.success) return setAuth({ isAuth: false, user: null })
     localSet(config.cache.sizelist, JSON.stringify(res.data.sizes))
   }
   const getColors = async () => {
-    const res = await fetchGet(`${config.endpoint}/colors`, authHeader)
+    const res = await fetchGet(`${config.endpoint}/colors`, {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
     if (!res.success) return setAuth({ isAuth: false, user: null })
     localSet(config.cache.colorlist, JSON.stringify(res.data.colors))
   }
@@ -111,11 +117,6 @@ const InitHome: React.FC<any> = ({ route }) => {
           <React.Suspense fallback={<SkeletonLoading />}>
             <BestSelling />
             <Recommendation isScrollEnd={isScrollEnd} setIsScrollEnd={setIsScrollEnd} />
-            {/* {isScrollEnd ? (
-              <Recommendation isScrollEnd={isScrollEnd} setIsScrollEnd={setIsScrollEnd} />
-            ) : (
-              <Recommendation />
-            )} */}
           </React.Suspense>
           {isScrollEnd && <LoadingBtn />}
         </Box>
