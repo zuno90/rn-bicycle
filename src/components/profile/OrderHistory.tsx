@@ -14,6 +14,7 @@ const OrderHistory: React.FC<any> = ({ navigation }) => {
     { key: "waiting_payment", title: "Chờ thanh toán" },
     { key: "pending", title: "Đang xử lý" },
   ])
+
   const [orders, setOrders] = React.useState<IOrder[]>([])
   const getOrders = async () => {
     const res = await fetchGet(`${config.endpoint}/orders`, authHeader)
@@ -23,6 +24,27 @@ const OrderHistory: React.FC<any> = ({ navigation }) => {
   React.useEffect(() => {
     getOrders()
   }, [])
+
+  const allRoute = () => (
+    <ScrollView>
+      <OrderList data={orders} />
+    </ScrollView>
+  )
+  const waitingPaymentRoute = () => (
+    <ScrollView>
+      <OrderList data={orders.filter((order: any) => order.status === "waiting_payment")} />
+    </ScrollView>
+  )
+  const pendingRoute = () => (
+    <ScrollView>
+      <OrderList data={orders.filter((order: any) => order.status === "pending")} />
+    </ScrollView>
+  )
+  const renderScene = SceneMap({
+    all: allRoute,
+    waiting_payment: waitingPaymentRoute,
+    pending: pendingRoute,
+  })
 
   return (
     <>
@@ -43,6 +65,8 @@ const OrderHistory: React.FC<any> = ({ navigation }) => {
         style={{ backgroundColor: "white" }}
         lazy
         navigationState={{ index, routes }}
+        onIndexChange={setIndex}
+        initialLayout={{ width: WIDTH }}
         renderTabBar={(props) => (
           <TabBar
             {...props}
@@ -56,31 +80,13 @@ const OrderHistory: React.FC<any> = ({ navigation }) => {
             indicatorStyle={{ backgroundColor: "black" }}
           />
         )}
-        renderScene={SceneMap({
-          all: () => (
-            <ScrollView>
-              <OrderList data={orders} />
-            </ScrollView>
-          ),
-          waiting_payment: () => (
-            <ScrollView>
-              <OrderList data={orders.filter((order: any) => order.status === "waiting_payment")} />
-            </ScrollView>
-          ),
-          pending: () => (
-            <ScrollView>
-              <OrderList data={orders.filter((order: any) => order.status === "pending")} />
-            </ScrollView>
-          ),
-        })}
-        onIndexChange={setIndex}
-        initialLayout={{ width: WIDTH }}
+        renderScene={renderScene}
       />
     </>
   )
 }
 
-const OrderList = ({ data }: { data: IOrder[] }) => {
+const OrderList: React.FC<{ data: IOrder[] }> = ({ data }) => {
   const navigation = useNavigation<any>()
 
   return data.map((order, index) => (

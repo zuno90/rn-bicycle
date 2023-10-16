@@ -39,7 +39,9 @@ const OrderDetail: React.FC<any> = ({ route, navigation }) => {
           as={FaIcon}
           name="chevron-left"
           size={30}
-          onPress={() => navigation.navigate(EHome.OrderHistory)}
+          onPress={() => {
+            navigation.navigate(EHome.OrderHistory)
+          }}
         />
         <Text fontSize="2xl" fontWeight="bold">
           Chi tiết đơn hàng

@@ -11,13 +11,14 @@ type TAuth = {
 export const AuthContext = createContext<any>(null)
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isLoading, setIsLoading] = React.useState<boolean>(true)
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const [auth, setAuth] = React.useState<TAuth | null>({
     isAuth: false,
     user: null,
   })
 
   const checkAuth = async () => {
+    setIsLoading(true)
     const accessToken = localGet(config.cache.accessToken)
     try {
       if (!accessToken) throw new Error("Have no permission!")
@@ -33,16 +34,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               JSON.stringify({ accessToken, refreshToken }),
               authHeader
             )
-            console.log(result)
-            break
+            if (!result.success) throw new Error("Can not renew access token!")
+            localSet(config.cache.accessToken, result.data.accessToken)
+            localSet(config.cache.refreshToken, result.data.refreshToken)
+            await checkAuth()
           default:
-            break
+            throw new Error("Can not renew access token!")
         }
       }
       setAuth({ isAuth: true, user: data.user })
-      setIsLoading(false)
     } catch (error) {
       setAuth({ isAuth: false, user: null })
+    } finally {
       setIsLoading(false)
     }
   }
