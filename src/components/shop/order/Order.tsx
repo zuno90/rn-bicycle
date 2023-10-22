@@ -19,18 +19,19 @@ import FaIcon from "react-native-vector-icons/FontAwesome"
 import FeaIcon from "react-native-vector-icons/Feather"
 import AntIcon from "react-native-vector-icons/AntDesign"
 import MateIcon from "react-native-vector-icons/MaterialIcons"
-import { HEIGHT, fetchPost, formatNumber } from "../../../utils/helper.util"
+import { HEIGHT, fetchPost, formatNumber, removeCartItem } from "../../../utils/helper.util"
 import Svg, { Path } from "react-native-svg"
 import LinearGradient from "react-native-linear-gradient"
 import { EHome, EToastType, IProductCart, TInputInformation } from "../../../__types__"
-import LoadingBtn from "../../useable/LoadingBtn"
 import { Controller, FormProvider, SubmitHandler, useForm } from "react-hook-form"
 import { localGet } from "../../../utils/storage.util"
 import { config } from "../../../utils/config.util"
 import { KeyboardAvoidingView } from "react-native"
 import { useIsFocused } from "@react-navigation/native"
+import LoadingBtn from "../../useable/LoadingBtn"
 import Clipboard from "@react-native-clipboard/clipboard"
 import Toast from "../../useable/Toast"
+import useAuth from "../../../context/AuthProvider"
 
 const Address = React.lazy(() => import("./Address"))
 const ConfirmModal = React.lazy(() => import("../../useable/ConfirmModal"))
@@ -50,7 +51,10 @@ interface IOrder {
 const currentTime = new Date().getTime()
 
 const Order: React.FC<any> = ({ route, navigation }) => {
-  const { user, selectItems } = route.params
+  const { selectItems } = route.params
+  const {
+    auth: { user },
+  } = useAuth()
   const sizes = JSON.parse(localGet(config.cache.sizelist) as string)
   const colors = JSON.parse(localGet(config.cache.colorlist) as string)
 
@@ -88,20 +92,22 @@ const Order: React.FC<any> = ({ route, navigation }) => {
       Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
     })
     console.log(res, "res order")
-    if (res.success) return setIsDone({ status: true, orderId: res.data.id })
-    return showToast(res.message)
+    if (res.success) {
+      selectItems.forEach((item: IProductCart) => removeCartItem(item.unit))
+      setIsDone({ status: true, orderId: res.data.id })
+      return showToast(EToastType.noti, res.message)
+    }
+    return showToast(EToastType.err, res.message)
   }
 
   const toast = useToast()
-  const showToast = (msg: string) => {
+  const showToast = (type: EToastType, msg: string) => {
     if (!toast.isActive("order"))
       toast.show({
         id: "order",
         placement: "top",
         duration: 1500,
-        render: () => (
-          <Toast type={EToastType.err} content={msg} close={() => toast.close("order")} />
-        ),
+        render: () => <Toast type={type} content={msg} close={() => toast.close("order")} />,
       })
   }
 
@@ -124,7 +130,7 @@ const Order: React.FC<any> = ({ route, navigation }) => {
   return (
     <>
       <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
-        <Icon as={FaIcon} name="chevron-left" size={30} onPress={() => navigation.goBack()} />
+        <Icon as={FaIcon} name="arrow-left" size={30} onPress={() => navigation.goBack()} />
         <Text fontSize="3xl" fontWeight="bold">
           Thanh toán
         </Text>
@@ -194,56 +200,52 @@ const Order: React.FC<any> = ({ route, navigation }) => {
             ))}
 
             <Heading fontSize="lg">Mã khuyến mãi</Heading>
-            <Stack space={2}>
-              <Box
-                p={2}
-                flexDir="row"
-                justifyContent="space-between"
-                borderColor="yellow.400"
-                borderWidth={1}
-                rounded="lg"
-              >
-                <HStack space={2} alignItems="center">
-                  <Icon as={VoucherIcon} />
-                  <Text fontWeight="semibold">
-                    {methods.getValues("voucher.code") || "Mã giảm giá"}
-                  </Text>
-                </HStack>
-                <HStack space={2} alignItems="center">
-                  <Text
-                    onPress={() =>
-                      navigation.navigate(EHome.Voucher, {
-                        code: (code: string) =>
-                          methods.setValue("voucher.code", code, { shouldDirty: true }),
-                        unit: (unit: string) =>
-                          methods.setValue("voucher.unit", unit, { shouldDirty: true }),
-                        value: (value: number) =>
-                          methods.setValue("voucher.value", value, { shouldDirty: true }),
-                      })
-                    }
-                  >
-                    {methods.getValues("voucher.code") ? (
-                      <Icon as={AntIcon} name="checkcircle" color="yellow.400" />
-                    ) : (
-                      "Chọn hoặc nhập mã"
-                    )}
-                  </Text>
-                  {methods.watch("voucher.code") ? (
-                    <Icon
-                      as={MateIcon}
-                      name="highlight-remove"
-                      size={5}
-                      onPress={() => methods.setValue("voucher.code", "", { shouldDirty: true })}
-                    />
+            <Box
+              px={2}
+              py={3}
+              borderColor="yellow.400"
+              borderWidth={1}
+              rounded="lg"
+              flexDir="row"
+              justifyContent="space-between"
+            >
+              <HStack alignItems="center" space={2}>
+                <Icon as={VoucherIcon} />
+                <Text fontWeight="semibold">
+                  {methods.getValues("voucher.code") || "Mã giảm giá"}
+                </Text>
+              </HStack>
+              <HStack alignItems="center" space={2}>
+                <Text
+                  onPress={() =>
+                    navigation.navigate(EHome.Voucher, {
+                      code: (code: string) =>
+                        methods.setValue("voucher.code", code, { shouldDirty: true }),
+                      unit: (unit: string) =>
+                        methods.setValue("voucher.unit", unit, { shouldDirty: true }),
+                      value: (value: number) =>
+                        methods.setValue("voucher.value", value, { shouldDirty: true }),
+                    })
+                  }
+                >
+                  {methods.getValues("voucher.code") ? (
+                    <Icon as={AntIcon} name="checkcircle" color="yellow.400" />
                   ) : (
-                    <Icon as={FaIcon} name="chevron-right" />
+                    "Chọn hoặc nhập mã"
                   )}
-                </HStack>
-              </Box>
-              {/* <Text fontSize="xs" color="red.400">
-                Lỗi mã giảm giá, vui lòng chọn mã giảm giá khác
-              </Text> */}
-            </Stack>
+                </Text>
+                {methods.watch("voucher.code") ? (
+                  <Icon
+                    as={MateIcon}
+                    name="highlight-remove"
+                    size={5}
+                    onPress={() => methods.setValue("voucher.code", "", { shouldDirty: true })}
+                  />
+                ) : (
+                  <Icon as={FaIcon} name="chevron-right" />
+                )}
+              </HStack>
+            </Box>
 
             <Heading fontSize="lg">Đơn vị vận chuyển</Heading>
             <Box px={5} py={2} bgColor="#F4F4F4" rounded="md">
@@ -304,9 +306,29 @@ const Order: React.FC<any> = ({ route, navigation }) => {
                       <Stack p={2} space={1}>
                         <Text fontSize="xs">Thông tin tài khoản</Text>
                         <Text fontSize="xs">Ngân hàng ACB Vietnam</Text>
-                        <Text fontSize="xs">
-                          68689988 <Icon as={FeaIcon} name="copy" />
-                        </Text>
+                        <HStack alignItems="center" space={4}>
+                          <Text fontSize="xs">68689988</Text>
+                          <Icon
+                            as={FeaIcon}
+                            name="copy"
+                            onPress={() => {
+                              Clipboard.setString("68689988")
+                              !toast.isActive("copytoclipboard") &&
+                                toast.show({
+                                  id: "copytoclipboard",
+                                  placement: "top",
+                                  duration: 1500,
+                                  render: () => (
+                                    <Toast
+                                      type={EToastType.noti}
+                                      content="Đã sao chép"
+                                      close={() => toast.close("copytoclipboard")}
+                                    />
+                                  ),
+                                })
+                            }}
+                          />
+                        </HStack>
                         <Text fontSize="xs">Công ty TNHH Vuong Gia Bicycle</Text>
                       </Stack>
                       <Stack mt={2} space={2}>
@@ -357,6 +379,11 @@ const Order: React.FC<any> = ({ route, navigation }) => {
 
             <Pressable
               onPress={() => {
+                if (user.coin < finalTotal)
+                  return showToast(
+                    EToastType.err,
+                    "Xu không đủ! Vui lòng chọn hình thức chuyển khoản hoặc quay lại sau khi nạp xu!"
+                  )
                 methods.setValue("paymentMethod", "coin", { shouldDirty: true })
                 setExpandedPaymentMethod(false)
               }}
@@ -372,7 +399,7 @@ const Order: React.FC<any> = ({ route, navigation }) => {
                 <Text fontWeight="semibold">Dùng xu</Text>
                 <HStack justifyContent="space-between" alignItems="center">
                   <Text>Số dư hiện tại</Text>
-                  <Text>đ50.000</Text>
+                  <Text>đ{user.coin}</Text>
                 </HStack>
               </Box>
             </Pressable>
@@ -398,11 +425,13 @@ const Order: React.FC<any> = ({ route, navigation }) => {
       </KeyboardAvoidingView>
 
       <Box
-        flex={1}
+        position="absolute"
+        bottom={0}
         p={5}
         gap={2}
         bgColor="yellow.50"
         w="full"
+        maxH={HEIGHT / 3}
         justifyContent="center"
         safeAreaBottom
       >
@@ -438,10 +467,11 @@ const Order: React.FC<any> = ({ route, navigation }) => {
               for (let e in methods.formState.errors) {
                 if (e === "information")
                   for (let ee in methods.formState.errors[e])
-                    return showToast(methods.formState.errors[e][ee]?.message)
-                return showToast(methods.formState.errors[e]?.message)
+                    return showToast(EToastType.err, methods.formState.errors[e][ee]?.message)
+                return showToast(EToastType.err, methods.formState.errors[e]?.message)
               }
-              if (!ok) return showToast("Vui lòng điền đầy đủ thông tin thanh toán!")
+              if (!ok)
+                return showToast(EToastType.err, "Vui lòng điền đầy đủ thông tin thanh toán!")
               return setExpandedConfirmModal(true)
             }}
           >

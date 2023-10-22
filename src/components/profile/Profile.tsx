@@ -1,8 +1,8 @@
 import React from "react"
 import {
+  Avatar,
   Box,
   Button,
-  Center,
   FormControl,
   HStack,
   Heading,
@@ -14,14 +14,17 @@ import {
   Text,
   VStack,
 } from "native-base"
-import { WIDTH, allowOnlyNumber, fetchGet, fetchPost, formatNumber } from "../../utils/helper.util"
+import {
+  WIDTH,
+  allowOnlyNumber,
+  fetchGet,
+  fetchPost,
+  formatNumber,
+  getCarts,
+} from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
 import { localDel, localGet } from "../../utils/storage.util"
-import { EHome, EScreen, IOrder } from "../../__types__"
-import useAuth from "../../context/AuthProvider"
-import CartIcon from "../shop/cart/CartIcon"
-import FooterMenu from "../home/FooterMenu"
-import PhoneCallBtn from "../useable/PhoneCallBtn"
+import { EHome, EScreen, IOrder, IProductCart } from "../../__types__"
 import LinearGradient from "react-native-linear-gradient"
 import AntIcon from "react-native-vector-icons/AntDesign"
 import FeaIcon from "react-native-vector-icons/Feather"
@@ -30,6 +33,10 @@ import MateComIcon from "react-native-vector-icons/MaterialCommunityIcons"
 import Svg, { Path } from "react-native-svg"
 import { useIsFocused } from "@react-navigation/native"
 import { Controller, SubmitHandler, useForm } from "react-hook-form"
+import useAuth from "../../context/AuthProvider"
+import CartIcon from "../shop/cart/CartIcon"
+import FooterMenu from "../home/FooterMenu"
+import PhoneCallBtn from "../useable/PhoneCallBtn"
 
 const InputModal = React.lazy(() => import("../useable/InputModal"))
 const ConfirmModal = React.lazy(() => import("../useable/ConfirmModal"))
@@ -54,15 +61,15 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
   }
 
   const handleLogout = async () => {
-    const res = await fetchPost(`${config.endpoint}/logout`, JSON.stringify({}), {
+    const carts = getCarts()
+    const res = await fetchPost(`${config.endpoint}/logout`, JSON.stringify({ cartItems: carts }), {
       Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
     })
-    console.log(res)
     if (res.success) {
       localDel(config.cache.accessToken)
       localDel(config.cache.refreshToken)
       await checkAuth()
-      return navigation.navigate(EScreen.Auth)
+      return navigation.replace(EScreen.Auth)
     }
   }
 
@@ -95,14 +102,9 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
         </HStack>
 
         <VStack mt={5} alignItems="center" space={2}>
-          <Image
-            source={require("../../../public/profile.png")}
-            alignSelf="center"
-            rounded="xl"
-            size={WIDTH / 4}
-            resizeMode="cover"
-            alt="shop-banner"
-          />
+          <Avatar source={require("../../../public/profile.png")} size="xl">
+            <Avatar.Badge bgColor="green.500" />
+          </Avatar>
           <Heading>{user.name || user.phoneNumber}</Heading>
         </VStack>
 
@@ -157,61 +159,91 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
 
               <HStack justifyContent="space-between" alignItems="center">
                 <VStack alignItems="center" space={2}>
-                  <Box
-                    variant="solid"
-                    bgColor="red.500"
-                    rounded="full"
-                    size={5}
-                    zIndex={1}
-                    position="absolute"
-                    justifyContent="center"
-                    alignItems="center"
-                    alignSelf="flex-end"
-                  >
-                    <Text fontSize={10} fontWeight="bold" color="white" alignSelf="center">
-                      {orders.filter((order) => order.status === "waiting_payment").length}
-                    </Text>
-                  </Box>
-                  <Icon as={MateComIcon} name="wallet-outline" size={8} />
+                  <VStack space={2}>
+                    <Box
+                      variant="solid"
+                      bgColor={
+                        orders.filter((order) => order.status === "waiting_payment").length > 0
+                          ? "red.500"
+                          : "transparent"
+                      }
+                      rounded="full"
+                      size={5}
+                      zIndex={1}
+                      position="absolute"
+                      right={-10}
+                      top={0}
+                      justifyContent="center"
+                      alignItems="center"
+                      alignSelf="flex-end"
+                    >
+                      {orders.filter((order) => order.status === "waiting_payment").length > 0 && (
+                        <Text fontSize={10} fontWeight="bold" color="white" alignSelf="center">
+                          {orders.filter((order) => order.status === "waiting_payment").length}
+                        </Text>
+                      )}
+                    </Box>
+
+                    <Icon as={MateComIcon} name="wallet-outline" size={8} />
+                  </VStack>
                   <Text fontSize="xs">Chờ thanh toán</Text>
                 </VStack>
                 <VStack alignItems="center" space={2}>
-                  <Box
-                    variant="solid"
-                    bgColor="red.500"
-                    rounded="full"
-                    size={5}
-                    zIndex={1}
-                    position="absolute"
-                    justifyContent="center"
-                    alignItems="center"
-                    alignSelf="flex-end"
-                  >
-                    <Text fontSize={10} fontWeight="bold" color="white" alignSelf="center">
-                      {orders.filter((order) => order.status === "pending").length}
-                    </Text>
-                  </Box>
-                  <Icon as={handleCartIcon} />
+                  <VStack space={2}>
+                    <Box
+                      variant="solid"
+                      bgColor={
+                        orders.filter((order) => order.status === "pending").length > 0
+                          ? "red.500"
+                          : "transparent"
+                      }
+                      rounded="full"
+                      size={5}
+                      zIndex={1}
+                      position="absolute"
+                      right={-10}
+                      top={0}
+                      justifyContent="center"
+                      alignItems="center"
+                      alignSelf="flex-end"
+                    >
+                      {orders.filter((order) => order.status === "pending").length > 0 && (
+                        <Text fontSize={10} fontWeight="bold" color="white" alignSelf="center">
+                          {orders.filter((order) => order.status === "pending").length}
+                        </Text>
+                      )}
+                    </Box>
+                    <Icon as={handleCartIcon} />
+                  </VStack>
                   <Text fontSize="xs">Đang xử lý</Text>
                 </VStack>
                 <VStack alignItems="center" space={2}>
-                  <Box
-                    variant="solid"
-                    bgColor="red.500"
-                    rounded="full"
-                    size={5}
-                    zIndex={1}
-                    position="absolute"
-                    right={5}
-                    justifyContent="center"
-                    alignItems="center"
-                    alignSelf="flex-end"
-                  >
-                    <Text fontSize={10} fontWeight="bold" color="white" alignSelf="center">
-                      {orders.filter((order) => order.status === "transported").length}
-                    </Text>
-                  </Box>
-                  <Icon as={FeaIcon} name="truck" size={8} />
+                  <VStack space={2}>
+                    <Box
+                      variant="solid"
+                      bgColor={
+                        orders.filter((order) => order.status === "transported").length > 0
+                          ? "red.500"
+                          : "transparent"
+                      }
+                      rounded="full"
+                      size={5}
+                      zIndex={1}
+                      position="absolute"
+                      right={-10}
+                      top={0}
+                      justifyContent="center"
+                      alignItems="center"
+                      alignSelf="flex-end"
+                    >
+                      {orders.filter((order) => order.status === "transported").length > 0 && (
+                        <Text fontSize={10} fontWeight="bold" color="white" alignSelf="center">
+                          {orders.filter((order) => order.status === "transported").length}
+                        </Text>
+                      )}
+                    </Box>
+                    <Icon as={FeaIcon} name="truck" size={8} />
+                  </VStack>
                   <Text fontSize="xs">Đang vận chuyển</Text>
                 </VStack>
               </HStack>

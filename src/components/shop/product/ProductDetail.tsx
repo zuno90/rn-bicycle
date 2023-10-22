@@ -13,7 +13,6 @@ import {
   Stack,
   Text,
   VStack,
-  View,
   useToast,
 } from "native-base"
 import CartIcon from "../cart/CartIcon"
@@ -33,11 +32,13 @@ import { config } from "../../../utils/config.util"
 import LinearGradient from "react-native-linear-gradient"
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form"
 import { useIsFocused } from "@react-navigation/native"
-import PhoneCallBtn from "../../useable/PhoneCallBtn"
 import { localGet } from "../../../utils/storage.util"
 import { SwiperFlatList } from "react-native-swiper-flatlist"
 import { ImageGallery, ImageObject } from "@georstat/react-native-image-gallery"
+import PhoneCallBtn from "../../useable/PhoneCallBtn"
 import Toast from "../../useable/Toast"
+import ChatBtn from "../../useable/ChatBtn"
+import LoadingScreen from "../../../screens/LoadingScreen"
 
 const Grid = React.lazy(() => import("../../useable/Grid"))
 const Product = React.lazy(() => import("./Product"))
@@ -61,10 +62,11 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
   const { id, slug } = route.params
   const toast = useToast()
 
+  const [isLoading, setIsLoading] = React.useState<boolean>(true)
   const sizes = JSON.parse(localGet(config.cache.sizelist) as string)
   const colors = JSON.parse(localGet(config.cache.colorlist) as string)
 
-  const [product, setProduct] = React.useState<IProduct>(null)
+  const [product, setProduct] = React.useState<IProduct>()
   const [isSeeMore, setIsSeeMore] = React.useState<boolean>(false)
   const [relatedProduct, setRelatedProduct] = React.useState<IProduct[]>([])
 
@@ -72,7 +74,10 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
     const res = await fetchGet(`${config.endpoint}/product/${slug}`, {
       Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
     })
-    if (res.success) setProduct(res.data.product)
+    if (res.success) {
+      setProduct(res.data.product)
+    }
+    setIsLoading(false)
   }
 
   const getRelatedProducts = async () => {
@@ -117,31 +122,33 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
     })
   }
   const methods = useForm<TProductAttr>({ defaultValues: { sizes: "", colors: "", quantity: 1 } })
-  const verifyCartItem = (data: TProductAttr, toastId: string) => {
-    if (data.colors === "" || data.sizes === "" || data.quantity < 0) {
-      if (!toast.isActive(toastId))
-        toast.show({
-          id: toastId,
-          placement: "top",
-          duration: 1500,
-          render: () => (
-            <Toast
-              type={EToastType.err}
-              content={
-                data.colors === "" || data.sizes === ""
-                  ? "Vui lòng chọn size và màu!"
-                  : data.quantity <= 0
-                  ? "Số lượng sản phẩm không thể < 1"
-                  : "Lỗi thêm sản phẩm!"
-              }
-              close={() => toast.close(toastId)}
-            />
-          ),
-        })
-      return false
+  const verifyCartItem = (data: TProductAttr, toastId?: string) => {
+    if (toastId) {
+      if (data.colors === "" || data.sizes === "" || data.quantity < 0) {
+        if (!toast.isActive(toastId))
+          toast.show({
+            id: toastId,
+            placement: "top",
+            duration: 1500,
+            render: () => (
+              <Toast
+                type={EToastType.err}
+                content={
+                  data.colors === "" || data.sizes === ""
+                    ? "Vui lòng chọn size và màu!"
+                    : data.quantity <= 0
+                    ? "Số lượng sản phẩm không thể < 1"
+                    : "Lỗi thêm sản phẩm!"
+                }
+                close={() => toast.close(toastId)}
+              />
+            ),
+          })
+        return false
+      }
     }
 
-    const { name, id, productItem, slug, images, discount } = product
+    const { name, id, productItem, slug, images, discount } = product as IProduct
     const mappedProductItem = productItem?.filter(
       (item) => item.size === data.sizes && item.color === data.colors
     )[0]
@@ -154,6 +161,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
       slug,
       image: images[0],
       price: mappedProductItem?.price,
+      inventory: mappedProductItem?.inventory,
       discount,
       sizes: mappedProductItem?.size,
       colors: mappedProductItem?.color,
@@ -188,10 +196,31 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
     cartItem && navigation.navigate(EHome.Order, { selectItems: [cartItem] })
   }
 
+  if (isLoading) return <LoadingScreen />
   return (
     <>
-      {product && (
+      {product ? (
         <>
+          <Box
+            w="full"
+            bgColor="white"
+            px={5}
+            flexDir="row"
+            justifyContent="space-between"
+            alignItems="center"
+            safeAreaTop
+          >
+            <Icon
+              as={SimpleIcon}
+              name="arrow-left-circle"
+              size={30}
+              onPress={() => navigation.goBack()}
+            />
+            <HStack alignItems="center" space={6}>
+              <ShareBtn />
+              <CartIcon />
+            </HStack>
+          </Box>
           <ImageGallery
             thumbSize={80}
             initialIndex={productImgIndex}
@@ -217,28 +246,6 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
             //   </Box>
             // )}
           />
-          <Box
-            w="full"
-            bgColor="transparent"
-            px={5}
-            position="absolute"
-            flexDir="row"
-            justifyContent="space-between"
-            alignItems="center"
-            zIndex={10}
-            safeArea
-          >
-            <Icon
-              as={SimpleIcon}
-              name="arrow-left-circle"
-              size={30}
-              onPress={() => navigation.goBack()}
-            />
-            <HStack alignItems="center" space={6}>
-              <ShareBtn />
-              <CartIcon />
-            </HStack>
-          </Box>
           <ScrollView bgColor="white">
             <SwiperFlatList
               ref={imgRef}
@@ -279,36 +286,34 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
             <Stack p={5} space={5}>
               <Text>{product.category?.name}</Text>
               <Heading fontSize="lg">{product.name}</Heading>
-              <HStack justifyContent="space-between" alignItems="center">
-                <VStack space={2}>
-                  <Heading fontSize="lg" color="red.500">
-                    <Text underline>đ</Text>
-                    {formatNumber(product.price)}
-                  </Heading>
-                  <HStack alignItems="center" space={2}>
-                    <Box
-                      variant="solid"
-                      bgColor="red.500"
-                      rounded="lg"
-                      w={10}
-                      h={5}
-                      zIndex={1}
-                      justifyContent="center"
-                      alignItems="center"
-                    >
-                      <Text fontSize={10} fontWeight="bold" color="white" alignSelf="center">
-                        - {product.discount} %
-                      </Text>
-                    </Box>
-                    <Text strikeThrough>
-                      đ{formatNumber(product.price * (1 + product.discount / 100))}
+              <VStack space={2}>
+                <Heading fontSize="lg" color="red.500">
+                  <Text underline>đ</Text>
+                  {formatNumber(product.price)}
+                </Heading>
+                <HStack alignItems="center" space={2}>
+                  <Box
+                    variant="solid"
+                    px={1}
+                    bgColor="red.500"
+                    rounded="lg"
+                    zIndex={1}
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <Text fontSize="sm" fontWeight="bold" color="white" alignSelf="center">
+                      - {product.discount} %
                     </Text>
-                  </HStack>
-                </VStack>
-                <Icon as={MateComIcon} name="facebook-messenger" color="zuno" size={10} />
-              </HStack>
+                  </Box>
+                  <Text strikeThrough>
+                    đ{formatNumber(product.price * (1 + product.discount / 100))}
+                  </Text>
+                </HStack>
+              </VStack>
+
               <Text>
-                Tồn kho: 100 {methods.getValues("sizes")} {methods.getValues("colors")}
+                Tồn kho:{" "}
+                {verifyCartItem(methods.getValues()).inventory || product.productItem[0]?.inventory}
               </Text>
 
               <ScrollView horizontal>
@@ -471,7 +476,10 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
               <Text fontWeight="bold">Giá</Text>
               <Heading fontSize="lg" color="red.500">
                 <Text underline>đ</Text>
-                {formatNumber(product.price)}
+                {formatNumber(
+                  verifyCartItem(methods.getValues()).price * methods.getValues("quantity") ||
+                    product.price
+                )}
               </Heading>
             </VStack>
 
@@ -511,7 +519,9 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                   showFilter={showFilter}
                   handleFilter={(type: any, value: string) => {
                     const state = methods.getValues(type)
-                    if (value !== state) methods.setValue(type, value, { shouldDirty: true })
+                    if (value !== state) {
+                      methods.setValue(type, value, { shouldDirty: true })
+                    }
                   }}
                   closeFilter={() =>
                     setShowFilter({
@@ -525,11 +535,31 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
               </FormProvider>
             </Slide>
           )}
-          {/* button call */}
-          <Box position="absolute" right={5} bottom={24} opacity={80} safeAreaBottom>
+          {/* button */}
+          <Box position="absolute" right={5} bottom={24} opacity={80} gap={2} safeAreaBottom>
+            <ChatBtn />
             <PhoneCallBtn />
           </Box>
         </>
+      ) : (
+        <Stack h="full" px={5} justifyContent="center" alignItems="center" space={4}>
+          <Heading>Sản phẩm không tồn tại</Heading>
+          <LinearGradient
+            colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
+            style={{ width: "100%", borderRadius: 100 }}
+          >
+            <Button
+              variant="unstyled"
+              h={50}
+              _pressed={{ bgColor: "yellow.400" }}
+              onPress={() => navigation.navigate(EHome.InitHome)}
+            >
+              <Text fontSize="lg" fontWeight="semibold">
+                Về trang chủ
+              </Text>
+            </Button>
+          </LinearGradient>
+        </Stack>
       )}
     </>
   )

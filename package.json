@@ -27,7 +27,6 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.46.1",
-    "react-loader-spinner": "^5.4.5",
     "react-native": "0.72.4",
     "react-native-document-picker": "^9.0.1",
     "react-native-element-dropdown": "^2.10.0",

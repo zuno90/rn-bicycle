@@ -6,8 +6,13 @@ import { WIDTH, fetchGet, formatNumber } from "../../utils/helper.util"
 import { EHome, EOrderStatus, IOrder } from "../../__types__"
 import { useNavigation } from "@react-navigation/native"
 import { config } from "../../utils/config.util"
+import { localGet } from "../../utils/storage.util"
+import LoadingScreen from "../../screens/LoadingScreen"
+import LoadingBtn from "../useable/LoadingBtn"
 
 const OrderHistory: React.FC<any> = ({ navigation }) => {
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const [isLoadingIndex, setIsLoadingIndex] = React.useState<boolean>(false)
   const [index, setIndex] = React.useState<number>(0)
   const [routes] = React.useState([
     { key: "all", title: "Tất cả" },
@@ -17,10 +22,12 @@ const OrderHistory: React.FC<any> = ({ navigation }) => {
 
   const [orders, setOrders] = React.useState<IOrder[]>([])
   const getOrders = async () => {
+    setIsLoading(true)
     const res = await fetchGet(`${config.endpoint}/orders`, {
       Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
     })
     if (res.success) setOrders(res.data.orders)
+    setIsLoading(false)
   }
 
   React.useEffect(() => {
@@ -50,40 +57,50 @@ const OrderHistory: React.FC<any> = ({ navigation }) => {
 
   return (
     <>
-      <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
-        <Icon
-          as={FaIcon}
-          name="chevron-left"
-          size={30}
-          onPress={() => navigation.navigate(EHome.Profile)}
-        />
-        <Text fontSize="2xl" fontWeight="bold">
-          Đơn hàng
-        </Text>
-        <Text></Text>
-      </HStack>
+      {isLoading ? (
+        <LoadingScreen />
+      ) : (
+        <>
+          <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
+            <Icon
+              as={FaIcon}
+              name="arrow-left"
+              size={30}
+              onPress={() => navigation.navigate(EHome.Profile)}
+            />
+            <Text fontSize="2xl" fontWeight="bold">
+              Đơn hàng
+            </Text>
+            <Text></Text>
+          </HStack>
 
-      <TabView
-        style={{ backgroundColor: "white" }}
-        lazy
-        navigationState={{ index, routes }}
-        onIndexChange={setIndex}
-        initialLayout={{ width: WIDTH }}
-        renderTabBar={(props) => (
-          <TabBar
-            {...props}
-            style={{ width: WIDTH, backgroundColor: "white" }}
-            // tabStyle={{ width: "auto" }}
-            renderLabel={({ route, focused }) => (
-              <Text color="black" fontSize="xs" fontWeight={focused ? "bold" : "normal"}>
-                {route.title}
-              </Text>
+          <TabView
+            lazy
+            style={{ backgroundColor: "white" }}
+            navigationState={{ index, routes }}
+            onIndexChange={(index) => {
+              setIsLoadingIndex(true)
+              setIndex(index)
+              setIsLoadingIndex(false)
+            }}
+            initialLayout={{ width: WIDTH }}
+            renderTabBar={(props) => (
+              <TabBar
+                {...props}
+                style={{ backgroundColor: "white" }}
+                tabStyle={{ overflow: "visible" }}
+                renderLabel={({ route, focused }) => (
+                  <Text color="black" fontSize="sm" fontWeight={focused ? "bold" : "normal"}>
+                    {route.title}
+                  </Text>
+                )}
+                indicatorStyle={{ backgroundColor: "black" }}
+              />
             )}
-            indicatorStyle={{ backgroundColor: "black" }}
+            renderScene={renderScene}
           />
-        )}
-        renderScene={renderScene}
-      />
+        </>
+      )}
     </>
   )
 }

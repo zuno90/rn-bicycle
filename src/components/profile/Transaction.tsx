@@ -24,7 +24,7 @@ const Transaction: React.FC<any> = ({ navigation }) => {
   return (
     <>
       <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
-        <Icon as={FaIcon} name="chevron-left" size={30} onPress={() => navigation.goBack()} />
+        <Icon as={FaIcon} name="arrow-left" size={30} onPress={() => navigation.goBack()} />
         <Text fontSize="2xl" fontWeight="bold">
           Lịch sử giao dịch
         </Text>

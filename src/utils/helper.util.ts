@@ -49,13 +49,13 @@ export const deduplicateArray = (arr: any[], key: string) => {
   return newArr
 }
 
-export const getCart = () => {
+export const getCarts = () => {
   const c = localGet(config.cache.cartList)
   return c ? JSON.parse(c) : []
 }
 
 export const addToCart = (prod: IProductCart) => {
-  const cartList = getCart()
+  const cartList = getCarts()
   const index = cartList
     .map((v: IProductCart) => v.id)
     .findIndex(
@@ -76,11 +76,12 @@ export const updateCart = (newCart: IProductCart[]) => {
 }
 
 export const removeCartItem = (unit: string) => {
-  const cartList = getCart()
+  const cartList = getCarts()
   const newCarts = cartList.filter((v: IProductCart) => v.unit !== unit)
   localSet(config.cache.cartList, JSON.stringify(newCarts))
   return newCarts
 }
+
 
 export const squareWH = (ratio: number) => {
   return WIDTH * ratio

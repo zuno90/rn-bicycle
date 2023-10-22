@@ -15,26 +15,28 @@ import {
   Slide,
   Pressable,
   FormControl,
+  useToast,
 } from "native-base"
 import CartIcon from "./CartIcon"
 import { localGet } from "../../../utils/storage.util"
 import { config } from "../../../utils/config.util"
-import { EHome, IProductCart } from "../../../__types__"
+import { EHome, EToastType, IProductCart } from "../../../__types__"
 import LinearGradient from "react-native-linear-gradient"
 import FaIcon from "react-native-vector-icons/FontAwesome"
 import AntIcon from "react-native-vector-icons/AntDesign"
 import FeaIcon from "react-native-vector-icons/Feather"
 import {
   HEIGHT,
-  WIDTH,
   deduplicateArray,
   fetchGet,
   formatNumber,
+  getCarts,
   removeCartItem,
   updateCart,
 } from "../../../utils/helper.util"
 import { useForm } from "react-hook-form"
 import { useIsFocused } from "@react-navigation/native"
+import Toast from "../../useable/Toast"
 
 const LoadingScreen = React.lazy(() => import("../../../screens/LoadingScreen"))
 const BestSelling = React.lazy(() => import("../../home/BestSelling"))
@@ -52,28 +54,30 @@ const Cart: React.FC<any> = ({ navigation }) => {
   const [isLoading, setIsLoading] = React.useState<boolean>(true)
   const [carts, setCarts] = React.useState<IProductCart[]>([])
   const [selectItems, setSelectItems] = React.useState<string[]>([])
-  const c = localGet(config.cache.cartList)
-  const localCart = c ? JSON.parse(c) : []
+  const localCart = getCarts()
   const sizes = JSON.parse(localGet(config.cache.sizelist) as string)
   const colors = JSON.parse(localGet(config.cache.colorlist) as string)
 
-  const getCart = async () => {
-    const res = await fetchGet(`${config.endpoint}/user/get-carts`, {
+  const toast = useToast()
+
+  const getCartsFromServer = async () => {
+    const res = await fetchGet(`${config.endpoint}/cart`, {
       Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
     })
-    console.log(res)
-    if (res.success) return res.data
+    console.log(res.data.cart.cartItems)
+    if (res.success) return res.data.cart.cartItems
   }
 
-  const getCarts = async () => {
-    const c: IProductCart[] = localCart && localCart.length > 0 ? localCart : await getCart()
+  const getCartList = async () => {
+    const c: IProductCart[] =
+      localCart && localCart.length > 0 ? localCart : await getCartsFromServer()
     setCarts(c)
     setIsLoading(false)
   }
 
   const isFocused = useIsFocused()
   React.useEffect(() => {
-    if (isFocused) getCarts()
+    if (isFocused) getCartList()
   }, [isFocused])
 
   // EDIT ATTR
@@ -105,6 +109,21 @@ const Cart: React.FC<any> = ({ navigation }) => {
         productAttr: { unit, value },
         data,
       })
+    } else {
+      if (!toast.isActive("get-product")) {
+        toast.show({
+          id: "get-product",
+          placement: "top",
+          duration: 1500,
+          render: () => (
+            <Toast
+              type={EToastType.err}
+              content="Không tìm thấy sản phẩm hoặc thuộc tính sản phẩm!"
+              close={() => toast.close("get-product")}
+            />
+          ),
+        })
+      }
     }
   }
 
@@ -146,6 +165,7 @@ const Cart: React.FC<any> = ({ navigation }) => {
   const beforeTotal = selectItems
     .map((s: any) => {
       const findItem = carts.filter((c) => c.unit === s)[0]
+      if (!findItem) return 0
       return findItem.price * findItem.quantity
     })
     .reduce((a: number, b: number) => a + b, 0)
@@ -155,50 +175,23 @@ const Cart: React.FC<any> = ({ navigation }) => {
   const selectedQuantity = selectItems
     .map((s: any) => {
       const findItem = carts.filter((c) => c.unit === s)[0]
+      if (!findItem) return 0
       return findItem.quantity
     })
     .reduce((a: number, b: number) => a + b, 0)
 
+  if (isLoading) return <LoadingScreen />
   return (
     <>
       <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
-        <Icon as={FaIcon} name="chevron-left" size={30} onPress={() => navigation.goBack()} />
+        <Icon as={FaIcon} name="arrow-left" size={30} onPress={() => navigation.goBack()} />
         <Text fontSize="3xl" fontWeight="bold">
           Giỏ hàng
         </Text>
         <CartIcon />
       </HStack>
-      {isLoading ? (
-        <LoadingScreen />
-      ) : !carts || !carts.length ? (
-        <ScrollView bgColor="white">
-          <Box>
-            <VStack justifyContent="space-between" alignItems="center" p={5} space={2}>
-              <Heading fontSize="xl">Giỏ hàng trống</Heading>
-              <Text fontSize="md">Tiếp tục khám phá các sản phẩm của chúng tôi</Text>
-              <LinearGradient
-                colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
-                style={{ width: "100%", borderRadius: 100, marginTop: 10 }}
-              >
-                <Button
-                  variant="unstyled"
-                  h={50}
-                  _pressed={{ bgColor: "yellow.400" }}
-                  onPress={() => navigation.navigate(EHome.InitHome)}
-                >
-                  <Text fontSize="lg" fontWeight="semibold">
-                    Tiếp tục mua sắm
-                  </Text>
-                </Button>
-              </LinearGradient>
-            </VStack>
-            <Divider my={8} pb={5} thickness={4} />
-            <Box mx={1} bgColor="white">
-              <BestSelling />
-            </Box>
-          </Box>
-        </ScrollView>
-      ) : (
+
+      {carts && carts.length > 0 ? (
         <>
           <ScrollView bgColor="white">
             <Stack px={5} mt={5} pb={HEIGHT / 3} space={2}>
@@ -206,115 +199,112 @@ const Cart: React.FC<any> = ({ navigation }) => {
                 {carts.length > 0 &&
                   carts.map((cart, index) => (
                     <React.Fragment key={index}>
-                      <HStack justifyContent="space-between" space={2}>
-                        <Stack justifyContent="center">
+                      <HStack justifyContent="space-between" alignItems="center" space={4}>
+                        <Pressable>
                           <Checkbox
+                            size="lg"
                             colorScheme="yellow"
+                            defaultIsChecked={false}
                             accessibilityLabel="choose items"
                             _checked={{ backgroundColor: "zuno", borderColor: "zuno" }}
-                            defaultIsChecked={false}
                             value={cart.unit}
                             onChange={(ischecked) => handleCheckBox(cart.unit, ischecked)}
                           />
-                        </Stack>
-                        <Image
-                          source={{ uri: cart.image }}
-                          size="sm"
-                          alignSelf="center"
-                          resizeMode="contain"
-                          alt="cart-prod"
-                        />
-                        <Box flex={1} gap={4}>
-                          <HStack justifyContent="space-between" alignItems="center">
-                            <Heading fontSize="xs" numberOfLines={2} maxW={WIDTH * 0.6} isTruncated>
-                              {cart.name}
-                            </Heading>
+                        </Pressable>
+                        <Box flex={1} gap={2}>
+                          <HStack justifyContent="space-between" alignItems="center" space={4}>
+                            <Image
+                              source={{ uri: cart.image }}
+                              size="sm"
+                              alignSelf="center"
+                              resizeMode="contain"
+                              alt="cart-prod"
+                            />
+                            <Box flex={1} gap={2}>
+                              <Heading fontSize="xs" numberOfLines={2} isTruncated>
+                                {cart.name}
+                              </Heading>
+                              <HStack alignItems="center" space={4}>
+                                <Text color="red.500" fontWeight="semibold">
+                                  đ {formatNumber(cart.price)}
+                                </Text>
+                                <Text strikeThrough>
+                                  đ {formatNumber(cart.price * (1 + cart.discount / 100))}
+                                </Text>
+                              </HStack>
+                            </Box>
                             <Icon
                               as={AntIcon}
                               name="delete"
-                              size={4}
+                              size={5}
                               onPress={() => setDeleteModal({ unit: cart.unit, isOpen: true })}
                             />
                           </HStack>
-                          <HStack space={4}>
-                            <Text color="red.500" fontWeight="semibold">
-                              đ {formatNumber(cart.price)}
-                            </Text>
-                            <Text strikeThrough>
-                              đ {formatNumber(cart.price * (1 + cart.discount / 100))}
-                            </Text>
+                          <HStack justifyContent="space-between" alignItems="center">
+                            <Button
+                              maxW="1/3"
+                              variant="solid"
+                              size="xs"
+                              bgColor="zuno"
+                              rounded="lg"
+                              onPress={() => {
+                                setFilterByProduct("sizes", cart.sizes, cart.unit, cart.slug)
+                              }}
+                            >
+                              <Text color="white" fontSize="xs" fontWeight="bold" isTruncated>
+                                {sizes.length > 0 &&
+                                  sizes.filter((v: any) => v.value === cart.sizes)[0]?.title}
+                              </Text>
+                            </Button>
+                            <Button
+                              maxW="1/3"
+                              variant="solid"
+                              size="xs"
+                              bgColor="zuno"
+                              rounded="lg"
+                              onPress={() =>
+                                setFilterByProduct("colors", cart.colors, cart.unit, cart.slug)
+                              }
+                            >
+                              <Text color="white" fontSize="xs" fontWeight="bold" isTruncated>
+                                {colors.length > 0 &&
+                                  colors.filter((v: any) => v.value === cart.colors)[0]?.title}
+                              </Text>
+                            </Button>
+                            <Button.Group isAttached rounded="full" size={8}>
+                              <Button
+                                onPress={() => dec(cart.unit)}
+                                bgColor="black"
+                                _text={{ color: "white", fontSize: "lg", fontWeight: "bold" }}
+                                _pressed={{ bgColor: "zuno" }}
+                              >
+                                -
+                              </Button>
+                              <Button
+                                bgColor="black"
+                                _text={{ color: "white", fontSize: "lg", fontWeight: "bold" }}
+                              >
+                                {cart.quantity}
+                              </Button>
+                              <Button
+                                onPress={() => inc(cart.unit)}
+                                bgColor="black"
+                                _text={{ color: "white", fontSize: "lg", fontWeight: "bold" }}
+                                _pressed={{ bgColor: "zuno" }}
+                              >
+                                +
+                              </Button>
+                            </Button.Group>
                           </HStack>
                         </Box>
                       </HStack>
-                      <HStack
-                        px={5}
-                        py={2}
-                        justifyContent="space-between"
-                        alignItems="center"
-                        space={4}
-                      >
-                        <Button
-                          maxW="1/3"
-                          variant="solid"
-                          size="xs"
-                          bgColor="zuno"
-                          rounded="lg"
-                          onPress={() =>
-                            setFilterByProduct("sizes", cart.sizes, cart.unit, cart.slug)
-                          }
-                        >
-                          <Text color="white" fontSize="xs" fontWeight="bold" isTruncated>
-                            {sizes.length > 0 &&
-                              sizes.filter((v: any) => v.value === cart.sizes)[0]?.title}
-                          </Text>
-                        </Button>
-                        <Button
-                          maxW="1/3"
-                          variant="solid"
-                          size="xs"
-                          bgColor="zuno"
-                          rounded="lg"
-                          onPress={() =>
-                            setFilterByProduct("colors", cart.colors, cart.unit, cart.slug)
-                          }
-                        >
-                          <Text color="white" fontSize="xs" fontWeight="bold" isTruncated>
-                            {colors.length > 0 &&
-                              colors.filter((v: any) => v.value === cart.colors)[0]?.title}
-                          </Text>
-                        </Button>
-                        <Button.Group isAttached rounded="full" size={8}>
-                          <Button
-                            onPress={() => dec(cart.unit)}
-                            bgColor="black"
-                            _text={{ color: "white", fontSize: "lg", fontWeight: "bold" }}
-                            _pressed={{ bgColor: "zuno" }}
-                          >
-                            -
-                          </Button>
-                          <Button
-                            bgColor="black"
-                            _text={{ color: "white", fontSize: "lg", fontWeight: "bold" }}
-                          >
-                            {cart.quantity}
-                          </Button>
-                          <Button
-                            onPress={() => inc(cart.unit)}
-                            bgColor="black"
-                            _text={{ color: "white", fontSize: "lg", fontWeight: "bold" }}
-                            _pressed={{ bgColor: "zuno" }}
-                          >
-                            +
-                          </Button>
-                        </Button.Group>
-                      </HStack>
+
                       {index + 1 < carts.length && <Divider my={2} />}
                     </React.Fragment>
                   ))}
               </FormControl>
             </Stack>
           </ScrollView>
-
           <Box
             position="absolute"
             bottom={0}
@@ -365,6 +355,34 @@ const Cart: React.FC<any> = ({ navigation }) => {
             </LinearGradient>
           </Box>
         </>
+      ) : (
+        <ScrollView bgColor="white">
+          <Box>
+            <VStack justifyContent="space-between" alignItems="center" p={5} space={2}>
+              <Heading fontSize="xl">Giỏ hàng trống</Heading>
+              <Text fontSize="md">Tiếp tục khám phá các sản phẩm của chúng tôi</Text>
+              <LinearGradient
+                colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
+                style={{ width: "100%", borderRadius: 100, marginTop: 10 }}
+              >
+                <Button
+                  variant="unstyled"
+                  h={50}
+                  _pressed={{ bgColor: "yellow.400" }}
+                  onPress={() => navigation.navigate(EHome.InitHome)}
+                >
+                  <Text fontSize="lg" fontWeight="semibold">
+                    Tiếp tục mua sắm
+                  </Text>
+                </Button>
+              </LinearGradient>
+            </VStack>
+            <Divider my={8} pb={5} thickness={4} />
+            <Box mx={1} bgColor="white">
+              <BestSelling />
+            </Box>
+          </Box>
+        </ScrollView>
       )}
       {showFilter.isOpen && (
         <Slide in={showFilter.isOpen} duration={200} placement="bottom">
@@ -389,7 +407,7 @@ const Cart: React.FC<any> = ({ navigation }) => {
   )
 }
 
-const ProductAttributeSelect = ({ showFilter, closeFilter, carts, setCarts }: any) => {
+const ProductAttributeSelect: React.FC<any> = ({ showFilter, closeFilter, carts, setCarts }) => {
   const { type, title, productAttr, data } = showFilter
   const { setValue, getValues, watch } = useForm({
     defaultValues: { id: productAttr.id, value: productAttr.value },
@@ -433,7 +451,7 @@ const ProductAttributeSelect = ({ showFilter, closeFilter, carts, setCarts }: an
     })
     setCarts(newCart)
     updateCart(newCart)
-    return closeFilter()
+    closeFilter()
   }
 
   return (
@@ -447,15 +465,17 @@ const ProductAttributeSelect = ({ showFilter, closeFilter, carts, setCarts }: an
       </Box>
 
       <Divider />
-      <Box flex={1} p={8} gap={2} justifyContent="flex-start">
+      <Box flex={1} p={8} justifyContent="flex-start" gap={2}>
         {data.length > 1 ? (
           data.map((item: any, index: number) => (
             <React.Fragment key={index}>
               <Pressable onPress={() => toggleAttr(item.value)}>
                 <HStack justifyContent="space-between" alignItems="center">
-                  <Text>{data.filter((i: any) => i.value === item.value)[0]?.title}</Text>
+                  <Text fontSize="lg">
+                    {data.filter((i: any) => i.value === item.value)[0]?.title}
+                  </Text>
                   {watch("value") === item.value && (
-                    <Icon as={AntIcon} name="checkcircle" color="zuno" />
+                    <Icon as={AntIcon} name="checkcircle" color="zuno" size={6} />
                   )}
                 </HStack>
               </Pressable>

@@ -1,5 +1,5 @@
 import React from "react"
-import { Box, Button, Heading, Image, ScrollView, Stack, VStack } from "native-base"
+import { Box, Heading, Image, ScrollView, Stack, VStack } from "native-base"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { EHome } from "../__types__"
 import { WIDTH, fetchGet } from "../utils/helper.util"
@@ -41,7 +41,6 @@ const Transaction = React.lazy(() => import("../components/profile/Transaction")
 const Topup = React.lazy(() => import("../components/profile/Topup"))
 
 const InitHome: React.FC<any> = ({ route }) => {
-  const [isHome, setIsHome] = React.useState<boolean>(true)
   const scrollRef = React.useRef(null)
   const { setAuth } = useAuth()
 
@@ -74,9 +73,7 @@ const InitHome: React.FC<any> = ({ route }) => {
 
   const isFocused = useIsFocused()
   React.useEffect(() => {
-    if (isFocused) {
-      Promise.all([getCategories(), getSizes(), getColors()])
-    }
+    if (isFocused) Promise.all([getCategories(), getSizes(), getColors()])
   }, [isFocused])
 
   const [isScrollEnd, setIsScrollEnd] = React.useState(false)
@@ -103,7 +100,6 @@ const InitHome: React.FC<any> = ({ route }) => {
             resizeMode="cover"
             alt="shop-banner"
           />
-          {/* component adding */}
         </Stack>
         <VStack space={{ base: 3 }}>
           <Heading size="md" mx={{ base: 5 }}>

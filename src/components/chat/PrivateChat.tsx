@@ -1,5 +1,5 @@
-import { addDoc, arrayUnion, collection, doc, getDoc, setDoc, updateDoc } from "firebase/firestore"
-import { Avatar, Box, HStack, Heading, Icon, ScrollView, Text, VStack, View } from "native-base"
+import { arrayUnion, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore"
+import { Avatar, HStack, Heading, Icon, ScrollView, Slide, Text, VStack, View } from "native-base"
 import React from "react"
 import { Keyboard, Platform } from "react-native"
 import DocumentPicker from "react-native-document-picker"
@@ -12,15 +12,16 @@ import {
   Send,
   Time,
 } from "react-native-gifted-chat"
+import useAuth from "../../context/AuthProvider"
 import { QuickReplies } from "react-native-gifted-chat/lib/QuickReplies"
 import { launchCamera, launchImageLibrary } from "react-native-image-picker"
+import env from "../../../app.json"
+import AWS from "aws-sdk"
 import AntIcon from "react-native-vector-icons/AntDesign"
 import FeaIcon from "react-native-vector-icons/Feather"
 import FaIcon from "react-native-vector-icons/FontAwesome"
 import MateIcon from "react-native-vector-icons/MaterialIcons"
 import { db } from "../../utils/firebase.util."
-import env from "../../../app.json"
-import AWS from "aws-sdk"
 import { v4 as uuid } from "uuid"
 
 AWS.config.update({
@@ -32,13 +33,20 @@ const s3 = new AWS.S3()
 
 const ADMIN_ID = 99
 
-const PrivateChat: React.FC<any> = ({ route, navigation }) => {
-  const { user } = route.params
+const PrivateChat: React.FC<any> = ({ navigation }) => {
+  const {
+    auth: { user },
+  } = useAuth()
+
+  const [inMessages, setInMessages] = React.useState([])
+  const [outMessages, setOutMessages] = React.useState([])
 
   const [messages, setMessages] = React.useState<IMessage[]>([])
   const [showAcc, setShowAcc] = React.useState<boolean>(false)
 
   const d = doc(db, "chat", `user:${user.id}`)
+  const adminD = doc(db, "chat", `user:${ADMIN_ID}`)
+
   const onSend = async (mess = []) => {
     setMessages((previousMessages: any) => GiftedChat.append(previousMessages, mess))
     return addMsg(mess[0])
@@ -46,33 +54,64 @@ const PrivateChat: React.FC<any> = ({ route, navigation }) => {
 
   const addMsg = async (message: IMessage) => {
     let { user, ...others } = message
+    const uDoc = await getDoc(d)
+    const unr = uDoc.data()?.unread
+
+    let unread: number
+    if (!unr) unread = 1
+    else unread = unr + 1
     try {
-      await updateDoc(d, { user, messages: arrayUnion(others) })
+      await updateDoc(d, { user, unread, messages: arrayUnion(others) })
     } catch (error) {
-      await setDoc(d, { user, messages: arrayUnion(others) })
+      await setDoc(d, { user, unread, messages: arrayUnion(others) })
     }
   }
   const getMsgs = async () => {
-    const userDoc = await getDoc(d)
-    if (userDoc.data()) {
-      let { user, messages } = userDoc.data() as any
-      const msgArr: IMessage[] = []
-      messages.forEach((msg: IMessage) =>
-        msgArr.push({
-          _id: msg._id,
-          text: msg.text,
-          image: msg.image,
-          user,
-          createdAt: msg.createdAt.toDate(),
-        })
-      )
-      setMessages(msgArr)
+    try {
+      const usub = onSnapshot(d, (doc) => {
+        const outMess =
+          doc.data()?.messages.map((oM: any) => ({
+            user: { ...doc.data()?.user, avatar: require("../../../public/profile.png") },
+            _id: oM._id,
+            text: oM.text,
+            image: oM.image,
+            createdAt: oM.createdAt.toDate(),
+          })) || []
+
+        setOutMessages(outMess)
+      })
+      const asub = onSnapshot(adminD, (doc) => {
+        const inMess =
+          doc
+            .data()
+            ?.messages.filter((fM: any) => fM.sendTo === user.id)
+            .map((iM: any) => ({
+              user: {
+                ...doc.data()?.user,
+                avatar: require("../../../public/zuno.png"),
+              },
+              _id: iM._id,
+              text: iM.text,
+              image: iM.image,
+              createdAt: iM.createdAt.toDate(),
+            })) || []
+        setInMessages(inMess)
+      })
+      return [usub, asub]
+    } catch (error) {
+      console.error(error)
     }
   }
+
   React.useEffect(() => {
     handleKeyboard()
     getMsgs()
   }, [])
+
+  React.useEffect(() => {
+    const msgs = inMessages.concat(outMessages)
+    setMessages(msgs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)))
+  }, [inMessages, outMessages])
 
   async function upLoadImage(image: any) {
     const res = await fetch(image.uri.replace("file://", ""))
@@ -106,7 +145,11 @@ const PrivateChat: React.FC<any> = ({ route, navigation }) => {
           _id: uuid(),
           text: "",
           createdAt: new Date(),
-          user: { _id: user.id, name: user.phoneNumber, avatar: "https://i.pravatar.cc/300" },
+          user: {
+            _id: user.id,
+            name: user.phoneNumber,
+            avatar: require("../../../public/profile.png"),
+          },
           image: imgUrl,
         }
         setMessages((previousMessages) => GiftedChat.append(previousMessages, [message]))
@@ -121,18 +164,24 @@ const PrivateChat: React.FC<any> = ({ route, navigation }) => {
       const result = await launchCamera({ mediaType: "photo", maxWidth: 1000, maxHeight: 500 })
       if (!result.assets) throw new Error("No Photo found!")
       if (result.assets[0].uri) {
-        // const image = {
-        //   uri: result.assets[0].uri,
-        //   type: result.assets[0].type,
-        //   name: "chats/" + result.assets[0].fileName,
-        // }
+        const image = {
+          uri: result.assets[0].uri,
+          type: result.assets[0].type,
+          name: "chats/" + result.assets[0].fileName,
+        }
+        const s3Img = await upLoadImage(image)
+        const imgUrl = `${env.AWS_CDN_CLOUDFONT}/${s3Img.Key}`
 
         const message = {
           _id: messages.length + 1,
           text: "",
           createdAt: new Date(),
-          user: { _id: user.id, name: user.phoneNumber, avatar: "https://i.pravatar.cc/300" },
-          image: result.assets[0].uri,
+          user: {
+            _id: user.id,
+            name: user.phoneNumber,
+            avatar: require("../../../public/profile.png"),
+          },
+          image: imgUrl,
         }
         setMessages((previousMessages) => GiftedChat.append(previousMessages, [message]))
         return addMsg(message)
@@ -184,17 +233,15 @@ const PrivateChat: React.FC<any> = ({ route, navigation }) => {
   return (
     <>
       <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
-        <Icon as={FaIcon} name="chevron-left" size={30} onPress={() => navigation.goBack()} />
+        <Icon as={FaIcon} name="arrow-left" size={30} onPress={() => navigation.goBack()} />
         <VStack justifyContent="space-between" alignItems="center" space={2}>
           <Heading fontSize="sm">Vuong Do shop</Heading>
           <Text fontSize="xs">
             <Avatar size={2} bgColor="green.500" /> online
           </Text>
         </VStack>
-        <Icon as={FeaIcon} name="more-horizontal" size={30} onPress={() => navigation.goBack()} />
+        <Text></Text>
       </HStack>
-
-      <Box></Box>
 
       <View flexGrow={1} bgColor={showAcc ? "yellow.50" : "white"}>
         <GiftedChat
@@ -293,14 +340,17 @@ const PrivateChat: React.FC<any> = ({ route, navigation }) => {
           renderQuickReplies={(props) => renderQuickReplies(props)}
           showUserAvatar={true}
           renderAvatarOnTop={true}
-          user={{ _id: user.id, name: user.phoneNumber, avatar: "https://i.pravatar.cc/300" }}
+          user={{
+            _id: user.id,
+            name: user.phoneNumber,
+            avatar: require("../../../public/profile.png"),
+          }}
         />
         {!isKeyboardVisible && showAcc && (
           <HStack
             bgColor="yellow.50"
-            justifyContent="center"
+            justifyContent="space-evenly"
             alignItems="center"
-            space={12}
             safeAreaBottom
           >
             <VStack alignItems="center">

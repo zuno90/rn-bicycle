@@ -13,9 +13,9 @@ export interface IProduct {
   images: string[]
   categoryId: number
   subCategoryId: number
-  category?: ICategory
-  subCategory?: ISubCategory
-  productItem?: IProductItem[]
+  category: ICategory
+  subCategory: ISubCategory
+  productItem: IProductItem[]
   createAt: Date
   updateAt: Date
 }

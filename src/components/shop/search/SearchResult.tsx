@@ -8,13 +8,13 @@ type TData = { data: any; onClose: () => void }
 const SearchResult: React.FC<TData> = ({ data, onClose }) => {
   const navigation = useNavigation<any>()
   return (
-    <Box px={5} py={2} bgColor="white">
+    <Box px={5}>
       {data.map((item: any, index: number) => (
         <React.Fragment key={index}>
           <Pressable
             onPress={() => {
               onClose()
-              return navigation.navigate(EHome.ProductDetail, { id: item.id, slug: item.slug })
+              navigation.navigate(EHome.ProductDetail, { id: item.id, slug: item.slug })
             }}
           >
             <HStack alignItems="center" space={2}>
@@ -29,7 +29,7 @@ const SearchResult: React.FC<TData> = ({ data, onClose }) => {
               </Text>
             </HStack>
           </Pressable>
-          {data.length - index > 1 && <Divider my={2} />}
+          {data.length - index > 1 && <Divider />}
         </React.Fragment>
       ))}
     </Box>

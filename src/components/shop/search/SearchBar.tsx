@@ -1,5 +1,5 @@
-import { HStack, Icon, Input, Stack, Divider, Box, ScrollView } from "native-base"
 import React from "react"
+import { HStack, Icon, Input, Stack, Divider, Box, ScrollView } from "native-base"
 import AntIcon from "react-native-vector-icons/AntDesign"
 import EvilIcon from "react-native-vector-icons/EvilIcons"
 import CartIcon from "../cart/CartIcon"
@@ -85,24 +85,22 @@ const SearchBar: React.FC = () => {
         </HStack>
       </Stack>
       {openPopup && (
-        <>
+        <Box h="full" bgColor="white" zIndex={10}>
           {!lSearchList || !lSearchList.length ? (
-            <Box bgColor="white" h="full">
+            <>
               <Divider />
               <React.Suspense>
                 <SearchHistory setLSearch={setLSearch} />
               </React.Suspense>
-            </Box>
+            </>
           ) : (
-            <Box bgColor="gray.100" h="full">
-              <ScrollView>
-                <React.Suspense>
-                  <SearchResult data={lSearchList} onClose={closePopup} />
-                </React.Suspense>
-              </ScrollView>
-            </Box>
+            <ScrollView bgColor="white">
+              <React.Suspense>
+                <SearchResult data={lSearchList} onClose={closePopup} />
+              </React.Suspense>
+            </ScrollView>
           )}
-        </>
+        </Box>
       )}
     </>
   )

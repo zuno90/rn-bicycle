@@ -16,17 +16,18 @@ const Toast: React.FC<TToast> = ({ type, content, close }) => {
         rounded="md"
         bgColor={type === EToastType.noti ? "zuno" : "red.400"}
         flexDir="row"
-        justifyContent="space-between"
         alignItems="center"
       >
-        <HStack w="70%" justifyContent="flex-start" alignItems="center" space={4}>
+        <HStack w="85%" alignItems="center" space={4}>
           {type === EToastType.noti && (
             <Icon as={AntIcon} name="checkcircle" size={5} color="white" />
           )}
           {type === EToastType.err && <Icon as={MateIcon} name="error" size={5} color="white" />}
-          <Text color="white">{content}</Text>
+          <Text flex={1} color="white">
+            {content}
+          </Text>
         </HStack>
-        <HStack w="30%" justifyContent="flex-end" space={2}>
+        <HStack w="15%" justifyContent="flex-end" space={2}>
           <Divider orientation="vertical" h="auto" bg="white" />
           <Icon as={FeaIcon} name="x" size={5} color="white" onPress={close} />
         </HStack>

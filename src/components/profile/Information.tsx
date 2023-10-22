@@ -22,9 +22,11 @@ import useAuth from "../../context/AuthProvider"
 import { localGet } from "../../utils/storage.util"
 import LoadingScreen from "../../screens/LoadingScreen"
 
-const Information: React.FC<any> = ({ route, navigation }) => {
-  const user = route.params.user
-  const { checkAuth } = useAuth()
+const Information: React.FC<any> = ({ navigation }) => {
+  const {
+    auth: { user },
+    checkAuth,
+  } = useAuth()
 
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const [cities, setCities] = React.useState([])
@@ -115,7 +117,7 @@ const Information: React.FC<any> = ({ route, navigation }) => {
   return (
     <>
       <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
-        <Icon as={FaIcon} name="chevron-left" size={30} onPress={() => navigation.goBack()} />
+        <Icon as={FaIcon} name="arrow-left" size={30} onPress={() => navigation.goBack()} />
         <Text fontSize="2xl" fontWeight="bold">
           Thông tin cá nhân
         </Text>

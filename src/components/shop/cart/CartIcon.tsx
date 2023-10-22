@@ -1,19 +1,16 @@
 import React from "react"
 import { useNavigation } from "@react-navigation/native"
 import { VStack, Icon, Pressable, Box, Text } from "native-base"
+import { EHome } from "../../../__types__"
+import { getCarts } from "../../../utils/helper.util"
 import FeaIcon from "react-native-vector-icons/Feather"
-import { EHome, IProductCart } from "../../../__types__"
-import { getCart } from "../../../utils/helper.util"
 
 type TCartUpdatedICon = { quantity: number }
 
 const CartIcon: React.FC<TCartUpdatedICon | any> = () => {
   const navigation = useNavigation<any>()
 
-  const carts = getCart()
-  // const total = carts
-  //   .map((item: IProductCart) => item.quantity)
-  //   .reduce((a: number, b: number) => a + b, 0)
+  const carts = getCarts()
   const total = carts.length
 
   return (

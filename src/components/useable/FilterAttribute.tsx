@@ -5,7 +5,7 @@ import FeaIcon from "react-native-vector-icons/Feather"
 import AntIcon from "react-native-vector-icons/AntDesign"
 import { useWatch } from "react-hook-form"
 
-const FilterAttribute: React.FC<any> = ({ from, filterData, filterAction }) => {
+const FilterAttribute: React.FC<any> = ({ filterData, filterAction }) => {
   const type = filterData.type
   const title = filterData.title
   const data = filterData.data
@@ -22,16 +22,17 @@ const FilterAttribute: React.FC<any> = ({ from, filterData, filterAction }) => {
       </Box>
 
       <Divider />
-      <Box flex={1} p={8} gap={2} justifyContent="flex-start">
+      <Box flex={1} p={8} justifyContent="flex-start" gap={2}>
         {data.length > 0 &&
           data.map((item: any, index: number) => (
             <React.Fragment key={index}>
               <Pressable onPress={() => handleFilter(type, item.value)}>
                 <HStack justifyContent="space-between" alignItems="center">
-                  <Text>{data.filter((i: any) => i.value === item.value)[0]?.title}</Text>
-                  {/* {initValue === item && <Icon as={AntIcon} name="checkcircle" color="zuno" />} */}
+                  <Text fontSize="lg">
+                    {data.filter((i: any) => i.value === item.value)[0]?.title}
+                  </Text>
                   {useWatch({ name: type }) === item.value && (
-                    <Icon as={AntIcon} name="checkcircle" color="zuno" />
+                    <Icon as={AntIcon} name="checkcircle" color="zuno" size={6} />
                   )}
                 </HStack>
               </Pressable>

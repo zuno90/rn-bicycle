@@ -58,7 +58,7 @@ const Signin: React.FC = ({ navigation }: any) => {
       <ScrollView bgColor="white">
         <Stack flex={1} m={5} space={4} safeAreaTop>
           <VStack space={4}>
-            <Icon as={FaIcon} name="chevron-left" size={30} onPress={() => navigation.goBack()} />
+            <Icon as={FaIcon} name="arrow-left" size={30} onPress={() => navigation.goBack()} />
             <Text fontSize="3xl" fontWeight="bold">
               Đăng nhập
             </Text>

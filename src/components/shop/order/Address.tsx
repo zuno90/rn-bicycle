@@ -8,6 +8,7 @@ import { allowOnlyNumber, fetchGet } from "../../../utils/helper.util"
 import { config } from "../../../utils/config.util"
 import LoadingScreen from "../../../screens/LoadingScreen"
 import { localGet } from "../../../utils/storage.util"
+import { EToastType } from "../../../__types__"
 
 const Address: React.FC<any> = ({ user, showToast, closePopup }) => {
   const {
@@ -79,7 +80,7 @@ const Address: React.FC<any> = ({ user, showToast, closePopup }) => {
   const onSubmitAddress = async () => {
     const { name, phoneNumber, city, district, ward, address } = getValues("information")
     if (name === "" || phoneNumber === "" || !city || !district || !ward || address === "") {
-      return showToast("Vui lòng điền đầy đủ thông tin giao hàng!")
+      return showToast(EToastType.err, "Vui lòng điền đầy đủ thông tin giao hàng!")
     }
     closePopup()
   }

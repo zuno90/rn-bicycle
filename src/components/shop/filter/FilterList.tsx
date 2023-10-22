@@ -132,13 +132,6 @@ const WrapBox = ({ value }: { value: string }) => {
   const handleSetValue = (type: string, value: string) => {
     const state = getValues(type)
     toggleState(type, value, state)
-    // if (type === "category") {
-    //   if (value === "all") setValue(type, ["all"], { shouldDirty: true })
-    //   else {
-    //     if (state.includes("all")) setValue(type, [value], { shouldDirty: true })
-    //     else toggleState(type, value, state)
-    //   }
-    // } else toggleState(type, value, state)
   }
 
   const handleChangePrice = (l: number, h: number) => {

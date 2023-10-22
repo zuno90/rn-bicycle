@@ -1,7 +1,7 @@
 import React from "react"
-import { Box, HStack, Image, Text, Button, AspectRatio, Pressable, Heading } from "native-base"
-import { EHome, IProduct } from "../../../__types__"
+import { Box, HStack, Image, Text, AspectRatio, Pressable, Heading } from "native-base"
 import { useNavigation } from "@react-navigation/native"
+import { EHome, IProduct } from "../../../__types__"
 import { WIDTH, formatNumber } from "../../../utils/helper.util"
 
 const Product: React.FC<{ data: IProduct }> = ({ data }) => {
@@ -13,37 +13,31 @@ const Product: React.FC<{ data: IProduct }> = ({ data }) => {
       maxW={WIDTH / 2}
       maxH={WIDTH * 2}
       rounded="lg"
-      borderColor="yellow.400"
+      borderColor="zuno"
       borderWidth={1}
       overflow="hidden"
       justifyContent="space-between"
       my={1}
     >
       <Pressable
-        onPress={() =>
-          navigation.navigate(EHome.ProductDetail, {
-            id: data.id,
-            slug: data.slug,
-          })
-        }
+        onPress={() => navigation.push(EHome.ProductDetail, { id: data.id, slug: data.slug })}
       >
         <AspectRatio ratio={1 / 1}>
           <Image source={{ uri: data.images[0] }} resizeMode="contain" alt="product-image" />
         </AspectRatio>
       </Pressable>
       {data.discount ? (
-        <Button
-          roundedTopLeft="lg"
-          bgColor="yellow.100"
+        <Box
+          bgColor="red.400"
           position="absolute"
           top={0}
           left={0}
           px={2}
           py={1}
-          _text={{ color: "red.500", fontSize: "xs" }}
+          _text={{ color: "white", fontSize: "xs" }}
         >
           {`-${data.discount} %`}
-        </Button>
+        </Box>
       ) : (
         <></>
       )}
@@ -52,12 +46,7 @@ const Product: React.FC<{ data: IProduct }> = ({ data }) => {
           fontWeight="semibold"
           numberOfLines={3}
           ellipsizeMode="tail"
-          onPress={() =>
-            navigation.navigate(EHome.ProductDetail, {
-              id: data.id,
-              slug: data.slug,
-            })
-          }
+          onPress={() => navigation.navigate(EHome.ProductDetail, { id: data.id, slug: data.slug })}
         >
           {data.name}
         </Text>

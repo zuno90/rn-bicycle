@@ -3,7 +3,6 @@ import { Platform } from "react-native"
 import { Box, HStack, Center, Icon, Pressable, Text } from "native-base"
 import FatherIcon from "react-native-vector-icons/Feather"
 import InoIcon from "react-native-vector-icons/Ionicons"
-import EntIcon from "react-native-vector-icons/Entypo"
 import MateComIcon from "react-native-vector-icons/MaterialCommunityIcons"
 import { EHome } from "../../__types__"
 import { useNavigation } from "@react-navigation/native"
@@ -36,7 +35,7 @@ const FooterMenu: React.FC<TCurrentScreen> = ({ currentScreen }) => {
           opacity={currentScreen === EHome.InitHome ? 1 : 0.5}
           py={4}
           flex={1}
-          onPress={() => navigation.navigate(EHome.InitHome)}
+          onPress={() => currentScreen !== EHome.InitHome && navigation.replace(EHome.InitHome)}
         >
           <Center>
             <Icon
@@ -51,7 +50,7 @@ const FooterMenu: React.FC<TCurrentScreen> = ({ currentScreen }) => {
           opacity={currentScreen === EHome.PrivateChat ? 1 : 0.5}
           py={4}
           flex={1}
-          onPress={() => navigation.navigate(EHome.PrivateChat)}
+          onPress={() => navigation.push(EHome.PrivateChat)}
         >
           <Center>
             <Icon
@@ -66,12 +65,11 @@ const FooterMenu: React.FC<TCurrentScreen> = ({ currentScreen }) => {
           opacity={currentScreen === EHome.Rank ? 1 : 0.5}
           py={4}
           flex={1}
-          onPress={() => navigation.navigate(EHome.Rank)}
+          onPress={() => currentScreen !== EHome.Rank && navigation.replace(EHome.Rank)}
         >
           <Center>
             <Icon
               as={() => (currentScreen === EHome.Rank ? MedalIcon(true) : MedalIcon(false))}
-              // color={currentScreen === EHome.Rank ? "#966216" : "gray.900"}
               size="lg"
             />
           </Center>
@@ -80,7 +78,9 @@ const FooterMenu: React.FC<TCurrentScreen> = ({ currentScreen }) => {
           opacity={currentScreen === EHome.Notification ? 1 : 0.5}
           py={4}
           flex={1}
-          onPress={() => navigation.navigate(EHome.Notification)}
+          onPress={() =>
+            currentScreen !== EHome.Notification && navigation.replace(EHome.Notification)
+          }
         >
           <Center position="relative">
             {notiNumber > 0 && (
@@ -106,25 +106,17 @@ const FooterMenu: React.FC<TCurrentScreen> = ({ currentScreen }) => {
               size="lg"
             />
           </Center>
-          {/* <Center>
-            <Icon
-              as={InoIcon}
-              name="notifications-outline"
-              color={currentScreen === EHome.Notification ? "#966216" : "gray.900"}
-              size="lg"
-            />
-          </Center> */}
         </Pressable>
         <Pressable
           opacity={currentScreen === EHome.Profile ? 1 : 0.5}
           py={4}
           flex={1}
-          onPress={() => navigation.navigate(EHome.Profile)}
+          onPress={() => currentScreen !== EHome.Profile && navigation.replace(EHome.Profile)}
         >
           <Center>
             <Icon
-              as={EntIcon}
-              name="user"
+              as={() => (currentScreen === EHome.Profile ? ProfileIcon(true) : ProfileIcon(false))}
+              name="profile"
               color={currentScreen === EHome.Profile ? "#966216" : "gray.900"}
               size="lg"
             />
@@ -135,7 +127,7 @@ const FooterMenu: React.FC<TCurrentScreen> = ({ currentScreen }) => {
   )
 }
 
-const MedalIcon = (isCurrent: boolean) => {
+const MedalIcon = (isCurrent: boolean): React.JSX.Element => {
   return (
     <Svg width="22" height="28" viewBox="0 0 22 28">
       <Path
@@ -212,6 +204,21 @@ const MedalIcon = (isCurrent: boolean) => {
           <Stop offset="1" stopColor="#F1F5F5" />
         </LinearGradient>
       </Defs>
+    </Svg>
+  )
+}
+
+const ProfileIcon = (isCurrent: boolean): React.JSX.Element => {
+  return (
+    <Svg width="18" height="24" viewBox="0 0 18 24" fill="#0e0e0e">
+      <Path
+        d="M9 10.75C9.98891 10.75 10.9556 10.4568 11.7779 9.90735C12.6001 9.35794 13.241 8.57705 13.6194 7.66342C13.9978 6.74979 14.0969 5.74446 13.9039 4.77455C13.711 3.80465 13.2348 2.91373 12.5355 2.21447C11.8363 1.51521 10.9454 1.039 9.97545 0.846076C9.00555 0.65315 8.00021 0.752166 7.08658 1.1306C6.17295 1.50904 5.39206 2.14991 4.84265 2.97215C4.29325 3.7944 4 4.7611 4 5.75C4 7.07609 4.52678 8.34785 5.46447 9.28554C6.40215 10.2232 7.67392 10.75 9 10.75Z"
+        fill={isCurrent ? "#966216" : "#0e0e0e"}
+      />
+      <Path
+        d="M16.5 23.25C16.8315 23.25 17.1495 23.1183 17.3839 22.8839C17.6183 22.6495 17.75 22.3315 17.75 22C17.75 19.6794 16.8281 17.4538 15.1872 15.8128C13.5462 14.1719 11.3206 13.25 9 13.25C6.67936 13.25 4.45376 14.1719 2.81282 15.8128C1.17187 17.4538 0.25 19.6794 0.25 22C0.25 22.3315 0.381696 22.6495 0.616117 22.8839C0.850537 23.1183 1.16848 23.25 1.5 23.25H16.5Z"
+        fill={isCurrent ? "#966216" : "#0e0e0e"}
+      />
     </Svg>
   )
 }

@@ -35,6 +35,15 @@ const ConfirmModal: React.FC<TConfirmModal> = ({
               <Button
                 w="50%"
                 rounded="full"
+                bgColor="zuno"
+                _text={{ fontWeight: "semibold" }}
+                onPress={onClose}
+              >
+                Không
+              </Button>
+              <Button
+                w="50%"
+                rounded="full"
                 variant="outline"
                 borderColor="zuno"
                 _text={{ color: "zuno", fontWeight: "semibold" }}
@@ -44,15 +53,6 @@ const ConfirmModal: React.FC<TConfirmModal> = ({
                 }}
               >
                 Có
-              </Button>
-              <Button
-                w="50%"
-                rounded="full"
-                bgColor="zuno"
-                _text={{ fontWeight: "semibold" }}
-                onPress={onClose}
-              >
-                Không
               </Button>
             </HStack>
           </Box>

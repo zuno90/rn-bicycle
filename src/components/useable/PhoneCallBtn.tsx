@@ -7,7 +7,7 @@ const PhoneCallBtn: React.FC = () => {
     const phoneNumber = `tel://${number}`
     return Linking.openURL(phoneNumber)
   }
-  
+
   return (
     <Link onPress={() => handleCall("+84933663240")}>
       <Svg width={50} height={50} viewBox="0 0 50 50" fill="none">

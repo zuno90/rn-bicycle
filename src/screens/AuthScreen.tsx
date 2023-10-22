@@ -71,9 +71,9 @@ const InitAuth = ({ navigation }: any) => {
             Đăng nhập
           </Text>
         </Button>
-        <Text alignSelf="center" underline>
+        {/* <Text alignSelf="center" underline>
           Bỏ qua
-        </Text>
+        </Text> */}
       </VStack>
     </View>
   )
