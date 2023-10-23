@@ -19,7 +19,6 @@ const VerifyOtp: React.FC<any> = ({ route, navigation }) => {
   const { from, phone, mockOtp } = route.params
   const {
     control,
-    setValue,
     trigger,
     handleSubmit,
     formState: { isSubmitting, errors },
@@ -38,6 +37,7 @@ const VerifyOtp: React.FC<any> = ({ route, navigation }) => {
           localSet(config.cache.accessToken, signupData.accessToken)
           localSet(config.cache.refreshToken, signupData.refreshToken)
           navigation.navigate(EAuth.Success, {
+            from: EAuth.VerifyOtp,
             to: EScreen.Home,
             des: "Xin chúc mừng bạn đã tạo tài khoản thành công!",
             btn: "Bắt đầu mua sắm",
@@ -134,7 +134,7 @@ const VerifyOtp: React.FC<any> = ({ route, navigation }) => {
         {/* <Button onPress={() => otpRef.current?.clear()}>CLEAR</Button> */}
 
         {!isExpired ? (
-          <CountdownClock time={59} setIsExpired={setIsExpired} />
+          <CountdownClock time={20} setIsExpired={setIsExpired} />
         ) : (
           <Text>
             Bạn chưa nhận được mã?{" "}

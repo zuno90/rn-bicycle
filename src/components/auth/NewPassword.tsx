@@ -9,10 +9,11 @@ import {
   HStack,
   Text,
   Button,
+  useToast,
 } from "native-base"
 import { useForm, Controller, SubmitHandler } from "react-hook-form"
 import LinearGradient from "react-native-linear-gradient"
-import { EAuth } from "../../__types__"
+import { EAuth, EToastType } from "../../__types__"
 import AntIcon from "react-native-vector-icons/AntDesign"
 import FatherIcon from "react-native-vector-icons/Feather"
 import OctIcon from "react-native-vector-icons/Octicons"
@@ -26,23 +27,26 @@ import {
 } from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
 import { HideOnKeyboard } from "react-native-hide-onkeyboard"
+import Toast from "../useable/Toast"
 
 type TNewPassword = { password: string; confirmPassword: string }
 
 const NewPassword: React.FC<any> = ({ route, navigation }) => {
   const { phone } = route.params
+  const toast = useToast()
   const [showPass, setShowPass] = React.useState(false)
   const {
     control,
     watch,
+    trigger,
     getValues,
     handleSubmit,
     formState: { isSubmitting, errors },
   } = useForm<TNewPassword>()
 
   const onSubmit: SubmitHandler<TNewPassword> = async (data) => {
-    const payload = { phoneNumber: phone, password: data.password }
-    const res = await fetchPost(`${config.endpoint}/user/change-password`, JSON.stringify(payload))
+    const payload = { phoneNumber: phone, ...data }
+    const res = await fetchPost(`${config.endpoint}/user/new-password`, JSON.stringify(payload))
     if (res.success)
       navigation.navigate(EAuth.Success, {
         to: EAuth.Signin,
@@ -51,9 +55,21 @@ const NewPassword: React.FC<any> = ({ route, navigation }) => {
       })
   }
 
+  const showToast = (msg: string, toastId?: string) => {
+    if (!toast.isActive(toastId))
+      toast.show({
+        id: toastId,
+        placement: "top",
+        duration: 1500,
+        render: () => (
+          <Toast type={EToastType.err} content={msg} close={() => toast.close(toastId)} />
+        ),
+      })
+  }
+
   return (
     <>
-      <ScrollView>
+      <ScrollView bgColor="white">
         <Stack flex={1} m={5} space={5} safeAreaTop>
           <VStack space={4}>
             <Text fontSize="3xl" fontWeight="bold">
@@ -109,7 +125,8 @@ const NewPassword: React.FC<any> = ({ route, navigation }) => {
                 rules={{
                   required: true,
                   minLength: 6,
-                  validate: (v) => v === getValues("password"),
+                  validate: (v) =>
+                    v === getValues("password") || "Mật khẩu không khớp, vui lòng nhập lại",
                 }}
                 control={control}
                 render={({ field: { onChange, onBlur, value } }) => (
@@ -183,7 +200,15 @@ const NewPassword: React.FC<any> = ({ route, navigation }) => {
             >
               <Button
                 variant="unstyled"
-                onPress={handleSubmit(onSubmit)}
+                onPress={async () => {
+                  const ok = await trigger()
+                  if (!ok) {
+                    errors.confirmPassword?.type === "validate" &&
+                      showToast(errors.confirmPassword?.message, "confirmPassword")
+                    return
+                  }
+                  handleSubmit(onSubmit)()
+                }}
                 h={50}
                 _pressed={{ bgColor: "yellow.400" }}
                 isLoading={isSubmitting}
@@ -198,7 +223,7 @@ const NewPassword: React.FC<any> = ({ route, navigation }) => {
         </Stack>
       </ScrollView>
       <HideOnKeyboard>
-        <Stack my={5} alignItems="center">
+        <Stack bgColor="white" alignItems="center" safeAreaBottom>
           <Text>Hotline hỗ trợ: 1900 8558 68</Text>
           <Text>
             Fanpage:{" "}

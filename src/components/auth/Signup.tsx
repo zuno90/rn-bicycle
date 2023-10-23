@@ -10,12 +10,12 @@ import {
   FormControl,
   HStack,
   ScrollView,
+  Pressable,
 } from "native-base"
 import { EAuth } from "../../__types__"
 import LinearGradient from "react-native-linear-gradient"
 import { useForm, Controller, SubmitHandler } from "react-hook-form"
 import AntIcon from "react-native-vector-icons/AntDesign"
-import FaIcon from "react-native-vector-icons/FontAwesome"
 import FatherIcon from "react-native-vector-icons/Feather"
 import OctIcon from "react-native-vector-icons/Octicons"
 import MatIcon from "react-native-vector-icons/MaterialIcons"
@@ -30,6 +30,7 @@ import {
 import { config } from "../../utils/config.util"
 import { HideOnKeyboard } from "react-native-hide-onkeyboard"
 import { localGet } from "../../utils/storage.util"
+import BackBtn from "../useable/BackBtn"
 
 type TSignup = {
   phoneNumber: string
@@ -63,7 +64,9 @@ const Signup: React.FC = ({ navigation }: any) => {
       <ScrollView bgColor="white">
         <Stack flex={1} m={5} space={4} safeAreaTop>
           <VStack space={4}>
-            <Icon as={FaIcon} name="arrow-left" size={30} onPress={() => navigation.goBack()} />
+            <Pressable onPress={() => navigation.goBack()}>
+              <Icon as={BackBtn} />
+            </Pressable>
             <Text fontSize="3xl" fontWeight="bold">
               Tạo tài khoản
             </Text>

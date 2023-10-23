@@ -7,16 +7,17 @@ import {
   Heading,
   Icon,
   Image,
+  Pressable,
   ScrollView,
   Text,
   VStack,
 } from "native-base"
-import FaIcon from "react-native-vector-icons/FontAwesome"
 import { fetchGet, formatNumber } from "../../utils/helper.util"
 import { EHome, EOrderStatus, IOrderResponse } from "../../__types__"
 import { config } from "../../utils/config.util"
 import { localGet } from "../../utils/storage.util"
 import LoadingBtn from "../useable/LoadingBtn"
+import BackBtn from "../useable/BackBtn"
 
 const OrderDetail: React.FC<any> = ({ route, navigation }) => {
   const { id } = route.params
@@ -34,6 +35,7 @@ const OrderDetail: React.FC<any> = ({ route, navigation }) => {
     }
     setIsLoading(false)
   }
+
   React.useEffect(() => {
     getOrder()
   }, [])
@@ -41,12 +43,14 @@ const OrderDetail: React.FC<any> = ({ route, navigation }) => {
   return (
     <>
       <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
-        <Icon
-          as={FaIcon}
-          name="arrow-left"
-          size={30}
-          onPress={() => navigation.replace(EHome.OrderHistory)}
-        />
+        <Pressable
+          onPress={() => {
+            navigation.replace(EHome.OrderHistory)
+            navigation.goBack()
+          }}
+        >
+          <Icon as={BackBtn} />
+        </Pressable>
         <Text fontSize="2xl" fontWeight="bold">
           Chi tiết đơn hàng
         </Text>

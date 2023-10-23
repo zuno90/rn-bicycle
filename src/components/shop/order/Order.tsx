@@ -27,11 +27,12 @@ import { Controller, FormProvider, SubmitHandler, useForm } from "react-hook-for
 import { localGet } from "../../../utils/storage.util"
 import { config } from "../../../utils/config.util"
 import { KeyboardAvoidingView } from "react-native"
-import { useIsFocused } from "@react-navigation/native"
+import { CommonActions, useIsFocused } from "@react-navigation/native"
 import LoadingBtn from "../../useable/LoadingBtn"
 import Clipboard from "@react-native-clipboard/clipboard"
 import Toast from "../../useable/Toast"
 import useAuth from "../../../context/AuthProvider"
+import BackBtn from "../../useable/BackBtn"
 
 const Address = React.lazy(() => import("./Address"))
 const ConfirmModal = React.lazy(() => import("../../useable/ConfirmModal"))
@@ -95,7 +96,6 @@ const Order: React.FC<any> = ({ route, navigation }) => {
     if (res.success) {
       selectItems.forEach((item: IProductCart) => removeCartItem(item.unit))
       setIsDone({ status: true, orderId: res.data.id })
-      return showToast(EToastType.noti, res.message)
     }
     return showToast(EToastType.err, res.message)
   }
@@ -110,9 +110,6 @@ const Order: React.FC<any> = ({ route, navigation }) => {
         render: () => <Toast type={type} content={msg} close={() => toast.close("order")} />,
       })
   }
-
-  const isFocused = useIsFocused()
-  React.useEffect(() => {}, [isFocused])
 
   // fomular of order cost
   const beforeTotal = selectItems
@@ -130,7 +127,9 @@ const Order: React.FC<any> = ({ route, navigation }) => {
   return (
     <>
       <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
-        <Icon as={FaIcon} name="arrow-left" size={30} onPress={() => navigation.goBack()} />
+        <Pressable onPress={() => navigation.goBack()}>
+          <Icon as={BackBtn} />
+        </Pressable>
         <Text fontSize="3xl" fontWeight="bold">
           Thanh toán
         </Text>
@@ -138,7 +137,7 @@ const Order: React.FC<any> = ({ route, navigation }) => {
       </HStack>
 
       <KeyboardAvoidingView behavior="position">
-        <ScrollView bgColor="white" h={(HEIGHT * 1.7) / 3}>
+        <ScrollView h={(HEIGHT * 1.7) / 3} bgColor="white">
           <Stack px={5} pt={5} pb={10} space={4}>
             <Heading fontSize="lg">Thông tin vận chuyển</Heading>
             <Box flexDir="row" px={5} py={2} bgColor="#F4F4F4" rounded="md" gap={4}>
@@ -293,7 +292,7 @@ const Order: React.FC<any> = ({ route, navigation }) => {
                       rounded="lg"
                     >
                       <HStack justifyContent="space-between" alignItems="center">
-                        <Text>Chuyển khoản ngân hàng</Text>
+                        <Heading fontSize="lg">Chuyển khoản ngân hàng</Heading>
                         <Icon
                           as={FeaIcon}
                           name="chevron-up"
@@ -304,13 +303,14 @@ const Order: React.FC<any> = ({ route, navigation }) => {
                       </HStack>
 
                       <Stack p={2} space={1}>
-                        <Text fontSize="xs">Thông tin tài khoản</Text>
-                        <Text fontSize="xs">Ngân hàng ACB Vietnam</Text>
+                        <Text>Thông tin tài khoản</Text>
+                        <Text>Ngân hàng ACB Vietnam</Text>
                         <HStack alignItems="center" space={4}>
-                          <Text fontSize="xs">68689988</Text>
+                          <Text>68689988</Text>
                           <Icon
                             as={FeaIcon}
                             name="copy"
+                            size="lg"
                             onPress={() => {
                               Clipboard.setString("68689988")
                               !toast.isActive("copytoclipboard") &&
@@ -329,7 +329,7 @@ const Order: React.FC<any> = ({ route, navigation }) => {
                             }}
                           />
                         </HStack>
-                        <Text fontSize="xs">Công ty TNHH Vuong Gia Bicycle</Text>
+                        <Text fontSize="sm">Công ty TNHH Vuong Gia Bicycle</Text>
                       </Stack>
                       <Stack mt={2} space={2}>
                         <Heading fontSize="lg">Nội dung chuyển khoản</Heading>

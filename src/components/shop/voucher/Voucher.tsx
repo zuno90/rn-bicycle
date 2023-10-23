@@ -19,11 +19,12 @@ import { WIDTH, fetchGet } from "../../../utils/helper.util"
 import { config } from "../../../utils/config.util"
 import { useDebounce } from "use-debounce"
 import { localGet } from "../../../utils/storage.util"
+import BackBtn from "../../useable/BackBtn"
 
 const Voucher: React.FC<any> = ({ route, navigation }) => {
   const [vouchers, setVouchers] = React.useState([])
   const [voucherCode, setVoucherCode] = React.useState({ code: "", unit: "", value: 0 })
-  const [searchTerm] = useDebounce(voucherCode.code, 300)
+  const [searchTerm] = useDebounce(voucherCode.code, 100)
   const [isNotFound, setIsNotFound] = React.useState<boolean>(false)
 
   const handleApplyVoucher = () => {
@@ -50,7 +51,9 @@ const Voucher: React.FC<any> = ({ route, navigation }) => {
   return (
     <>
       <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
-        <Icon as={FaIcon} name="arrow-left" size={30} onPress={() => navigation.goBack()} />
+        <Pressable onPress={() => navigation.goBack()}>
+          <Icon as={BackBtn} />
+        </Pressable>
         <Text fontSize="3xl" fontWeight="bold">
           Mã khuyến mãi
         </Text>

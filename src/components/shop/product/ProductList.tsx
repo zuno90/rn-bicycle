@@ -1,7 +1,6 @@
 import React from "react"
 import { HStack, Heading, ScrollView, Stack, Text } from "native-base"
 import SearchBar from "../search/SearchBar"
-
 import FilterBtn from "../filter/FilterBtn"
 import { EHome, EProductList, IProduct } from "../../../__types__"
 import { useIsFocused } from "@react-navigation/native"
@@ -73,7 +72,6 @@ const ProductList: React.FC = ({ route }: any) => {
             { Authorization: `Bearer ${localGet(config.cache.accessToken)}` }
           )
           if (resFilter.success) {
-            console.log(resFilter.data)
             setProducts(resFilter.data.products)
             setIsLoading(false)
           }
@@ -85,8 +83,6 @@ const ProductList: React.FC = ({ route }: any) => {
     }
     getProducts()
   }, [route])
-
-  React.useEffect(() => {}, [useIsFocused()])
 
   return (
     <>
@@ -103,7 +99,7 @@ const ProductList: React.FC = ({ route }: any) => {
         <Stack mx={1} py={5} space={4}>
           <HStack mx={4} justifyContent="space-between" alignItems="center">
             {from === EProductList.Search ? (
-              <Text>
+              <Text flex={1} numberOfLines={2} isTruncated>
                 {products && products.length
                   ? `Kết quả tìm kiếm "${search}"`
                   : `Không có sản phẩm phù hợp với từ khoá "${search}"`}

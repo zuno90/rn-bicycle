@@ -10,12 +10,12 @@ import {
   ScrollView,
   Pressable,
 } from "native-base"
-import FaIcon from "react-native-vector-icons/FontAwesome"
 import CartIcon from "../shop/cart/CartIcon"
 import { EHome } from "../../__types__"
 import { useIsFocused } from "@react-navigation/native"
 import { collection, getDocs, limit, orderBy, query, where } from "firebase/firestore"
 import { db } from "../../utils/firebase.util."
+import BackBtn from "../useable/BackBtn"
 
 const FooterMenu = React.lazy(() => import("../home/FooterMenu"))
 
@@ -42,7 +42,9 @@ const Chat: React.FC<any> = ({ route, navigation }) => {
   return (
     <>
       <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
-        <Icon as={FaIcon} name="arrow-left" size={30} onPress={() => navigation.goBack()} />
+        <Pressable onPress={() => navigation.goBack()}>
+          <Icon as={BackBtn} />
+        </Pressable>
         <Text fontSize="3xl" fontWeight="bold">
           Chat
         </Text>

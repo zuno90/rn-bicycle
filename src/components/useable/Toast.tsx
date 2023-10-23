@@ -23,7 +23,7 @@ const Toast: React.FC<TToast> = ({ type, content, close }) => {
             <Icon as={AntIcon} name="checkcircle" size={5} color="white" />
           )}
           {type === EToastType.err && <Icon as={MateIcon} name="error" size={5} color="white" />}
-          <Text flex={1} color="white">
+          <Text flex={1} color="white" numberOfLines={2}>
             {content}
           </Text>
         </HStack>

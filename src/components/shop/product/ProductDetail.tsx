@@ -193,7 +193,21 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
 
   const handleBuyNow: SubmitHandler<TProductAttr> = (data) => {
     const cartItem = verifyCartItem(data, "buynow")
-    cartItem && navigation.navigate(EHome.Order, { selectItems: [cartItem] })
+    if (cartItem && cartItem.quantity >= 5)
+      navigation.navigate(EHome.Order, { selectItems: [cartItem] })
+    else if (!toast.isActive("buynow"))
+      toast.show({
+        id: "buynow",
+        placement: "top",
+        duration: 1500,
+        render: () => (
+          <Toast
+            type={EToastType.err}
+            content="Số lượng sản phẩm yêu cầu lớn hơn 5"
+            close={() => toast.close("buynow")}
+          />
+        ),
+      })
   }
 
   if (isLoading) return <LoadingScreen />

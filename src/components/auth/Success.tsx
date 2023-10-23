@@ -1,10 +1,10 @@
-import { Stack, VStack, Image as Img, Text, Button } from "native-base"
+import { Stack, VStack, Image as Img, Text, Button, View } from "native-base"
 import LinearGradient from "react-native-linear-gradient"
 import useAuth from "../../context/AuthProvider"
+import LottieView from "lottie-react-native"
 
 const Success: React.FC<any> = ({ route, navigation }) => {
   const { to, des, btn } = route.params
-
   const { checkAuth } = useAuth()
 
   const handleDirectBtn = async () => {
@@ -13,9 +13,10 @@ const Success: React.FC<any> = ({ route, navigation }) => {
   }
 
   return (
-    <>
-      <Stack flex={1} mx={5} my={10} space={10} safeAreaTop>
+    <View flex={1} bgColor="white">
+      <Stack mx={5} my={10} space={10} safeAreaTop>
         <VStack alignItems="center" space={4}>
+          <LottieView source={require("../../../public/ani/success.json")} autoPlay loop />
           <Img source={require("../../../public/success.png")} size={200} alt="success" />
           <Text fontSize="3xl" fontWeight="bold">
             Thành công
@@ -39,7 +40,7 @@ const Success: React.FC<any> = ({ route, navigation }) => {
           </Button>
         </LinearGradient>
       </Stack>
-    </>
+    </View>
   )
 }
 

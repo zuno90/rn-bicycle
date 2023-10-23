@@ -20,7 +20,7 @@ const SearchBar: React.FC = () => {
 
   const [lSearchList, setLSearchList] = React.useState<string[]>([])
   const [lSearch, setLSearch] = React.useState<string>("")
-  const [debouncedLSearch] = useDebounce(lSearch, 500)
+  const [debouncedLSearch] = useDebounce(lSearch, 100)
 
   const handleLiveSearch = async () => {
     const res = await fetchGet(`${config.endpoint}/products/search?name=${debouncedLSearch}`, {

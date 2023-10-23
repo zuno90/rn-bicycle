@@ -17,7 +17,7 @@ const Category: React.FC<any> = ({ route }) => {
   const { title, slug } = route.params
   const [isLoading, setIsLoading] = React.useState(false)
 
-  const [currentBrand, setCurrentBrand] = React.useState<string | null>(null)
+  const [currentBrand, setCurrentBrand] = React.useState<string>("")
   const [subCates, setSubCates] = React.useState<ISubCategory[]>([])
   const [products, setProducts] = React.useState<IProduct[]>([])
   const [page, setPage] = React.useState<number>(1)
@@ -70,37 +70,6 @@ const Category: React.FC<any> = ({ route }) => {
           <Box flexDir="row" flexWrap="wrap" justifyContent="space-between" alignItems="center">
             {subCates.length > 0 && (
               <>
-                {subCates.map((item, index) => (
-                  <Box
-                    key={index}
-                    flexDir="column"
-                    maxW="24.5%"
-                    overflow="hidden"
-                    alignItems="center"
-                    my={2}
-                    gap={2}
-                  >
-                    <Pressable onPress={() => setCurrentBrand(item.slug)}>
-                      <Box
-                        size={WIDTH * 0.22}
-                        borderWidth={currentBrand === item.slug ? 2 : 1}
-                        borderColor={currentBrand === item.slug ? "yellow.400" : "muted.400"}
-                        rounded="lg"
-                      >
-                        <AspectRatio ratio={1 / 1}>
-                          <Image
-                            source={{ uri: item.thumbnail }}
-                            resizeMode="contain"
-                            alt="sub-cate-img"
-                          />
-                        </AspectRatio>
-                      </Box>
-                    </Pressable>
-                    <Text fontSize="xs" isTruncated>
-                      {item.name}
-                    </Text>
-                  </Box>
-                ))}
                 <Box
                   flexDir="column"
                   maxW="24.5%"
@@ -163,6 +132,37 @@ const Category: React.FC<any> = ({ route }) => {
                     Tất cả
                   </Text>
                 </Box>
+                {subCates.map((item, index) => (
+                  <Box
+                    key={index}
+                    flexDir="column"
+                    maxW="24.5%"
+                    overflow="hidden"
+                    alignItems="center"
+                    my={2}
+                    gap={2}
+                  >
+                    <Pressable onPress={() => setCurrentBrand(item.slug)}>
+                      <Box
+                        size={WIDTH * 0.22}
+                        borderWidth={currentBrand === item.slug ? 2 : 1}
+                        borderColor={currentBrand === item.slug ? "yellow.400" : "muted.400"}
+                        rounded="lg"
+                      >
+                        <AspectRatio ratio={1 / 1}>
+                          <Image
+                            source={{ uri: item.thumbnail }}
+                            resizeMode="contain"
+                            alt="sub-cate-img"
+                          />
+                        </AspectRatio>
+                      </Box>
+                    </Pressable>
+                    <Text fontSize="xs" isTruncated>
+                      {item.name}
+                    </Text>
+                  </Box>
+                ))}
               </>
             )}
           </Box>

@@ -5,6 +5,7 @@ import {
   HStack,
   Heading,
   Icon,
+  Pressable,
   Slide,
   Stack,
   Text,
@@ -12,7 +13,6 @@ import {
   useToast,
 } from "native-base"
 import LinearGradient from "react-native-linear-gradient"
-import FaIcon from "react-native-vector-icons/FontAwesome"
 import { EHome, EToastType } from "../../__types__"
 import Clipboard from "@react-native-clipboard/clipboard"
 import Toast from "../useable/Toast"
@@ -20,6 +20,7 @@ import useAuth from "../../context/AuthProvider"
 import { fetchPost, formatNumber } from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
 import { localGet } from "../../utils/storage.util"
+import BackBtn from "../useable/BackBtn"
 
 const Topup: React.FC<any> = ({ route, navigation }) => {
   const { amount } = route.params
@@ -41,7 +42,9 @@ const Topup: React.FC<any> = ({ route, navigation }) => {
   return (
     <>
       <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
-        <Icon as={FaIcon} name="arrow-left" size={30} onPress={() => navigation.goBack()} />
+        <Pressable onPress={() => navigation.goBack()}>
+          <Icon as={BackBtn} />
+        </Pressable>
         <Text fontSize="2xl" fontWeight="bold">
           Nạp tiền
         </Text>

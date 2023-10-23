@@ -1,11 +1,11 @@
 import React from "react"
-import { Box, Divider, HStack, Icon, ScrollView, Text } from "native-base"
+import { Box, Divider, HStack, Icon, Pressable, ScrollView, Text } from "native-base"
 import { fetchGet, formatNumber } from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
-import FaIcon from "react-native-vector-icons/FontAwesome"
-import LoadingBtn from "../useable/LoadingBtn"
 import { ITransaction, ETopup } from "../../__types__"
 import { localGet } from "../../utils/storage.util"
+import BackBtn from "../useable/BackBtn"
+import LoadingBtn from "../useable/LoadingBtn"
 
 const Transaction: React.FC<any> = ({ navigation }) => {
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
@@ -21,10 +21,13 @@ const Transaction: React.FC<any> = ({ navigation }) => {
   React.useEffect(() => {
     getPayments()
   }, [])
+
   return (
     <>
       <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
-        <Icon as={FaIcon} name="arrow-left" size={30} onPress={() => navigation.goBack()} />
+        <Pressable onPress={() => navigation.goBack()}>
+          <Icon as={BackBtn} />
+        </Pressable>
         <Text fontSize="2xl" fontWeight="bold">
           Lịch sử giao dịch
         </Text>

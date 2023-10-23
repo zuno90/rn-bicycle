@@ -9,18 +9,20 @@ import {
   Input,
   HStack,
   KeyboardAvoidingView,
+  Pressable,
+  View,
 } from "native-base"
 import LinearGradient from "react-native-linear-gradient"
-import FaIcon from "react-native-vector-icons/FontAwesome"
 import FeaIcon from "react-native-vector-icons/Feather"
 import { Controller, SubmitHandler, useForm } from "react-hook-form"
 import { Dropdown } from "react-native-element-dropdown"
-import { allowOnlyNumber, fetchGet, fetchPut } from "../../utils/helper.util"
+import { HEIGHT, allowOnlyNumber, fetchGet, fetchPut } from "../../utils/helper.util"
 import { EHome, TInputInformation } from "../../__types__"
 import { config } from "../../utils/config.util"
 import useAuth from "../../context/AuthProvider"
 import { localGet } from "../../utils/storage.util"
 import LoadingScreen from "../../screens/LoadingScreen"
+import BackBtn from "../useable/BackBtn"
 
 const Information: React.FC<any> = ({ navigation }) => {
   const {
@@ -109,7 +111,7 @@ const Information: React.FC<any> = ({ navigation }) => {
     })
     if (res.success) {
       await checkAuth()
-      return navigation.navigate(EHome.Profile)
+      navigation.goBack()
     }
   }
 
@@ -117,7 +119,9 @@ const Information: React.FC<any> = ({ navigation }) => {
   return (
     <>
       <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
-        <Icon as={FaIcon} name="arrow-left" size={30} onPress={() => navigation.goBack()} />
+        <Pressable onPress={() => navigation.goBack()}>
+          <Icon as={BackBtn} />
+        </Pressable>
         <Text fontSize="2xl" fontWeight="bold">
           Thông tin cá nhân
         </Text>
@@ -125,8 +129,8 @@ const Information: React.FC<any> = ({ navigation }) => {
       </HStack>
 
       <KeyboardAvoidingView behavior="position">
-        <ScrollView p={5} bgColor="white">
-          <Box justifyContent="flex-start" gap={5}>
+        <ScrollView h={(HEIGHT * 1.7) / 3} bgColor="white">
+          <Box px={5} pt={5} justifyContent="flex-start" gap={5}>
             <Box gap={3}>
               <Text fontSize="md" fontWeight="semibold">
                 Tên
@@ -355,7 +359,16 @@ const Information: React.FC<any> = ({ navigation }) => {
         </ScrollView>
       </KeyboardAvoidingView>
 
-      <Box flex={1} p={5} bgColor="white">
+      <Box
+        h={HEIGHT / 3.3}
+        position="absolute"
+        bottom={0}
+        px={5}
+        bgColor="white"
+        w="full"
+        justifyContent="flex-end"
+        safeAreaBottom
+      >
         <LinearGradient
           colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
           style={{ width: "100%", borderRadius: 100 }}

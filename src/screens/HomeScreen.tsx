@@ -35,6 +35,7 @@ const Notification = React.lazy(() => import("../components/notification/Notific
 const Profile = React.lazy(() => import("../components/profile/Profile"))
 
 const Information = React.lazy(() => import("../components/profile/Information"))
+const ChangePassword = React.lazy(() => import("../components/profile/ChangePassword"))
 const OrderHistory = React.lazy(() => import("../components/profile/OrderHistory"))
 const OrderDetail = React.lazy(() => import("../components/profile/OrderDetail"))
 const Transaction = React.lazy(() => import("../components/profile/Transaction"))
@@ -161,6 +162,11 @@ const HomeScreen: React.FC<any> = ({ route }) => {
         <HomeStack.Screen
           name={EHome.Information}
           component={Information}
+          initialParams={{ user }}
+        />
+        <HomeStack.Screen
+          name={EHome.ChangePassword}
+          component={ChangePassword}
           initialParams={{ user }}
         />
         <HomeStack.Screen

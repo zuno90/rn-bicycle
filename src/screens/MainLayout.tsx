@@ -1,12 +1,11 @@
 import React from "react"
-import { LogBox } from "react-native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
-import useAuth from "../context/AuthProvider"
 import { EScreen } from "../__types__"
+import useAuth from "../context/AuthProvider"
 
-import HomeScreen from "../screens/HomeScreen"
-import AuthScreen from "../screens/AuthScreen"
-import LoadingScreen from "../screens/LoadingScreen"
+import LoadingScreen from "./LoadingScreen"
+import AuthScreen from "./AuthScreen"
+import HomeScreen from "./HomeScreen"
 
 const Stack = createNativeStackNavigator()
 

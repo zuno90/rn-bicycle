@@ -23,7 +23,6 @@ const Rank: React.FC<any> = ({ route }) => {
     getRanks()
   }, [])
 
-  // console.log(ranks)
   return (
     <>
       <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
@@ -48,10 +47,10 @@ const Rank: React.FC<any> = ({ route }) => {
             <Box
               key={index}
               mx={4}
-              mt={2}
+              mt={index === 0 ? 5 : 1}
               mb={5}
               px={6}
-              py={1}
+              py={2}
               rounded="xl"
               shadow={9}
               flexDir="row"

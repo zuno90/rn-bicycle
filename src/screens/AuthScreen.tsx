@@ -1,5 +1,5 @@
 import React from "react"
-import { Button, Image as Img, Text, VStack, Box, Center, View } from "native-base"
+import { Button, Image as Img, Text, VStack, Box, View } from "native-base"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import Signup from "../components/auth/Signup"
 import Signin from "../components/auth/Signin"
@@ -11,7 +11,7 @@ import { EAuth } from "../__types__"
 import LinearGradient from "react-native-linear-gradient"
 import { WIDTH } from "../utils/helper.util"
 
-const InitAuth = ({ navigation }: any) => {
+const InitAuth: React.FC<any> = ({ navigation }) => {
   return (
     <View flex={1} bgColor="white">
       <Box mx={{ base: 5, lg: 20 }} safeAreaTop>
@@ -71,9 +71,12 @@ const InitAuth = ({ navigation }: any) => {
             Đăng nhập
           </Text>
         </Button>
-        {/* <Text alignSelf="center" underline>
-          Bỏ qua
-        </Text> */}
+        <Button
+          alignSelf="center"
+          onPress={() => navigation.navigate(EAuth.VerifyOtp, { phone: 111111 })}
+        >
+          Test VERIFY
+        </Button>
       </VStack>
     </View>
   )

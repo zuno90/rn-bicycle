@@ -1,28 +1,41 @@
 import React from "react"
-import { Box, Button, Divider, HStack, Heading, Icon, Image, ScrollView, Text } from "native-base"
-import FaIcon from "react-native-vector-icons/FontAwesome"
+import {
+  Box,
+  Button,
+  Divider,
+  HStack,
+  Heading,
+  Icon,
+  Image,
+  ScrollView,
+  Text,
+  Pressable,
+} from "native-base"
 import { TabView, SceneMap, TabBar } from "react-native-tab-view"
 import { WIDTH, fetchGet, formatNumber } from "../../utils/helper.util"
 import { EHome, EOrderStatus, IOrder } from "../../__types__"
-import { useNavigation } from "@react-navigation/native"
+import { useIsFocused, useNavigation } from "@react-navigation/native"
 import { config } from "../../utils/config.util"
 import { localGet } from "../../utils/storage.util"
 import LoadingScreen from "../../screens/LoadingScreen"
 import LoadingBtn from "../useable/LoadingBtn"
+import BackBtn from "../useable/BackBtn"
 
-const OrderHistory: React.FC<any> = ({ navigation }) => {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
+const OrderHistory: React.FC<any> = ({ route, navigation }) => {
+  const { idx } = route.params
+  const [isLoading, setIsLoading] = React.useState<boolean>(true)
   const [isLoadingIndex, setIsLoadingIndex] = React.useState<boolean>(false)
-  const [index, setIndex] = React.useState<number>(0)
+  const [index, setIndex] = React.useState<number>(idx ?? 0)
   const [routes] = React.useState([
     { key: "all", title: "Tất cả" },
     { key: "waiting_payment", title: "Chờ thanh toán" },
     { key: "pending", title: "Đang xử lý" },
+    { key: "transported", title: "Đang giao hàng" },
+    { key: "success", title: "Đã giao" },
   ])
 
   const [orders, setOrders] = React.useState<IOrder[]>([])
   const getOrders = async () => {
-    setIsLoading(true)
     const res = await fetchGet(`${config.endpoint}/orders`, {
       Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
     })
@@ -30,9 +43,10 @@ const OrderHistory: React.FC<any> = ({ navigation }) => {
     setIsLoading(false)
   }
 
+  const isFocused = useIsFocused()
   React.useEffect(() => {
-    getOrders()
-  }, [])
+    isFocused && getOrders()
+  }, [isFocused])
 
   const allRoute = () => (
     <ScrollView>
@@ -49,58 +63,68 @@ const OrderHistory: React.FC<any> = ({ navigation }) => {
       <OrderList data={orders.filter((order: any) => order.status === "pending")} />
     </ScrollView>
   )
+  const transportedRoute = () => (
+    <ScrollView>
+      <OrderList data={orders.filter((order: any) => order.status === "transported")} />
+    </ScrollView>
+  )
+  const successRoute = () => (
+    <ScrollView>
+      <OrderList data={orders.filter((order: any) => order.status === "success")} />
+    </ScrollView>
+  )
   const renderScene = SceneMap({
     all: allRoute,
     waiting_payment: waitingPaymentRoute,
     pending: pendingRoute,
+    transported: transportedRoute,
+    success: successRoute,
   })
 
+  if (isLoading) return <LoadingScreen />
   return (
     <>
-      {isLoading ? (
-        <LoadingScreen />
-      ) : (
-        <>
-          <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
-            <Icon
-              as={FaIcon}
-              name="arrow-left"
-              size={30}
-              onPress={() => navigation.navigate(EHome.Profile)}
-            />
-            <Text fontSize="2xl" fontWeight="bold">
-              Đơn hàng
-            </Text>
-            <Text></Text>
-          </HStack>
+      <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
+        <Pressable
+          onPress={() => {
+            navigation.replace(EHome.Profile)
+            navigation.goBack()
+          }}
+        >
+          <Icon as={BackBtn} />
+        </Pressable>
+        <Text fontSize="2xl" fontWeight="bold">
+          Đơn hàng
+        </Text>
+        <Text></Text>
+      </HStack>
 
-          <TabView
-            lazy
+      <TabView
+        lazy
+        style={{ backgroundColor: "white" }}
+        navigationState={{ index, routes }}
+        onIndexChange={(index) => {
+          setIsLoadingIndex(true)
+          setIndex(index)
+          setIsLoadingIndex(false)
+        }}
+        initialLayout={{ width: WIDTH }}
+        renderTabBar={(props) => (
+          <TabBar
+            {...props}
+            scrollEnabled
             style={{ backgroundColor: "white" }}
-            navigationState={{ index, routes }}
-            onIndexChange={(index) => {
-              setIsLoadingIndex(true)
-              setIndex(index)
-              setIsLoadingIndex(false)
-            }}
-            initialLayout={{ width: WIDTH }}
-            renderTabBar={(props) => (
-              <TabBar
-                {...props}
-                style={{ backgroundColor: "white" }}
-                tabStyle={{ overflow: "visible" }}
-                renderLabel={({ route, focused }) => (
-                  <Text color="black" fontSize="sm" fontWeight={focused ? "bold" : "normal"}>
-                    {route.title}
-                  </Text>
-                )}
-                indicatorStyle={{ backgroundColor: "black" }}
-              />
+            tabStyle={{ width: "auto", overflow: "visible" }}
+            renderLabel={({ route, focused }) => (
+              <Text color="black" fontSize="xs" fontWeight={focused ? "bold" : "normal"}>
+                {route.title}
+              </Text>
             )}
-            renderScene={renderScene}
+            indicatorStyle={{ backgroundColor: "black" }}
           />
-        </>
-      )}
+        )}
+        renderScene={renderScene}
+      />
     </>
   )
 }

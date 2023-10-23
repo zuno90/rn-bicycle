@@ -21,8 +21,8 @@ const FooterMenu: React.FC<TCurrentScreen> = ({ currentScreen }) => {
         console.log(JSON.stringify(remoteMessage), "noti android")
         setNotiNumber((prev) => prev + 1)
         // Alert.alert("A new FCM message arrived!", JSON.stringify(remoteMessage))
-      } else if (Platform.OS === "ios") {
-        console.log(remoteMessage.data, "noti ios")
+      }
+      if (Platform.OS === "ios") {
         setNotiNumber((prev) => prev + 1)
       }
     })

@@ -32,9 +32,9 @@ const Product: React.FC<{ data: IProduct }> = ({ data }) => {
           position="absolute"
           top={0}
           left={0}
-          px={2}
-          py={1}
-          _text={{ color: "white", fontSize: "xs" }}
+          px={1.5}
+          py={0.5}
+          _text={{ color: "white", fontSize: "md", fontWeight: "bold" }}
         >
           {`-${data.discount} %`}
         </Box>

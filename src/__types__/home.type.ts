@@ -13,6 +13,7 @@ export enum EHome {
   Notification = "Notification",
   Profile = "Profile",
   Information = "Information",
+  ChangePassword = "ChangePassword",
   OrderHistory = "OrderHistory",
   OrderDetail = "OrderDetail",
   Transaction = "Transaction",

@@ -22,7 +22,6 @@ import { localGet } from "../../../utils/storage.util"
 import { config } from "../../../utils/config.util"
 import { EHome, EToastType, IProductCart } from "../../../__types__"
 import LinearGradient from "react-native-linear-gradient"
-import FaIcon from "react-native-vector-icons/FontAwesome"
 import AntIcon from "react-native-vector-icons/AntDesign"
 import FeaIcon from "react-native-vector-icons/Feather"
 import {
@@ -37,6 +36,7 @@ import {
 import { useForm } from "react-hook-form"
 import { useIsFocused } from "@react-navigation/native"
 import Toast from "../../useable/Toast"
+import BackBtn from "../../useable/BackBtn"
 
 const LoadingScreen = React.lazy(() => import("../../../screens/LoadingScreen"))
 const BestSelling = React.lazy(() => import("../../home/BestSelling"))
@@ -184,7 +184,9 @@ const Cart: React.FC<any> = ({ navigation }) => {
   return (
     <>
       <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
-        <Icon as={FaIcon} name="arrow-left" size={30} onPress={() => navigation.goBack()} />
+        <Pressable onPress={() => navigation.goBack()}>
+          <Icon as={BackBtn} />
+        </Pressable>
         <Text fontSize="3xl" fontWeight="bold">
           Giỏ hàng
         </Text>

@@ -7,15 +7,14 @@ import {
   HStack,
   Heading,
   Icon,
-  Image,
   Input,
+  Pressable,
   ScrollView,
   Stack,
   Text,
   VStack,
 } from "native-base"
 import {
-  WIDTH,
   allowOnlyNumber,
   fetchGet,
   fetchPost,
@@ -68,6 +67,8 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
     if (res.success) {
       localDel(config.cache.accessToken)
       localDel(config.cache.refreshToken)
+      localDel(config.cache.cartList)
+      localDel(config.cache.searchHistory)
       await checkAuth()
       return navigation.replace(EScreen.Auth)
     }
@@ -115,7 +116,7 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
                 <Text fontSize="lg" fontWeight="bold">
                   Số dư
                 </Text>
-                <Text color="red.500" fontWeight="bold">
+                <Text color="red.500" fontSize="lg" fontWeight="bold">
                   đ {formatNumber(user.coin)}
                 </Text>
               </HStack>
@@ -184,7 +185,12 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
                       )}
                     </Box>
 
-                    <Icon as={MateComIcon} name="wallet-outline" size={8} />
+                    <Icon
+                      as={MateComIcon}
+                      name="wallet-outline"
+                      size={8}
+                      onPress={() => navigation.navigate(EHome.OrderHistory, { idx: 1 })}
+                    />
                   </VStack>
                   <Text fontSize="xs">Chờ thanh toán</Text>
                 </VStack>
@@ -213,7 +219,9 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
                         </Text>
                       )}
                     </Box>
-                    <Icon as={handleCartIcon} />
+                    <Pressable onPress={() => navigation.navigate(EHome.OrderHistory, { idx: 2 })}>
+                      <Icon as={handleCartIcon} />
+                    </Pressable>
                   </VStack>
                   <Text fontSize="xs">Đang xử lý</Text>
                 </VStack>
@@ -242,7 +250,12 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
                         </Text>
                       )}
                     </Box>
-                    <Icon as={FeaIcon} name="truck" size={8} />
+                    <Icon
+                      as={FeaIcon}
+                      name="truck"
+                      size={8}
+                      onPress={() => navigation.navigate(EHome.OrderHistory, { idx: 3 })}
+                    />
                   </VStack>
                   <Text fontSize="xs">Đang vận chuyển</Text>
                 </VStack>
@@ -260,7 +273,7 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
               </HStack>
               <HStack alignItems="center" space={2}>
                 <Icon as={FeaIcon} name="lock" />
-                <Text>Đổi mật khẩu</Text>
+                <Text onPress={() => navigation.navigate(EHome.ChangePassword)}>Đổi mật khẩu</Text>
               </HStack>
               <HStack justifyContent="space-between" alignItems="center">
                 <HStack alignItems="center" space={2}>
@@ -292,7 +305,7 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
         </Stack>
       </ScrollView>
 
-      <Box position="absolute" right={2} bottom={24} opacity={80}>
+      <Box position="absolute" right={5} bottom={24} opacity={80}>
         <PhoneCallBtn />
       </Box>
       <FooterMenu currentScreen={route.name} />
@@ -324,10 +337,7 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
                 rules={{
                   required: "Số tiền không được để trống!",
                   min: { value: 1, message: "Số tiền phải lớn hơn 0" },
-                  pattern: {
-                    value: /^(0|[1-9]\d*)(\.\d+)?$/,
-                    message: "Chỉ cho phép nhập số!",
-                  },
+                  pattern: { value: /^(0|[1-9]\d*)(\.\d+)?$/, message: "Chỉ cho phép nhập số!" },
                   validate: { isRealNumber: (v) => Number(v) > 0 },
                 }}
                 control={control}

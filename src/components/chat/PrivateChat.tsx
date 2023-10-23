@@ -1,6 +1,16 @@
-import { arrayUnion, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore"
-import { Avatar, HStack, Heading, Icon, ScrollView, Slide, Text, VStack, View } from "native-base"
 import React from "react"
+import { arrayUnion, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore"
+import {
+  Avatar,
+  HStack,
+  Heading,
+  Icon,
+  Pressable,
+  ScrollView,
+  Text,
+  VStack,
+  View,
+} from "native-base"
 import { Keyboard, Platform } from "react-native"
 import DocumentPicker from "react-native-document-picker"
 import {
@@ -23,6 +33,7 @@ import FaIcon from "react-native-vector-icons/FontAwesome"
 import MateIcon from "react-native-vector-icons/MaterialIcons"
 import { db } from "../../utils/firebase.util."
 import { v4 as uuid } from "uuid"
+import BackBtn from "../useable/BackBtn"
 
 AWS.config.update({
   accessKeyId: env.AWS_ACCESS_KEY_ID,
@@ -233,7 +244,9 @@ const PrivateChat: React.FC<any> = ({ navigation }) => {
   return (
     <>
       <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
-        <Icon as={FaIcon} name="arrow-left" size={30} onPress={() => navigation.goBack()} />
+        <Pressable onPress={() => navigation.goBack()}>
+          <Icon as={BackBtn} />
+        </Pressable>
         <VStack justifyContent="space-between" alignItems="center" space={2}>
           <Heading fontSize="sm">Vuong Do shop</Heading>
           <Text fontSize="xs">
@@ -275,16 +288,15 @@ const PrivateChat: React.FC<any> = ({ navigation }) => {
                 <Icon
                   as={AntIcon}
                   name="pluscircleo"
-                  size={6}
+                  size={8}
                   alignSelf="center"
-                  highlight-remove
                   onPress={handleOpenActions}
                 />
               ) : (
                 <Icon
                   as={MateIcon}
                   name="highlight-remove"
-                  size={7}
+                  size={10}
                   alignSelf="center"
                   onPress={handleCloseActions}
                 />
@@ -294,12 +306,12 @@ const PrivateChat: React.FC<any> = ({ navigation }) => {
                 placeholder="Nhập tin nhắn"
                 textInputStyle={{
                   fontFamily: "Montserrat-Regular",
-                  fontSize: 13,
+                  fontSize: 15,
                   backgroundColor: "white",
                   paddingHorizontal: 15,
-                  borderRadius: 60,
-                  borderWidth: 1,
-                  borderColor: "#e5e5e5",
+                  borderRadius: 5,
+                  // borderWidth: 1,
+                  // borderColor: "#e5e5e5",
                 }}
                 textInputProps={{ blurOnSubmit: true, autoCorrect: false }}
               />

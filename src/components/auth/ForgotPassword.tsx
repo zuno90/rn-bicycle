@@ -1,12 +1,22 @@
-import { Button, Center, FormControl, Icon, Input, Stack, Text, VStack } from "native-base"
+import {
+  Button,
+  Center,
+  FormControl,
+  Icon,
+  Input,
+  Stack,
+  Text,
+  VStack,
+  Pressable,
+} from "native-base"
 import { useForm, Controller, SubmitHandler } from "react-hook-form"
 import { EAuth } from "../../__types__"
 import { allowOnlyNumber, fetchPost } from "../../utils/helper.util"
 import LinearGradient from "react-native-linear-gradient"
 import AntIcon from "react-native-vector-icons/AntDesign"
-import FaIcon from "react-native-vector-icons/FontAwesome"
 import { config } from "../../utils/config.util"
 import { HideOnKeyboard } from "react-native-hide-onkeyboard"
+import BackBtn from "../useable/BackBtn"
 
 const ForgotPassword: React.FC<any> = ({ navigation }) => {
   const {
@@ -31,7 +41,9 @@ const ForgotPassword: React.FC<any> = ({ navigation }) => {
     <>
       <Stack flex={1} p={5} bgColor="white" space={5} safeAreaTop>
         <VStack space={4}>
-          <Icon as={FaIcon} name="arrow-left" size={30} onPress={() => navigation.goBack()} />
+          <Pressable onPress={() => navigation.goBack()}>
+            <Icon as={BackBtn} />
+          </Pressable>
           <Text fontSize="3xl" fontWeight="bold">
             Quên mật khẩu?
           </Text>

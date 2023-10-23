@@ -7,7 +7,7 @@
 import React from "react"
 import { NavigationContainer } from "@react-navigation/native"
 import { NativeBaseProvider, extendTheme } from "native-base"
-import MainLayout from "./src/components/MainLayout"
+import MainLayout from "./src/screens/MainLayout"
 import { AuthProvider } from "./src/context/AuthProvider"
 import { LogBox, Platform } from "react-native"
 import { requestUserPermissionAndroid } from "./src/utils/fb-android-notification.util"
