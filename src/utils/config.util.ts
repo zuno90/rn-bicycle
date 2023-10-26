@@ -1,7 +1,9 @@
 export const config = {
   endpoint: "https://gate.mamnonhoalu.online/api",
   cache: {
+    countdownTime: { atTime: "countdownTime.atTime", atSecond: "countdownTime.atSecond" },
     deviceToken: "device.token",
+    unreadMessage: "notification.unread",
     accessToken: "auth.accessToken",
     refreshToken: "auth.refreshToken",
     searchHistory: "search.history",

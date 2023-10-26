@@ -3,9 +3,9 @@ import { Stack, VStack, Text, Button, FormControl, useToast } from "native-base"
 import { Controller, SubmitHandler, useForm } from "react-hook-form"
 import OTPTextView from "react-native-otp-textinput"
 import LinearGradient from "react-native-linear-gradient"
-import { allowOnlyNumber, fetchPost } from "../../utils/helper.util"
+import { fetchPost } from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
-import { localSet } from "../../utils/storage.util"
+import { localDel, localSet } from "../../utils/storage.util"
 import { EAuth, EScreen } from "../../__types__"
 import { HideOnKeyboard } from "react-native-hide-onkeyboard"
 import { EToastType } from "../../__types__/toast.type"
@@ -23,6 +23,7 @@ const VerifyOtp: React.FC<any> = ({ route, navigation }) => {
     handleSubmit,
     formState: { isSubmitting, errors },
   } = useForm<TOtp>()
+  const [fakeOtp, setFakeOtp] = React.useState(mockOtp)
   const [isExpired, setIsExpired] = React.useState<boolean>(false)
   const otpRef = React.useRef<any>(null)
 
@@ -30,6 +31,7 @@ const VerifyOtp: React.FC<any> = ({ route, navigation }) => {
     // call api verify
     const payload = { phoneNumber: phone, code: data.otp }
     const res = await fetchPost(`${config.endpoint}/user/verify-otp`, JSON.stringify(payload))
+    console.log(res, 444)
     if (res.success) {
       switch (from) {
         case EAuth.Signup:
@@ -59,11 +61,12 @@ const VerifyOtp: React.FC<any> = ({ route, navigation }) => {
       `${config.endpoint}/user/resend-otp`,
       JSON.stringify({ phoneNumber: phone })
     )
+    console.log(res, "resend otp")
     if (res.success) {
       otpRef.current?.clear()
+      setFakeOtp(res.message.substr(res.message.length - 4))
       setIsExpired(false)
     }
-    console.log(res, "resend otp")
   }
 
   const showToast = (msg: string) => {
@@ -89,7 +92,7 @@ const VerifyOtp: React.FC<any> = ({ route, navigation }) => {
           <Text fontSize="lg">Mã OTP đã được gửi qua SMS tới {phone && phone}</Text>
           {mockOtp && (
             <Text color="zuno" fontSize={20} fontWeight="bold">
-              OTP là: {mockOtp}
+              OTP là: {fakeOtp}
             </Text>
           )}
         </VStack>
@@ -134,7 +137,7 @@ const VerifyOtp: React.FC<any> = ({ route, navigation }) => {
         {/* <Button onPress={() => otpRef.current?.clear()}>CLEAR</Button> */}
 
         {!isExpired ? (
-          <CountdownClock time={20} setIsExpired={setIsExpired} />
+          <CountdownClock setIsExpired={setIsExpired} />
         ) : (
           <Text>
             Bạn chưa nhận được mã?{" "}

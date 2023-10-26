@@ -144,7 +144,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
               />
             ),
           })
-        return false
+        return 0
       }
     }
 
@@ -231,7 +231,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
               onPress={() => navigation.goBack()}
             />
             <HStack alignItems="center" space={6}>
-              <ShareBtn />
+              <ShareBtn id={product.id} slug={product.slug} title={product.name} />
               <CartIcon />
             </HStack>
           </Box>
@@ -273,27 +273,29 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                 </Pressable>
               )}
               PaginationComponent={() => (
-                <HStack justifyContent="center" space={2}>
-                  {product.images.map((item, index) => (
-                    <Pressable
-                      key={index}
-                      onPress={() => {
-                        setProductImgIndex(index)
-                        imgRef.current?.scrollToIndex({ index, animated: true })
-                      }}
-                    >
-                      <Image
-                        source={{ uri: item }}
-                        resizeMode="contain"
-                        rounded="lg"
-                        borderWidth={productImgIndex === index ? 2 : 1}
-                        borderColor={productImgIndex === index ? "zuno" : "gray.300"}
-                        alt="top-image"
-                        size={WIDTH / 5}
-                      />
-                    </Pressable>
-                  ))}
-                </HStack>
+                <ScrollView horizontal={true}>
+                  <HStack justifyContent="space-between" mx={2} mt={2} space={2}>
+                    {product.images.map((item, index) => (
+                      <Pressable
+                        key={index}
+                        onPress={() => {
+                          setProductImgIndex(index)
+                          imgRef.current?.scrollToIndex({ index, animated: true })
+                        }}
+                      >
+                        <Image
+                          source={{ uri: item }}
+                          resizeMode="contain"
+                          rounded="lg"
+                          borderWidth={productImgIndex === index ? 2 : 1}
+                          borderColor={productImgIndex === index ? "zuno" : "gray.300"}
+                          alt="top-image"
+                          size={WIDTH / 5}
+                        />
+                      </Pressable>
+                    ))}
+                  </HStack>
+                </ScrollView>
               )}
             />
 
@@ -303,7 +305,10 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
               <VStack space={2}>
                 <Heading fontSize="lg" color="red.500">
                   <Text underline>đ</Text>
-                  {formatNumber(product.price)}
+                  {formatNumber(
+                    verifyCartItem(methods.getValues()).price * methods.getValues("quantity") ||
+                      product.price
+                  )}
                 </Heading>
                 <HStack alignItems="center" space={2}>
                   <Box
@@ -467,12 +472,14 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                 <Heading size="md" mx={4}>
                   Sản phẩm tương tự
                 </Heading>
-                <React.Suspense fallback={<SkeletonLoading />}>
-                  <Grid rows={1} columns={2}>
-                    {relatedProduct.length > 0 &&
-                      relatedProduct.map((item, index) => <Product key={index} data={item} />)}
-                  </Grid>
-                </React.Suspense>
+                <Grid>
+                  {relatedProduct.length > 0 &&
+                    relatedProduct.map((item, index) => (
+                      <React.Suspense key={index} fallback={<SkeletonLoading />}>
+                        <Product data={item} />
+                      </React.Suspense>
+                    ))}
+                </Grid>
               </Stack>
             </Box>
           </ScrollView>
@@ -550,7 +557,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
             </Slide>
           )}
           {/* button */}
-          <Box position="absolute" right={5} bottom={24} opacity={80} gap={2} safeAreaBottom>
+          <Box position="absolute" right={5} bottom={24} opacity={90} gap={2} safeAreaBottom>
             <ChatBtn />
             <PhoneCallBtn />
           </Box>

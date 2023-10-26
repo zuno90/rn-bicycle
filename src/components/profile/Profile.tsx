@@ -23,7 +23,7 @@ import {
 } from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
 import { localDel, localGet } from "../../utils/storage.util"
-import { EHome, EScreen, IOrder, IProductCart } from "../../__types__"
+import { EHome, EScreen, IOrder } from "../../__types__"
 import LinearGradient from "react-native-linear-gradient"
 import AntIcon from "react-native-vector-icons/AntDesign"
 import FeaIcon from "react-native-vector-icons/Feather"
@@ -76,7 +76,10 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
 
   const isFocused = useIsFocused()
   React.useEffect(() => {
-    if (isFocused) getOrders()
+    if (isFocused) {
+      checkAuth()
+      getOrders()
+    }
   }, [isFocused])
 
   const {
@@ -305,7 +308,7 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
         </Stack>
       </ScrollView>
 
-      <Box position="absolute" right={5} bottom={24} opacity={80}>
+      <Box position="absolute" right={5} bottom={24} opacity={90}>
         <PhoneCallBtn />
       </Box>
       <FooterMenu currentScreen={route.name} />

@@ -28,7 +28,6 @@ const Category: React.FC<any> = ({ route }) => {
       Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
     })
     if (res.success) setSubCates(res.data.subCategories)
-
     setIsLoading(false)
   }
 
@@ -38,6 +37,7 @@ const Category: React.FC<any> = ({ route }) => {
       const res = await fetchGet(`${config.endpoint}/products/category/${slug}?page=${page}`, {
         Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
       })
+      console.log(res)
       if (res.success) return setProducts(res.data.products)
     } else {
       const res = await fetchGet(

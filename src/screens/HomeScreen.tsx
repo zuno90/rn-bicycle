@@ -1,5 +1,5 @@
 import React from "react"
-import { Box, Heading, Image, ScrollView, Stack, VStack } from "native-base"
+import { Box, Button, Heading, Image, ScrollView, Stack, VStack } from "native-base"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { EHome } from "../__types__"
 import { WIDTH, fetchGet } from "../utils/helper.util"
@@ -10,6 +10,7 @@ import PhoneCallBtn from "../components/useable/PhoneCallBtn"
 import useAuth from "../context/AuthProvider"
 import LoadingBtn from "../components/useable/LoadingBtn"
 import FooterMenu from "../components/home/FooterMenu"
+import { Linking } from "react-native"
 
 const SearchBar = React.lazy(() => import("../components/shop/search/SearchBar"))
 const CategoryBlock = React.lazy(() => import("../components/shop/category/CategoryBlock"))
@@ -41,7 +42,9 @@ const OrderDetail = React.lazy(() => import("../components/profile/OrderDetail")
 const Transaction = React.lazy(() => import("../components/profile/Transaction"))
 const Topup = React.lazy(() => import("../components/profile/Topup"))
 
-const InitHome: React.FC<any> = ({ route }) => {
+const urlScheme = "zuno-bicycle://product"
+
+const InitHome: React.FC<any> = ({ route, navigation }) => {
   const scrollRef = React.useRef(null)
   const { setAuth } = useAuth()
 
@@ -91,13 +94,21 @@ const InitHome: React.FC<any> = ({ route }) => {
         }}
         scrollEventThrottle={2000}
       >
+        <Button
+          onPress={() => {
+            Linking.openURL(`https://tinhte.vn`)
+            // navigation.navigate("ProductDetail")
+          }}
+        >
+          hehe
+        </Button>
         <Stack p={{ base: 5 }} space={{ base: 4 }}>
           <Image
             source={require("../../public/child.jpg")}
             alignSelf="center"
             rounded="xl"
             w={WIDTH}
-            h={WIDTH / 2}
+            h={WIDTH / 1.8}
             resizeMode="cover"
             alt="shop-banner"
           />
@@ -118,7 +129,7 @@ const InitHome: React.FC<any> = ({ route }) => {
           {isScrollEnd && <LoadingBtn />}
         </Box>
       </ScrollView>
-      <Box position="absolute" right={2} bottom={24} opacity={80}>
+      <Box position="absolute" right={2} bottom={24} opacity={90}>
         <PhoneCallBtn />
       </Box>
       <FooterMenu currentScreen={route.name} />

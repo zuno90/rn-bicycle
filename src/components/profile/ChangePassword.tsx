@@ -46,13 +46,15 @@ const ChangePassword: React.FC<any> = ({ navigation }) => {
 
   const onChangePassword: SubmitHandler<TChangePassword> = async (data) => {
     console.log(data)
-    const res = await fetchPost(`${config.endpoint}/change-password`, JSON.stringify(data), {
+    const res = await fetchPost(`${config.endpoint}/user/change-password`, JSON.stringify(data), {
       Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
     })
+    console.log(res)
     if (res.success) {
       showToast(EToastType.noti, "Đổi mật khẩu thành công!")
       navigation.goBack()
     }
+    console.log("failed")
   }
 
   const showToast = (type: EToastType, msg: string, toastId?: string) => {

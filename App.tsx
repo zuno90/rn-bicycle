@@ -37,11 +37,29 @@ export default function App() {
 
   React.useEffect(() => {
     if (Platform.OS === "android") initFirebaseAndroid()
-    else if (Platform.OS === "ios") initFirebaseIos()
+    if (Platform.OS === "ios") initFirebaseIos()
   }, [])
 
+  const config = {
+    screens: {
+      Home: {
+        screens: {
+          ProductDetail: {
+            path: "product/:id/:slug",
+            parse: { id: (id: string) => id, slug: (slug: string) => slug },
+          },
+        },
+      },
+    },
+  }
+
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      linking={{
+        prefixes: ["zunobicycle://"],
+        config,
+      }}
+    >
       <NativeBaseProvider theme={theme}>
         <AuthProvider>
           <MainLayout />

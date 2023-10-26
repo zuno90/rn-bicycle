@@ -11,6 +11,7 @@ import {
   Heading,
   Pressable,
   VStack,
+  Button,
 } from "native-base"
 import FaIcon from "react-native-vector-icons/FontAwesome"
 import AntIcon from "react-native-vector-icons/AntDesign"
@@ -20,6 +21,7 @@ import { config } from "../../../utils/config.util"
 import { useDebounce } from "use-debounce"
 import { localGet } from "../../../utils/storage.util"
 import BackBtn from "../../useable/BackBtn"
+import LinearGradient from "react-native-linear-gradient"
 
 const Voucher: React.FC<any> = ({ route, navigation }) => {
   const [vouchers, setVouchers] = React.useState([])
@@ -175,6 +177,23 @@ const Voucher: React.FC<any> = ({ route, navigation }) => {
           )}
         </Box>
       </ScrollView>
+      <Box px={5} bgColor="white" safeAreaBottom>
+        <LinearGradient
+          colors={["#F7E98B", "#FFF9A3", "#E2AD3B"]}
+          style={{ width: "100%", borderRadius: 100 }}
+        >
+          <Button
+            variant="unstyled"
+            h={50}
+            _pressed={{ bgColor: "zuno" }}
+            onPress={handleApplyVoucher}
+          >
+            <Text fontSize="lg" fontWeight="semibold">
+              Xác nhận
+            </Text>
+          </Button>
+        </LinearGradient>
+      </Box>
     </>
   )
 }

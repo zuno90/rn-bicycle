@@ -2,10 +2,18 @@ import { Alert, Share } from "react-native"
 import { Icon } from "native-base"
 import EviIcon from "react-native-vector-icons/EvilIcons"
 
-const ShareBtn: React.FC = () => {
+const urlScheme = "zunobicycle://product"
+
+type TProductShare = { id: number; slug: string; title: string }
+
+const ShareBtn: React.FC<TProductShare> = ({ id, slug, title }) => {
   const handleShare = async () => {
     try {
-      const result = await Share.share({ message: "Chia sẻ với bạn bè!" })
+      const result = await Share.share({
+        title,
+        message: `${title}\n\n${urlScheme}/${id}/${slug}`,
+        url: `${urlScheme}/${id}/${slug}`,
+      })
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
           // shared with activity type of result.activityType

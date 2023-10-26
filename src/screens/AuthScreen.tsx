@@ -25,8 +25,7 @@ const InitAuth: React.FC<any> = ({ navigation }) => {
       <Box alignItems="center">
         <Img
           source={require("../../public/home-banner.png")}
-          w="80%"
-          h={{ base: WIDTH, lg: WIDTH / 1.2 }}
+          size={WIDTH * 0.8}
           resizeMode="contain"
           alt="home-banner-lg"
         />
@@ -71,12 +70,12 @@ const InitAuth: React.FC<any> = ({ navigation }) => {
             Đăng nhập
           </Text>
         </Button>
-        <Button
+        {/* <Button
           alignSelf="center"
           onPress={() => navigation.navigate(EAuth.VerifyOtp, { phone: 111111 })}
         >
           Test VERIFY
-        </Button>
+        </Button> */}
       </VStack>
     </View>
   )

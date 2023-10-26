@@ -33,6 +33,7 @@ import Clipboard from "@react-native-clipboard/clipboard"
 import Toast from "../../useable/Toast"
 import useAuth from "../../../context/AuthProvider"
 import BackBtn from "../../useable/BackBtn"
+import LottieView from "lottie-react-native"
 
 const Address = React.lazy(() => import("./Address"))
 const ConfirmModal = React.lazy(() => import("../../useable/ConfirmModal"))
@@ -92,10 +93,10 @@ const Order: React.FC<any> = ({ route, navigation }) => {
     const res = await fetchPost(`${config.endpoint}/order`, JSON.stringify(finalPayload), {
       Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
     })
-    console.log(res, "res order")
     if (res.success) {
       selectItems.forEach((item: IProductCart) => removeCartItem(item.unit))
       setIsDone({ status: true, orderId: res.data.id })
+      return showToast(EToastType.noti, res.message)
     }
     return showToast(EToastType.err, res.message)
   }
@@ -399,7 +400,7 @@ const Order: React.FC<any> = ({ route, navigation }) => {
                 <Text fontWeight="semibold">Dùng xu</Text>
                 <HStack justifyContent="space-between" alignItems="center">
                   <Text>Số dư hiện tại</Text>
-                  <Text>đ{user.coin}</Text>
+                  <Text>đ{formatNumber(user.coin)}</Text>
                 </HStack>
               </Box>
             </Pressable>
@@ -514,7 +515,21 @@ const Order: React.FC<any> = ({ route, navigation }) => {
           alignItems="center"
           gap={6}
         >
-          <Image source={require("../../../../public/handling.png")} size={200} alt="handling" />
+          <Box
+            size={200}
+            bgColor="yellow.50"
+            rounded="full"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <LottieView
+              style={{ width: 150, height: 150 }}
+              source={require("../../../../public/ani/order.json")}
+              colorFilters={[{ keypath: "Plane", color: "rgb(255, 100, 0)" }]}
+              autoPlay
+              loop
+            />
+          </Box>
           <Heading fontSize="3xl">Đang xử lý</Heading>
           <Text fontSize="md">
             Đơn hàng đang được xử lý, chúng tôi sẽ thông báo cho bạn sau khi hoàn tất kiểm tra thông
@@ -530,6 +545,7 @@ const Order: React.FC<any> = ({ route, navigation }) => {
               _pressed={{ bgColor: "yellow.400" }}
               onPress={() => {
                 setIsDone({ ...isDone, status: false })
+                navigation.replace(EHome.OrderHistory)
                 navigation.navigate(EHome.OrderDetail, { id: isDone.orderId })
               }}
             >
@@ -546,7 +562,7 @@ const Order: React.FC<any> = ({ route, navigation }) => {
             borderColor="yellow.400"
             onPress={() => {
               setIsDone({ ...isDone, status: false })
-              navigation.navigate(EHome.InitHome)
+              navigation.replace(EHome.InitHome)
             }}
           >
             <Text fontSize="lg" fontWeight="semibold">

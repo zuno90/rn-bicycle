@@ -18,7 +18,7 @@ import {
   useToast,
 } from "native-base"
 import CartIcon from "./CartIcon"
-import { localGet } from "../../../utils/storage.util"
+import { localGet, localSet } from "../../../utils/storage.util"
 import { config } from "../../../utils/config.util"
 import { EHome, EToastType, IProductCart } from "../../../__types__"
 import LinearGradient from "react-native-linear-gradient"
@@ -60,18 +60,10 @@ const Cart: React.FC<any> = ({ navigation }) => {
 
   const toast = useToast()
 
-  const getCartsFromServer = async () => {
-    const res = await fetchGet(`${config.endpoint}/cart`, {
-      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
-    })
-    console.log(res.data.cart.cartItems)
-    if (res.success) return res.data.cart.cartItems
-  }
-
   const getCartList = async () => {
-    const c: IProductCart[] =
-      localCart && localCart.length > 0 ? localCart : await getCartsFromServer()
-    setCarts(c)
+    // const c: IProductCart[] =
+    //   localCart && localCart.length > 0 ? localCart : await getCartsFromServer()
+    setCarts(localCart)
     setIsLoading(false)
   }
 
@@ -134,6 +126,7 @@ const Cart: React.FC<any> = ({ navigation }) => {
       item.unit === unit ? { ...item, quantity: carts[quanIdx].quantity - 1 } : item
     )
     setCarts(newCarts)
+    updateCart(newCarts)
   }
   const inc = (unit: string) => {
     const quanIdx = carts.findIndex((item) => item.unit === unit)
@@ -141,6 +134,7 @@ const Cart: React.FC<any> = ({ navigation }) => {
       item.unit === unit ? { ...item, quantity: carts[quanIdx].quantity + 1 } : item
     )
     setCarts(newCarts)
+    updateCart(newCarts)
   }
 
   const [deleteModal, setDeleteModal] = React.useState<{ unit: string; isOpen: boolean }>({
@@ -202,17 +196,16 @@ const Cart: React.FC<any> = ({ navigation }) => {
                   carts.map((cart, index) => (
                     <React.Fragment key={index}>
                       <HStack justifyContent="space-between" alignItems="center" space={4}>
-                        <Pressable>
-                          <Checkbox
-                            size="lg"
-                            colorScheme="yellow"
-                            defaultIsChecked={false}
-                            accessibilityLabel="choose items"
-                            _checked={{ backgroundColor: "zuno", borderColor: "zuno" }}
-                            value={cart.unit}
-                            onChange={(ischecked) => handleCheckBox(cart.unit, ischecked)}
-                          />
-                        </Pressable>
+                        <Checkbox
+                          size="lg"
+                          colorScheme="yellow"
+                          defaultIsChecked={false}
+                          aria-label="choose items"
+                          accessibilityLabel="choose items"
+                          _checked={{ backgroundColor: "zuno", borderColor: "zuno" }}
+                          value={cart.unit}
+                          onChange={(ischecked) => handleCheckBox(cart.unit, ischecked)}
+                        />
                         <Box flex={1} gap={2}>
                           <HStack justifyContent="space-between" alignItems="center" space={4}>
                             <Image

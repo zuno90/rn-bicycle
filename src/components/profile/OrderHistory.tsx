@@ -18,7 +18,6 @@ import { useIsFocused, useNavigation } from "@react-navigation/native"
 import { config } from "../../utils/config.util"
 import { localGet } from "../../utils/storage.util"
 import LoadingScreen from "../../screens/LoadingScreen"
-import LoadingBtn from "../useable/LoadingBtn"
 import BackBtn from "../useable/BackBtn"
 
 const OrderHistory: React.FC<any> = ({ route, navigation }) => {
@@ -116,7 +115,12 @@ const OrderHistory: React.FC<any> = ({ route, navigation }) => {
             style={{ backgroundColor: "white" }}
             tabStyle={{ width: "auto", overflow: "visible" }}
             renderLabel={({ route, focused }) => (
-              <Text color="black" fontSize="xs" fontWeight={focused ? "bold" : "normal"}>
+              <Text
+                px={4}
+                color="black"
+                fontSize="md"
+                fontWeight={focused ? "bold" : "normal"}
+              >
                 {route.title}
               </Text>
             )}

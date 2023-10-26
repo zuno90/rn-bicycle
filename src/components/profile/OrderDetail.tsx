@@ -43,12 +43,7 @@ const OrderDetail: React.FC<any> = ({ route, navigation }) => {
   return (
     <>
       <HStack justifyContent="space-between" alignItems="center" m={4} safeAreaTop>
-        <Pressable
-          onPress={() => {
-            navigation.replace(EHome.OrderHistory)
-            navigation.goBack()
-          }}
-        >
+        <Pressable onPress={() => navigation.goBack()}>
           <Icon as={BackBtn} />
         </Pressable>
         <Text fontSize="2xl" fontWeight="bold">

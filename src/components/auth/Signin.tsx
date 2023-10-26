@@ -28,19 +28,17 @@ import BackBtn from "../useable/BackBtn"
 
 type TSignin = { phoneNumber: string; password: string; deviceToken: string }
 
-const Signin: React.FC = ({ navigation }: any) => {
+const Signin: React.FC<any> = ({ navigation }) => {
   const [showPass, setShowPass] = React.useState(false)
   const [errMsg, setErrMas] = React.useState("")
   const {
     control,
     handleSubmit,
     formState: { isSubmitting, errors },
-  } = useForm<TSignin>({ defaultValues: { deviceToken: localGet(config.cache.deviceToken) } })
+  } = useForm<TSignin>({ defaultValues: { deviceToken: `${localGet(config.cache.deviceToken)}` } })
 
-  const {
-    auth: { isAuth },
-    checkAuth,
-  } = useAuth()
+  const { checkAuth } = useAuth()
+  
   const onSignin: SubmitHandler<TSignin> = async (data) => {
     const res = await fetchPost(`${config.endpoint}/signin`, JSON.stringify(data))
     if (res.success) {

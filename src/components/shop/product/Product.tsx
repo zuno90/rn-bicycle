@@ -46,7 +46,7 @@ const Product: React.FC<{ data: IProduct }> = ({ data }) => {
           fontWeight="semibold"
           numberOfLines={3}
           ellipsizeMode="tail"
-          onPress={() => navigation.navigate(EHome.ProductDetail, { id: data.id, slug: data.slug })}
+          onPress={() => navigation.push(EHome.ProductDetail, { id: data.id, slug: data.slug })}
         >
           {data.name}
         </Text>

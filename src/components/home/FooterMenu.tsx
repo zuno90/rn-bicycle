@@ -8,14 +8,39 @@ import { EHome } from "../../__types__"
 import { useNavigation } from "@react-navigation/native"
 import { Circle, Defs, Ellipse, G, LinearGradient, Mask, Path, Stop, Svg } from "react-native-svg"
 import messaging from "@react-native-firebase/messaging"
+import { localGet, localSet } from "../../utils/storage.util"
+import { config } from "../../utils/config.util"
+import { fetchGet, fetchPut } from "../../utils/helper.util"
 
 type TCurrentScreen = { currentScreen: string }
 
 const FooterMenu: React.FC<TCurrentScreen> = ({ currentScreen }) => {
   const navigation = useNavigation<any>()
-  const [notiNumber, setNotiNumber] = React.useState<number>(0)
+  const unreadNoti = Number(localGet(config.cache.unreadMessage)) ?? 0
+  const [notiNumber, setNotiNumber] = React.useState<number>(unreadNoti)
+
+  const getNotiNumber = async () => {
+    const res = await fetchGet(`${config.endpoint}/notifications/count`, {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
+    if (res.success) {
+      localSet(config.cache.unreadMessage, res.data._count)
+      setNotiNumber(res.data._count)
+    }
+  }
+
+  const updateReadNoti = async () => {
+    const res = await fetchPut(`${config.endpoint}/notification`, JSON.stringify({}), {
+      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
+    if (res.success) {
+      localSet(config.cache.unreadMessage, 0)
+      setNotiNumber(0)
+    }
+  }
 
   React.useEffect(() => {
+    currentScreen === EHome.InitHome && getNotiNumber()
     messaging().onMessage((remoteMessage) => {
       if (Platform.OS === "android") {
         console.log(JSON.stringify(remoteMessage), "noti android")
@@ -25,6 +50,7 @@ const FooterMenu: React.FC<TCurrentScreen> = ({ currentScreen }) => {
       if (Platform.OS === "ios") {
         setNotiNumber((prev) => prev + 1)
       }
+      localSet(config.cache.unreadMessage, unreadNoti + 1)
     })
   }, [])
 
@@ -78,9 +104,10 @@ const FooterMenu: React.FC<TCurrentScreen> = ({ currentScreen }) => {
           opacity={currentScreen === EHome.Notification ? 1 : 0.5}
           py={4}
           flex={1}
-          onPress={() =>
+          onPress={async () => {
+            await updateReadNoti()
             currentScreen !== EHome.Notification && navigation.replace(EHome.Notification)
-          }
+          }}
         >
           <Center position="relative">
             {notiNumber > 0 && (

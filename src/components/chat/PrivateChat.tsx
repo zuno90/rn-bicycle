@@ -42,7 +42,7 @@ AWS.config.update({
 })
 const s3 = new AWS.S3()
 
-const ADMIN_ID = 99
+const ADMIN_ID = "1698215035570UIHEzfO0vLTr"
 
 const PrivateChat: React.FC<any> = ({ navigation }) => {
   const {
@@ -260,6 +260,14 @@ const PrivateChat: React.FC<any> = ({ navigation }) => {
         <GiftedChat
           isLoadingEarlier
           alwaysShowSend
+          parsePatterns={(linkStyle) => [
+            { type: "url", style: linkStyle, onPress: (url) => Link(url) },
+            {
+              pattern: /^\Qzunobicycle/,
+              style: linkStyle,
+              onPress: () => console.log("deep link"),
+            },
+          ]}
           messagesContainerStyle={{
             backgroundColor: "#f5f5f5",
             paddingBottom: !isKeyboardVisible ? 50 : Platform.OS === "android" ? 50 : 0,

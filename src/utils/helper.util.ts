@@ -50,7 +50,7 @@ export const deduplicateArray = (arr: any[], key: string) => {
 }
 
 export const getCarts = () => {
-  const c = localGet(config.cache.cartList)
+  const c = localGet(config.cache.cartList) as string
   return c ? JSON.parse(c) : []
 }
 
@@ -81,7 +81,6 @@ export const removeCartItem = (unit: string) => {
   localSet(config.cache.cartList, JSON.stringify(newCarts))
   return newCarts
 }
-
 
 export const squareWH = (ratio: number) => {
   return WIDTH * ratio
