@@ -11,7 +11,7 @@ import {
   VStack,
   View,
 } from "native-base"
-import { Keyboard, Platform } from "react-native"
+import { Keyboard, Linking, Platform } from "react-native"
 import DocumentPicker from "react-native-document-picker"
 import {
   Bubble,
@@ -261,11 +261,11 @@ const PrivateChat: React.FC<any> = ({ navigation }) => {
           isLoadingEarlier
           alwaysShowSend
           parsePatterns={(linkStyle) => [
-            { type: "url", style: linkStyle, onPress: (url) => Link(url) },
+            { type: "url", style: linkStyle, onPress: (url: string) => Linking.openURL(url) },
             {
               pattern: /^\Qzunobicycle/,
               style: linkStyle,
-              onPress: () => console.log("deep link"),
+              onPress: (url: string) => Linking.openURL(url),
             },
           ]}
           messagesContainerStyle={{
@@ -276,7 +276,7 @@ const PrivateChat: React.FC<any> = ({ navigation }) => {
           onSend={(messages: any) => onSend(messages)}
           bottomOffset={0}
           renderInputToolbar={(props) => (
-            <View>
+            <View flex={1}>
               <InputToolbar
                 {...props}
                 containerStyle={{
@@ -315,6 +315,7 @@ const PrivateChat: React.FC<any> = ({ navigation }) => {
                 textInputStyle={{
                   fontFamily: "Montserrat-Regular",
                   fontSize: 15,
+                  lineHeight: 0,
                   backgroundColor: "white",
                   paddingHorizontal: 15,
                   borderRadius: 5,
@@ -367,12 +368,7 @@ const PrivateChat: React.FC<any> = ({ navigation }) => {
           }}
         />
         {!isKeyboardVisible && showAcc && (
-          <HStack
-            bgColor="yellow.50"
-            justifyContent="space-evenly"
-            alignItems="center"
-            safeAreaBottom
-          >
+          <HStack bgColor="yellow.50" justifyContent="space-evenly" alignItems="center" my={5}>
             <VStack alignItems="center">
               <Icon as={FeaIcon} name="image" size={8} onPress={() => handleUploadImage()} />
               <Text>Thư viện</Text>

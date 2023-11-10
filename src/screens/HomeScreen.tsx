@@ -1,48 +1,37 @@
 import React from "react"
-import { Box, Button, Heading, Image, ScrollView, Stack, VStack } from "native-base"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { EHome } from "../__types__"
-import { WIDTH, fetchGet } from "../utils/helper.util"
-import { localGet, localSet } from "../utils/storage.util"
-import { config } from "../utils/config.util"
 import { useIsFocused } from "@react-navigation/native"
+
+import {
+  Stack as NativeBaseStack,
+  VStack,
+  Heading,
+  Box,
+  ScrollView,
+  Button,
+  Image,
+} from "native-base"
+import FooterMenu from "../components/home/FooterMenu"
+import LoadingBtn from "../components/useable/LoadingBtn"
 import PhoneCallBtn from "../components/useable/PhoneCallBtn"
 import useAuth from "../context/AuthProvider"
-import LoadingBtn from "../components/useable/LoadingBtn"
-import FooterMenu from "../components/home/FooterMenu"
-import { Linking } from "react-native"
+import { fetchGet, WIDTH } from "../utils/helper.util"
+import { localSet } from "../utils/storage.util"
+import { config } from "../utils/config.util"
+
+const SkeletonLoading = React.lazy(() => import("../components/useable/SkeletonLoading"))
 
 const SearchBar = React.lazy(() => import("../components/shop/search/SearchBar"))
 const CategoryBlock = React.lazy(() => import("../components/shop/category/CategoryBlock"))
 
 const BestSelling = React.lazy(() => import("../components/home/BestSelling"))
 const Recommendation = React.lazy(() => import("../components/home/Recommendation"))
-// const ScrollToTopBtn = React.lazy(() => import("../components/useable/ScrollToTopBtn"))
-
-const SkeletonLoading = React.lazy(() => import("../components/useable/SkeletonLoading"))
-
-const Shop = React.lazy(() => import("../components/shop/index"))
 const Category = React.lazy(() => import("../components/shop/category/Category"))
 const ProductList = React.lazy(() => import("../components/shop/product/ProductList"))
 const ProductDetail = React.lazy(() => import("../components/shop/product/ProductDetail"))
-const Voucher = React.lazy(() => import("../components/shop/voucher/Voucher"))
-const Order = React.lazy(() => import("../components/shop/order/Order"))
 
-// const Chat = React.lazy(() => import("../components/chat/Chat"))
-const PrivateChat = React.lazy(() => import("../components/chat/PrivateChat"))
 const Cart = React.lazy(() => import("../components/shop/cart/Cart"))
-const Rank = React.lazy(() => import("../components/rank/Rank"))
-const Notification = React.lazy(() => import("../components/notification/Notification"))
-const Profile = React.lazy(() => import("../components/profile/Profile"))
-
-const Information = React.lazy(() => import("../components/profile/Information"))
-const ChangePassword = React.lazy(() => import("../components/profile/ChangePassword"))
-const OrderHistory = React.lazy(() => import("../components/profile/OrderHistory"))
-const OrderDetail = React.lazy(() => import("../components/profile/OrderDetail"))
-const Transaction = React.lazy(() => import("../components/profile/Transaction"))
-const Topup = React.lazy(() => import("../components/profile/Topup"))
-
-const urlScheme = "zuno-bicycle://product"
 
 const InitHome: React.FC<any> = ({ route, navigation }) => {
   const scrollRef = React.useRef(null)
@@ -50,7 +39,7 @@ const InitHome: React.FC<any> = ({ route, navigation }) => {
 
   const getCategories = async () => {
     const res = await fetchGet(`${config.endpoint}/categories`, {
-      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+      // Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
     })
     if (!res.success) return setAuth({ isAuth: false, user: null })
     localSet(config.cache.catelist, JSON.stringify(res.data.categories))
@@ -62,14 +51,14 @@ const InitHome: React.FC<any> = ({ route, navigation }) => {
   // }
   const getSizes = async () => {
     const res = await fetchGet(`${config.endpoint}/sizes`, {
-      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+      // Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
     })
     if (!res.success) return setAuth({ isAuth: false, user: null })
     localSet(config.cache.sizelist, JSON.stringify(res.data.sizes))
   }
   const getColors = async () => {
     const res = await fetchGet(`${config.endpoint}/colors`, {
-      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+      // Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
     })
     if (!res.success) return setAuth({ isAuth: false, user: null })
     localSet(config.cache.colorlist, JSON.stringify(res.data.colors))
@@ -79,7 +68,6 @@ const InitHome: React.FC<any> = ({ route, navigation }) => {
   React.useEffect(() => {
     if (isFocused) Promise.all([getCategories(), getSizes(), getColors()])
   }, [isFocused])
-
   const [isScrollEnd, setIsScrollEnd] = React.useState(false)
 
   return (
@@ -94,17 +82,9 @@ const InitHome: React.FC<any> = ({ route, navigation }) => {
         }}
         scrollEventThrottle={2000}
       >
-        <Button
-          onPress={() => {
-            Linking.openURL(`https://tinhte.vn`)
-            // navigation.navigate("ProductDetail")
-          }}
-        >
-          hehe
-        </Button>
-        <Stack p={{ base: 5 }} space={{ base: 4 }}>
+        <NativeBaseStack p={{ base: 5 }} space={{ base: 4 }}>
           <Image
-            source={require("../../public/child.jpg")}
+            source={require("../../public/child.webp")}
             alignSelf="center"
             rounded="xl"
             w={WIDTH}
@@ -112,14 +92,14 @@ const InitHome: React.FC<any> = ({ route, navigation }) => {
             resizeMode="cover"
             alt="shop-banner"
           />
-        </Stack>
+        </NativeBaseStack>
         <VStack space={{ base: 3 }}>
           <Heading size="md" mx={{ base: 5 }}>
             Danh mục sản phẩm
           </Heading>
-          <Box mx={2}>
+          <ScrollView mx={2} horizontal>
             <CategoryBlock />
-          </Box>
+          </ScrollView>
         </VStack>
         <Box mx={1} pt={{ base: 3 }} pb={5}>
           <React.Suspense fallback={<SkeletonLoading />}>
@@ -138,30 +118,46 @@ const InitHome: React.FC<any> = ({ route, navigation }) => {
   )
 }
 
+const Voucher = React.lazy(() => import("../components/shop/voucher/Voucher"))
+const Order = React.lazy(() => import("../components/shop/order/Order"))
+
+const PrivateChat = React.lazy(() => import("../components/chat/PrivateChat"))
+const Rank = React.lazy(() => import("../components/rank/Rank"))
+const Notification = React.lazy(() => import("../components/notification/Notification"))
+const Profile = React.lazy(() => import("../components/profile/Profile"))
+
+const Information = React.lazy(() => import("../components/profile/Information"))
+const ChangePassword = React.lazy(() => import("../components/profile/ChangePassword"))
+const OrderHistory = React.lazy(() => import("../components/profile/OrderHistory"))
+const OrderDetail = React.lazy(() => import("../components/profile/OrderDetail"))
+const Transaction = React.lazy(() => import("../components/profile/Transaction"))
+const Topup = React.lazy(() => import("../components/profile/Topup"))
+
+const urlScheme = "zuno-bicycle://product"
+
 const HomeStack = createNativeStackNavigator()
 
 const HomeScreen: React.FC<any> = ({ route }) => {
   const { user } = route.params
   return (
-    <HomeStack.Navigator>
+    <HomeStack.Navigator initialRouteName="">
       <HomeStack.Group screenOptions={{ headerShown: false }}>
         <HomeStack.Screen name={EHome.InitHome} component={InitHome} />
+        <HomeStack.Screen name={EHome.Category} component={Category} />
+        <HomeStack.Screen name={EHome.ProductList} component={ProductList} />
+        <HomeStack.Screen name={EHome.ProductDetail} component={ProductDetail} />
+        <HomeStack.Screen name={EHome.Cart} component={Cart} />
+      </HomeStack.Group>
+      <HomeStack.Group screenOptions={{ headerShown: false }}>
         <HomeStack.Screen name={EHome.Rank} component={Rank} />
         <HomeStack.Screen name={EHome.Notification} component={Notification} />
       </HomeStack.Group>
       <HomeStack.Group screenOptions={{ headerShown: false }}>
-        <HomeStack.Screen name={EHome.Shop} component={Shop} />
-        <HomeStack.Screen name={EHome.Category} component={Category} />
-        <HomeStack.Screen name={EHome.Cart} component={Cart} />
         <HomeStack.Screen name={EHome.Order} component={Order} initialParams={{ user }} />
         <HomeStack.Screen name={EHome.Voucher} component={Voucher} initialParams={{ user }} />
       </HomeStack.Group>
+
       <HomeStack.Group screenOptions={{ headerShown: false }}>
-        <HomeStack.Screen name={EHome.ProductList} component={ProductList} />
-        <HomeStack.Screen name={EHome.ProductDetail} component={ProductDetail} />
-      </HomeStack.Group>
-      <HomeStack.Group screenOptions={{ headerShown: false }}>
-        {/* <HomeStack.Screen name={EHome.Chat} component={Chat} initialParams={{ user }} /> */}
         <HomeStack.Screen
           name={EHome.PrivateChat}
           component={PrivateChat}

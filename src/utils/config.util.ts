@@ -16,48 +16,36 @@ export const config = {
 }
 
 export const SECTIONS = [
-  {
-    title: "Ngành hàng",
-    value: "category",
-  },
-  {
-    title: "Size",
-    value: "size",
-  },
-  {
-    title: "Màu",
-    value: "color",
-  },
-  {
-    title: "Giá",
-    value: "price",
-  },
+  { title: "Ngành hàng", value: "category" },
+  { title: "Size", value: "size" },
+  { title: "Màu", value: "color" },
+  { title: "Giá", value: "price" },
 ]
 
-export const cateList = [
-  { value: "all", title: "Tất cả" },
-  { value: "xe-leo-nui", title: "Xe leo núi" },
-  { value: "xe-dia-hinh", title: "Xe địa hình" },
-  { value: "xe-cu", title: "Xe cũ" },
-]
+// export const cateList = [
+//   { value: "all", title: "Tất cả" },
+//   { value: "xe-leo-nui", title: "Xe leo núi" },
+//   { value: "xe-dia-hinh", title: "Xe địa hình" },
+//   { value: "xe-cu", title: "Xe cũ" },
+// ]
 
-export const brandList = [
-  { value: "martin", title: "Martin" },
-  { value: "honda", title: "Honda" },
-  { value: "yamaha", title: "Yamaha" },
-  { value: "suzuki", title: "Suzuki" },
-]
+// export const brandList = [
+//   { value: "martin", title: "Martin" },
+//   { value: "honda", title: "Honda" },
+//   { value: "yamaha", title: "Yamaha" },
+//   { value: "suzuki", title: "Suzuki" },
+// ]
 
-export const sizeList = [
-  { value: "xl", title: "Size XL - Cỡ đại" },
-  { value: "l", title: "Size L - Cỡ lớn" },
-  { value: "m", title: "Size M - Cỡ trung" },
-  { value: "s", title: "Size S - Cỡ nhỏ" },
-]
+// export const sizeList = [
+//   { value: "xl", title: "Size XL - Cỡ đại" },
+//   { value: "l", title: "Size L - Cỡ lớn" },
+//   { value: "m", title: "Size M - Cỡ trung" },
+//   { value: "s", title: "Size S - Cỡ nhỏ" },
+// ]
 
-export const colorList = [
-  { value: "#5177ff", title: "Xanh" },
-  { value: "#ffffff", title: "Trắng" },
-  { value: "#000000", title: "Đen" },
-  { value: "#ff0000", title: "Đỏ" },
-]
+// export const colorList = [
+//   { value: "#5177ff", title: "Xanh" },
+//   { value: "#ffffff", title: "Trắng" },
+//   { value: "#000000", title: "Đen" },
+//   { value: "#ff0000", title: "Đỏ" },
+// ]

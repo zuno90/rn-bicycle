@@ -25,8 +25,9 @@ const Category: React.FC<any> = ({ route }) => {
   const getSubCates = async () => {
     setIsLoading(true)
     const res = await fetchGet(`${config.endpoint}/sub-categories/${slug}`, {
-      Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+      // Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
     })
+    // return
     if (res.success) setSubCates(res.data.subCategories)
     setIsLoading(false)
   }
@@ -35,9 +36,8 @@ const Category: React.FC<any> = ({ route }) => {
     setIsLoading(true)
     if (!brand) {
       const res = await fetchGet(`${config.endpoint}/products/category/${slug}?page=${page}`, {
-        Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+        // Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
       })
-      console.log(res)
       if (res.success) return setProducts(res.data.products)
     } else {
       const res = await fetchGet(
@@ -65,7 +65,7 @@ const Category: React.FC<any> = ({ route }) => {
         }}
         scrollEventThrottle={2000}
       >
-        <Stack p={5} space={4}>
+        <Stack mx={2} py={5} space={4}>
           <Heading size="md">{title}</Heading>
           <Box flexDir="row" flexWrap="wrap" justifyContent="space-between" alignItems="center">
             {subCates.length > 0 && (

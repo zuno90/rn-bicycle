@@ -3,7 +3,6 @@ import { HStack, Heading, ScrollView, Stack, Text } from "native-base"
 import SearchBar from "../search/SearchBar"
 import FilterBtn from "../filter/FilterBtn"
 import { EHome, EProductList, IProduct } from "../../../__types__"
-import { useIsFocused } from "@react-navigation/native"
 import { fetchGet } from "../../../utils/helper.util"
 import { config } from "../../../utils/config.util"
 import LoadingBtn from "../../useable/LoadingBtn"
@@ -14,7 +13,7 @@ const SkeletonLoading = React.lazy(() => import("../../useable/SkeletonLoading")
 const Product = React.lazy(() => import("./Product"))
 const FooterMenu = React.lazy(() => import("../../home/FooterMenu"))
 
-const ProductList: React.FC = ({ route }: any) => {
+const ProductList: React.FC<any> = ({ route }) => {
   const { from, title, slug, search, filter } = route.params
 
   const [isLoading, setIsLoading] = React.useState(false)
@@ -27,7 +26,7 @@ const ProductList: React.FC = ({ route }: any) => {
       switch (from) {
         case EProductList.BestSelling:
           const resBestSelling = await fetchGet(`${config.endpoint}/products?soldBy=desc`, {
-            Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+            // Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
           })
           if (resBestSelling.success) {
             setProducts(resBestSelling.data.products)
@@ -36,7 +35,7 @@ const ProductList: React.FC = ({ route }: any) => {
           break
         case EProductList.Recommendation:
           const resRecommendation = await fetchGet(`${config.endpoint}/products`, {
-            Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+            // Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
           })
           if (resRecommendation.success) {
             setProducts(resRecommendation.data.products)
@@ -45,8 +44,8 @@ const ProductList: React.FC = ({ route }: any) => {
           break
         case EProductList.Search:
           const searchRes = await fetchGet(
-            `${config.endpoint}/products/search?name=${encodeURIComponent(search)}`,
-            { Authorization: `Bearer ${localGet(config.cache.accessToken)}` }
+            `${config.endpoint}/products/search?name=${encodeURIComponent(search)}`
+            // { Authorization: `Bearer ${localGet(config.cache.accessToken)}` }
           )
           if (searchRes.success) {
             setProducts(searchRes.data.products)
@@ -55,7 +54,7 @@ const ProductList: React.FC = ({ route }: any) => {
           break
         case EProductList.Category:
           const resCate = await fetchGet(`${config.endpoint}/category/${slug}`, {
-            Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+            // Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
           })
           if (resCate.success) {
             setProducts(resCate.data.products)
@@ -63,13 +62,21 @@ const ProductList: React.FC = ({ route }: any) => {
           }
           break
         case EProductList.Filter:
-          const resFilter = await fetchGet(
+          console.log(
             `${config.endpoint}/products?category=${encodeURIComponent(
               JSON.stringify(filter.category)
             )}&size=${encodeURIComponent(JSON.stringify(filter.size))}&color=${encodeURIComponent(
               JSON.stringify(filter.color)
             )}&fromPrice=${filter.price.l}&toPrice=${filter.price.h}`,
-            { Authorization: `Bearer ${localGet(config.cache.accessToken)}` }
+            33
+          )
+          const resFilter = await fetchGet(
+            `${config.endpoint}/products?category=${encodeURIComponent(
+              JSON.stringify(filter.category)
+            )}&size=${encodeURIComponent(JSON.stringify(filter.size))}&color=${encodeURIComponent(
+              JSON.stringify(filter.color)
+            )}&fromPrice=${filter.price.l}&toPrice=${filter.price.h}`
+            // { Authorization: `Bearer ${localGet(config.cache.accessToken)}` }
           )
           if (resFilter.success) {
             setProducts(resFilter.data.products)

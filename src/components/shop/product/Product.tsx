@@ -43,6 +43,7 @@ const Product: React.FC<{ data: IProduct }> = ({ data }) => {
       )}
       <Box px={2} py={4} flexDir="column" justifyContent="flex-end" gap={1.5}>
         <Text
+          h={(WIDTH * 0.97) / 6}
           fontWeight="semibold"
           numberOfLines={3}
           ellipsizeMode="tail"
@@ -52,12 +53,17 @@ const Product: React.FC<{ data: IProduct }> = ({ data }) => {
         </Text>
         <Heading fontSize="sm" color="red.500">
           <Text underline>đ</Text>
-          {formatNumber(data.price)}
+          {formatNumber(Math.min(...data.productItem?.map((item) => item.price)))}
         </Heading>
 
         <HStack justifyContent="space-between" alignItems="center">
           <Text fontSize="xs" strikeThrough>
-            {data.discount ? `đ${formatNumber(data.price * (1 + data.discount / 100))}` : ""}
+            {data.discount
+              ? `đ${formatNumber(
+                  Math.min(...data.productItem?.map((item) => item.price)) *
+                    (1 + data.discount / 100)
+                )}`
+              : ""}
           </Text>
           <Text fontSize={8} color="yellow.700">
             Đã bán {data.sold}

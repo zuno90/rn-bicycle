@@ -38,7 +38,10 @@ export const formatNumber = (x: number) => {
     .replace(/\B(?=(\d{3})+(?!\d))/g, ".")
 }
 
-export const deduplicateArray = (arr: any[], key: string) => {
+export const deduplicateArray = (
+  arr: Array<{ title: string; value: string | number }>,
+  key: string
+) => {
   const seen = new Set()
   const newArr = arr.filter((item) => {
     const value = key ? item[key] : item

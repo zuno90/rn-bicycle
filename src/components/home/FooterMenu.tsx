@@ -76,7 +76,7 @@ const FooterMenu: React.FC<TCurrentScreen> = ({ currentScreen }) => {
           opacity={currentScreen === EHome.PrivateChat ? 1 : 0.5}
           py={4}
           flex={1}
-          onPress={() => navigation.push(EHome.PrivateChat)}
+          onPress={() => navigation.navigate(EHome.PrivateChat)}
         >
           <Center>
             <Icon

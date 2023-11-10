@@ -5,13 +5,14 @@
  * @format
  */
 import React from "react"
-import { NavigationContainer } from "@react-navigation/native"
+import { NavigationContainer, useNavigationContainerRef } from "@react-navigation/native"
 import { NativeBaseProvider, extendTheme } from "native-base"
 import MainLayout from "./src/screens/MainLayout"
 import { AuthProvider } from "./src/context/AuthProvider"
-import { LogBox, Platform } from "react-native"
+import { Linking, LogBox, Platform } from "react-native"
 import { requestUserPermissionAndroid } from "./src/utils/fb-android-notification.util"
 import { requestUserPermissionIos } from "./src/utils/fb-ios-notification.util"
+import { EAuth, EHome } from "./src/__types__"
 
 export default function App() {
   const theme = extendTheme({
@@ -40,24 +41,40 @@ export default function App() {
     if (Platform.OS === "ios") initFirebaseIos()
   }, [])
 
-  const config = {
-    screens: {
-      Home: {
-        screens: {
-          ProductDetail: {
-            path: "product/:id/:slug",
-            parse: { id: (id: string) => id, slug: (slug: string) => slug },
-          },
-        },
-      },
-    },
-  }
+  const navigationRef = useNavigationContainerRef()
 
   return (
     <NavigationContainer
+      ref={navigationRef}
+      onUnhandledAction={(error) => {
+        // console.log("Using Fallback", error)
+        // console.log("current route", navigationRef.current?.getCurrentRoute())
+        const params = {
+          from: navigationRef.current?.getCurrentRoute().name,
+          // from: error.payload.name,
+          ...navigationRef.current?.getCurrentRoute()?.params,
+          err: "Vui lòng đăng nhập để thực hiện các tính năng đặc quyền dành cho khách hàng!",
+        }
+        navigationRef.navigate(EAuth.Signin, params)
+      }}
       linking={{
         prefixes: ["zunobicycle://"],
-        config,
+        config: {
+          initialRouteName: "Home",
+          screens: {
+            Home: {
+              screens: {
+                ProductDetail: {
+                  path: "product/:id/:slug",
+                  parse: { id: (id: string) => id, slug: (slug: string) => slug },
+                },
+              },
+            },
+          },
+        },
+        async getInitialURL() {
+          return Linking.getInitialURL()
+        },
       }}
     >
       <NativeBaseProvider theme={theme}>

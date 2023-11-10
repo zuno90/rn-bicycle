@@ -95,7 +95,14 @@ const FilterList: React.FC<TShowFilter> = ({ confirmFilter, closeFilter }) => {
     </>
   )
 }
-const WrapBox = ({ value }: { value: string }) => {
+
+enum EWrapBoxType {
+  category = "category",
+  size = "size",
+  color = "color",
+}
+
+const WrapBox = ({ value }: { value: EWrapBoxType }) => {
   const { control, watch, setValue, getValues } = useFormContext()
 
   const categories = JSON.parse(localGet(config.cache.catelist) as string)
@@ -104,20 +111,20 @@ const WrapBox = ({ value }: { value: string }) => {
 
   let list: any
   switch (value) {
-    case "category":
+    case EWrapBoxType.category:
       list = { type: value, data: categories }
       break
-    case "size":
+    case EWrapBoxType.size:
       list = { type: value, data: sizes }
       break
-    case "color":
+    case EWrapBoxType.color:
       list = { type: value, data: colors }
       break
     default:
       break
   }
 
-  const toggleState = (type: string, value: string, state: string[]) => {
+  const toggleState = (type: EWrapBoxType, value: string | number, state: any[]) => {
     if (!state.includes(value)) {
       state.push(value)
       setValue(type, state, { shouldDirty: true })
@@ -129,9 +136,11 @@ const WrapBox = ({ value }: { value: string }) => {
       )
   }
 
-  const handleSetValue = (type: string, value: string) => {
+  const handleSetValue = (type: EWrapBoxType, item: any) => {
     const state = getValues(type)
-    toggleState(type, value, state)
+    if (type === EWrapBoxType.category) toggleState(type, item.slug, state)
+    if (type === EWrapBoxType.size) toggleState(type, item.id, state)
+    if (type === EWrapBoxType.color) toggleState(type, item.value, state)
   }
 
   const handleChangePrice = (l: number, h: number) => {
@@ -185,15 +194,18 @@ const WrapBox = ({ value }: { value: string }) => {
         <Box gap={2}>
           <Divider my={2} />
           {list.data.map((item: any, index: number) => (
-            <Pressable
-              key={index}
-              onPress={() => handleSetValue(list?.type, item.value ?? item.slug)}
-            >
+            <Pressable key={index} onPress={() => handleSetValue(list.type, item)}>
               <HStack justifyContent="space-between" alignItems="center">
-                <Text>{item.title ?? item.name}</Text>
-                {watch(list?.type).includes(item.value ?? item.slug) && (
-                  <Icon as={AntIcon} name="checkcircle" color="zuno" />
-                )}
+                <Text>
+                  {list.type === EWrapBoxType.size && item.title}
+                  {list.type === EWrapBoxType.color && item.value}
+                  {list.type === EWrapBoxType.category && item.name}
+                </Text>
+                {watch(list.type).includes(
+                  (list.type === EWrapBoxType.size && item.id) ||
+                    (list.type === EWrapBoxType.color && item.value) ||
+                    (list.type === EWrapBoxType.category && item.slug)
+                ) && <Icon as={AntIcon} name="checkcircle" color="zuno" />}
               </HStack>
             </Pressable>
           ))}

@@ -19,6 +19,7 @@ export const requestUserPermissionAndroid = async () => {
 
 const getToken = async () => {
   const existedToken = localGet(config.cache.deviceToken)
+  console.log(existedToken)
   try {
     if (!existedToken) {
       await messaging().registerDeviceForRemoteMessages()

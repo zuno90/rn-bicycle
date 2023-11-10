@@ -1,5 +1,6 @@
 import { ICategory } from "./category.type"
 import { ISubCategory } from "./subcate.type"
+import { IColor, ISize } from "./variant.type"
 
 export interface IProduct {
   id: number
@@ -20,25 +21,26 @@ export interface IProduct {
   updateAt: Date
 }
 
-interface IProductItem {
+export interface IProductItem {
   id: number
+  size: ISize
+  color: IColor
   price: number
-  size: string
-  color: string
   inventory: number
 }
 
 export interface IProductCart {
   unit: string
   id: number
-  productVariantId: number
   productItem: IProductItem[]
   name: string
   slug: string
+  productVariantId: number
+  sizes: number
   colors: string
-  sizes: string
-  image: string
   price: number
+  inventory: number
+  image: string
   discount: number
   quantity: number
 }

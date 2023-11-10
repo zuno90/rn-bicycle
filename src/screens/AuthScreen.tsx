@@ -1,5 +1,16 @@
 import React from "react"
-import { Button, Image as Img, Text, VStack, Box, View } from "native-base"
+import {
+  Button,
+  Image as Img,
+  Text,
+  VStack,
+  Box,
+  View,
+  ScrollView,
+  Stack as NativeBaseStack,
+  Image,
+  Heading,
+} from "native-base"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import Signup from "../components/auth/Signup"
 import Signin from "../components/auth/Signin"
@@ -7,9 +18,114 @@ import ForgotPassword from "../components/auth/ForgotPassword"
 import NewPassword from "../components/auth/NewPassword"
 import VerifyOtp from "../components/auth/VerifyOtp"
 import Success from "../components/auth/Success"
-import { EAuth } from "../__types__"
+import { EAuth, EHome } from "../__types__"
 import LinearGradient from "react-native-linear-gradient"
-import { WIDTH } from "../utils/helper.util"
+import { WIDTH, fetchGet } from "../utils/helper.util"
+import useAuth from "../context/AuthProvider"
+import { config } from "../utils/config.util"
+import { localSet } from "../utils/storage.util"
+import PhoneCallBtn from "../components/useable/PhoneCallBtn"
+import FooterMenu from "../components/home/FooterMenu"
+import LoadingBtn from "../components/useable/LoadingBtn"
+import { useIsFocused } from "@react-navigation/native"
+
+const SkeletonLoading = React.lazy(() => import("../components/useable/SkeletonLoading"))
+
+const SearchBar = React.lazy(() => import("../components/shop/search/SearchBar"))
+const CategoryBlock = React.lazy(() => import("../components/shop/category/CategoryBlock"))
+
+const BestSelling = React.lazy(() => import("../components/home/BestSelling"))
+const Recommendation = React.lazy(() => import("../components/home/Recommendation"))
+const Category = React.lazy(() => import("../components/shop/category/Category"))
+const ProductList = React.lazy(() => import("../components/shop/product/ProductList"))
+const ProductDetail = React.lazy(() => import("../components/shop/product/ProductDetail"))
+
+const Cart = React.lazy(() => import("../components/shop/cart/Cart"))
+
+const InitHome: React.FC<any> = ({ route, navigation }) => {
+  const scrollRef = React.useRef(null)
+  const { setAuth } = useAuth()
+
+  const getCategories = async () => {
+    const res = await fetchGet(`${config.endpoint}/categories`, {
+      // Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
+    if (!res.success) return setAuth({ isAuth: false, user: null })
+    localSet(config.cache.catelist, JSON.stringify(res.data.categories))
+  }
+  // const getSubcategories = async () => {
+  //   const res = await fetchGet(`${config.endpoint}/sizes`,{ Authorization: `Bearer ${localGet(config.cache.accessToken)}` })
+  // if (!res.success) return setAuth({ isAuth: false, user: null })
+  //   localSet(config.cache.sizelist, JSON.stringify(res.data.sizes))
+  // }
+  const getSizes = async () => {
+    const res = await fetchGet(`${config.endpoint}/sizes`, {
+      // Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
+    if (!res.success) return setAuth({ isAuth: false, user: null })
+    localSet(config.cache.sizelist, JSON.stringify(res.data.sizes))
+  }
+  const getColors = async () => {
+    const res = await fetchGet(`${config.endpoint}/colors`, {
+      // Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
+    })
+    if (!res.success) return setAuth({ isAuth: false, user: null })
+    localSet(config.cache.colorlist, JSON.stringify(res.data.colors))
+  }
+
+  const isFocused = useIsFocused()
+  React.useEffect(() => {
+    if (isFocused) Promise.all([getCategories(), getSizes(), getColors()])
+  }, [isFocused])
+  const [isScrollEnd, setIsScrollEnd] = React.useState(false)
+
+  return (
+    <>
+      <SearchBar />
+      <ScrollView
+        bgColor="white"
+        ref={scrollRef}
+        onScrollEndDrag={({ nativeEvent }) => {
+          const { layoutMeasurement, contentOffset, contentSize } = nativeEvent
+          if (layoutMeasurement.height + contentOffset.y >= contentSize.height) setIsScrollEnd(true)
+        }}
+        scrollEventThrottle={2000}
+      >
+        <NativeBaseStack p={{ base: 5 }} space={{ base: 4 }}>
+          <Image
+            source={require("../../public/child.webp")}
+            alignSelf="center"
+            rounded="xl"
+            w={WIDTH}
+            h={WIDTH / 1.8}
+            resizeMode="cover"
+            alt="shop-banner"
+          />
+        </NativeBaseStack>
+        <VStack space={{ base: 3 }}>
+          <Heading size="md" mx={{ base: 5 }}>
+            Danh mục sản phẩm
+          </Heading>
+          <ScrollView mx={2} horizontal>
+            <CategoryBlock />
+          </ScrollView>
+        </VStack>
+        <Box mx={1} pt={{ base: 3 }} pb={5}>
+          <React.Suspense fallback={<SkeletonLoading />}>
+            <BestSelling />
+            <Recommendation isScrollEnd={isScrollEnd} setIsScrollEnd={setIsScrollEnd} />
+          </React.Suspense>
+          {isScrollEnd && <LoadingBtn />}
+        </Box>
+      </ScrollView>
+      <Box position="absolute" right={2} bottom={24} opacity={90}>
+        <PhoneCallBtn />
+      </Box>
+      <FooterMenu currentScreen={route.name} />
+      {/* <ScrollToTopBtn scrollRef={scrollRef} /> */}
+    </>
+  )
+}
 
 const InitAuth: React.FC<any> = ({ navigation }) => {
   return (
@@ -85,19 +201,24 @@ const AuthStack = createNativeStackNavigator()
 
 const AuthScreen: React.FC = () => {
   return (
-    <>
-      <AuthStack.Navigator>
-        <AuthStack.Group screenOptions={{ headerShown: false }}>
-          <AuthStack.Screen name={EAuth.InitAuth} component={InitAuth} />
-          <AuthStack.Screen name={EAuth.Signup} component={Signup} />
-          <AuthStack.Screen name={EAuth.Signin} component={Signin} />
-          <AuthStack.Screen name={EAuth.ForgotPassword} component={ForgotPassword} />
-          <AuthStack.Screen name={EAuth.NewPassword} component={NewPassword} />
-          <AuthStack.Screen name={EAuth.VerifyOtp} component={VerifyOtp} />
-          <AuthStack.Screen name={EAuth.Success} component={Success} />
-        </AuthStack.Group>
-      </AuthStack.Navigator>
-    </>
+    <AuthStack.Navigator>
+      <AuthStack.Group screenOptions={{ headerShown: false }}>
+        <AuthStack.Screen name={EHome.InitHome} component={InitHome} />
+        <AuthStack.Screen name={EHome.Category} component={Category} />
+        <AuthStack.Screen name={EHome.ProductList} component={ProductList} />
+        <AuthStack.Screen name={EHome.ProductDetail} component={ProductDetail} />
+        <AuthStack.Screen name={EHome.Cart} component={Cart} />
+      </AuthStack.Group>
+      <AuthStack.Group screenOptions={{ headerShown: false }}>
+        {/* <AuthStack.Screen name={EAuth.InitAuth} component={InitAuth} /> */}
+        <AuthStack.Screen name={EAuth.Signin} component={Signin} />
+        <AuthStack.Screen name={EAuth.Signup} component={Signup} />
+        <AuthStack.Screen name={EAuth.ForgotPassword} component={ForgotPassword} />
+        <AuthStack.Screen name={EAuth.NewPassword} component={NewPassword} />
+        <AuthStack.Screen name={EAuth.VerifyOtp} component={VerifyOtp} />
+        <AuthStack.Screen name={EAuth.Success} component={Success} />
+      </AuthStack.Group>
+    </AuthStack.Navigator>
   )
 }
 

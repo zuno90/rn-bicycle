@@ -10,10 +10,11 @@ import {
   Icon,
   HStack,
   Pressable,
+  useToast,
 } from "native-base"
 import LinearGradient from "react-native-linear-gradient"
 import { useForm, Controller, SubmitHandler } from "react-hook-form"
-import { EAuth, EScreen } from "../../__types__"
+import { EAuth, EToastType } from "../../__types__"
 import { allowOnlyNumber, fetchPost } from "../../utils/helper.util"
 import AntIcon from "react-native-vector-icons/AntDesign"
 import FatherIcon from "react-native-vector-icons/Feather"
@@ -25,10 +26,26 @@ import { HideOnKeyboard } from "react-native-hide-onkeyboard"
 import { localGet, localSet } from "../../utils/storage.util"
 import useAuth from "../../context/AuthProvider"
 import BackBtn from "../useable/BackBtn"
+import Toast from "../useable/Toast"
 
 type TSignin = { phoneNumber: string; password: string; deviceToken: string }
 
-const Signin: React.FC<any> = ({ navigation }) => {
+const Signin: React.FC<any> = ({ route, navigation }) => {
+  const { from, err, ...params } = route.params
+  const { checkAuth } = useAuth()
+
+  const toast = useToast()
+  const showToast = (type: EToastType, msg: string) => {
+    if (!toast.isActive("success-login"))
+      toast.show({
+        id: "success-login",
+        placement: "top",
+        duration: 1500,
+        render: () => (
+          <Toast type={type} content={msg} close={() => toast.close("success-login")} />
+        ),
+      })
+  }
   const [showPass, setShowPass] = React.useState(false)
   const [errMsg, setErrMas] = React.useState("")
   const {
@@ -37,16 +54,14 @@ const Signin: React.FC<any> = ({ navigation }) => {
     formState: { isSubmitting, errors },
   } = useForm<TSignin>({ defaultValues: { deviceToken: `${localGet(config.cache.deviceToken)}` } })
 
-  const { checkAuth } = useAuth()
-  
   const onSignin: SubmitHandler<TSignin> = async (data) => {
     const res = await fetchPost(`${config.endpoint}/signin`, JSON.stringify(data))
     if (res.success) {
       const { accessToken, refreshToken } = res.data
       localSet(config.cache.accessToken, accessToken)
       localSet(config.cache.refreshToken, refreshToken)
+      showToast(EToastType.noti, "Đăng nhập tài khoản thành công!")
       await checkAuth()
-      return navigation.navigate(EScreen.Home)
     }
     console.log(res)
     setErrMas(res.message)
@@ -63,6 +78,7 @@ const Signin: React.FC<any> = ({ navigation }) => {
             <Text fontSize="3xl" fontWeight="bold">
               Đăng nhập
             </Text>
+            {err && <Text color="red.500">{err}</Text>}
             <Text fontSize="lg">Nhập số điện thoại</Text>
           </VStack>
 
@@ -133,7 +149,7 @@ const Signin: React.FC<any> = ({ navigation }) => {
               <HStack alignItems="center" space={4}>
                 <Icon as={IonIcon} name="alert-circle" color="red.500" />
                 <Text color="red.500">
-                  {errors.phoneNumber?.message ? errors.password?.message : errMsg}
+                  {errors.phoneNumber?.message || errors.password?.message || errMsg}
                 </Text>
               </HStack>
             )}

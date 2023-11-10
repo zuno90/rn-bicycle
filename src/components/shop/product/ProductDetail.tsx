@@ -20,7 +20,15 @@ import ShareBtn from "../../useable/ShareBtn"
 import SimpleIcon from "react-native-vector-icons/SimpleLineIcons"
 import FeaIcon from "react-native-vector-icons/Feather"
 import MateComIcon from "react-native-vector-icons/MaterialCommunityIcons"
-import { EHome, EToastType, IProduct, IProductCart } from "../../../__types__"
+import {
+  EHome,
+  EToastType,
+  IColor,
+  IProduct,
+  IProductCart,
+  IProductItem,
+  ISize,
+} from "../../../__types__"
 import {
   WIDTH,
   addToCart,
@@ -39,6 +47,7 @@ import PhoneCallBtn from "../../useable/PhoneCallBtn"
 import Toast from "../../useable/Toast"
 import ChatBtn from "../../useable/ChatBtn"
 import LoadingScreen from "../../../screens/LoadingScreen"
+import RenderHtml, { defaultSystemFonts } from "react-native-render-html"
 
 const Grid = React.lazy(() => import("../../useable/Grid"))
 const Product = React.lazy(() => import("./Product"))
@@ -49,7 +58,7 @@ type TFilterModal = {
   isOpen: boolean
   type: string
   title: string
-  data: any[]
+  data: any
 }
 
 type TProductAttr = {
@@ -60,6 +69,7 @@ type TProductAttr = {
 
 const ProductDetail: React.FC<any> = ({ route, navigation }) => {
   const { id, slug } = route.params
+  
   const toast = useToast()
 
   const [isLoading, setIsLoading] = React.useState<boolean>(true)
@@ -74,9 +84,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
     const res = await fetchGet(`${config.endpoint}/product/${slug}`, {
       Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
     })
-    if (res.success) {
-      setProduct(res.data.product)
-    }
+    if (res.success) setProduct(res.data.product)
     setIsLoading(false)
   }
 
@@ -104,15 +112,31 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
     title: "",
     data: [],
   })
-  const setFilterByProduct = async (type: any) => {
-    const fType = type === "sizes" ? "size" : "color"
-    const tempData = product?.productItem
-      ? deduplicateArray(product?.productItem, fType).map((v) => v[fType])
-      : [] // ["s","l","xl"]
-    const fCollection = type === "sizes" ? sizes : colors
-    const fData = fCollection.map((item: any) => ({ title: item.title, value: item.value }))
-    let data: any = []
-    tempData.forEach((v) => data.push(...fData.filter((item: any) => item.value === v)))
+
+  const setFilterByProduct = async (type: string) => {
+    let data
+    switch (type) {
+      case "sizes":
+        data =
+          deduplicateArray(
+            product?.productItem
+              .map((prodItem) => prodItem.size)
+              .map((s) => ({ title: s.title, value: s.id }))!,
+            "value"
+          ) || []
+        break
+      case "colors":
+        data =
+          deduplicateArray(
+            product?.productItem
+              .map((prodItem) => prodItem.color)
+              .map((c) => ({ title: c.value, value: c.value }))!,
+            "value"
+          ) || []
+        break
+      default:
+        break
+    }
 
     setShowFilter({
       isOpen: true,
@@ -123,8 +147,8 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
   }
   const methods = useForm<TProductAttr>({ defaultValues: { sizes: "", colors: "", quantity: 1 } })
   const verifyCartItem = (data: TProductAttr, toastId?: string) => {
-    if (toastId) {
-      if (data.colors === "" || data.sizes === "" || data.quantity < 0) {
+    if (data.colors === "" || data.sizes === "" || data.quantity < 0) {
+      if (toastId) {
         if (!toast.isActive(toastId))
           toast.show({
             id: toastId,
@@ -144,30 +168,31 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
               />
             ),
           })
-        return 0
       }
+      return 0
     }
-
     const { name, id, productItem, slug, images, discount } = product as IProduct
-    const mappedProductItem = productItem?.filter(
-      (item) => item.size === data.sizes && item.color === data.colors
-    )[0]
+    const mapped = productItem.filter(
+      (item) => item.size.id === Number(data.sizes) && item.color.value === data.colors
+    )[0] as IProductItem
+
     return {
       unit: `no${new Date().getTime()}`,
       id,
       productItem,
-      productVariantId: mappedProductItem?.id,
       name,
       slug,
       image: images[0],
-      price: mappedProductItem?.price,
-      inventory: mappedProductItem?.inventory,
       discount,
-      sizes: mappedProductItem?.size,
-      colors: mappedProductItem?.color,
+      productVariantId: mapped?.id,
+      sizes: mapped?.size.id,
+      colors: mapped?.color.value,
+      price: mapped?.price,
+      inventory: mapped?.inventory,
       quantity: data.quantity,
     } as IProductCart
   }
+
   const handleAddToCart: SubmitHandler<TProductAttr> = async (data) => {
     const cartItem = verifyCartItem(data, "addtocart")
     if (cartItem) {
@@ -209,7 +234,6 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
         ),
       })
   }
-
   if (isLoading) return <LoadingScreen />
   return (
     <>
@@ -307,7 +331,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                   <Text underline>đ</Text>
                   {formatNumber(
                     verifyCartItem(methods.getValues()).price * methods.getValues("quantity") ||
-                      product.price
+                      Math.min(...product.productItem?.map((item) => item.price))
                   )}
                 </Heading>
                 <HStack alignItems="center" space={2}>
@@ -325,7 +349,11 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                     </Text>
                   </Box>
                   <Text strikeThrough>
-                    đ{formatNumber(product.price * (1 + product.discount / 100))}
+                    đ
+                    {formatNumber(
+                      Math.min(...product.productItem?.map((item) => item.price)) *
+                        (1 + product.discount / 100)
+                    )}
                   </Text>
                 </HStack>
               </VStack>
@@ -361,7 +389,8 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                     >
                       {methods.getValues("sizes") === "" && "Size"}
                       {sizes.length > 0 &&
-                        sizes.filter((v: any) => v.value === methods.getValues("sizes"))[0]?.title}
+                        sizes.filter((v: ISize) => v.id === Number(methods.getValues("sizes")))[0]
+                          ?.title}
                     </Text>
                   </Button>
                   <Button
@@ -388,8 +417,8 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                     >
                       {methods.getValues("colors") === "" && "Màu"}
                       {colors.length > 0 &&
-                        colors.filter((v: any) => v.value === methods.getValues("colors"))[0]
-                          ?.title}
+                        colors.filter((v: IColor) => v.value === methods.getValues("colors"))[0]
+                          ?.value}
                     </Text>
                   </Button>
                   <Button.Group isAttached rounded="full" size={10}>
@@ -433,21 +462,6 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
             </Box>
             <Box p={5} bgColor="white" gap={4}>
               <Heading fontSize="lg">Chi tiết sản phẩm</Heading>
-              <Text>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Est ipsam incidunt nemo
-                doloribus velit, ipsum inventore tempore, eligendi ex in repudiandae neque veniam,
-                atque dolorum corrupti sapiente rerum dolore optio?
-              </Text>
-              <Image
-                source={require("../../../../public/child.jpg")}
-                alignSelf="center"
-                rounded="lg"
-                w="full"
-                h={200}
-                resizeMode="cover"
-                alt="shop-banner"
-              />
-
               {!isSeeMore ? (
                 <Pressable onPress={() => setIsSeeMore(true)}>
                   <LinearGradient
@@ -461,7 +475,30 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                   </LinearGradient>
                 </Pressable>
               ) : (
-                <Text>{product.detail}</Text>
+                <RenderHtml
+                  contentWidth={WIDTH}
+                  systemFonts={["Montserrat-Regular", ...defaultSystemFonts]}
+                  ignoredDomTags={["head", "button"]}
+                  tagsStyles={{
+                    div: { fontFamily: "Montserrat-Regular" },
+                    article: { fontFamily: "Montserrat-Regular" },
+                    p: { fontFamily: "Montserrat-Regular" },
+                    i: { fontFamily: "Montserrat-Regular" },
+                    b: { fontFamily: "Montserrat-Regular" },
+                    h1: { fontFamily: "Montserrat-Regular" },
+                    h2: { fontFamily: "Montserrat-Regular" },
+                    h3: { fontFamily: "Montserrat-Regular" },
+                    h4: { fontFamily: "Montserrat-Regular" },
+                    h5: { fontFamily: "Montserrat-Regular" },
+                    h6: { fontFamily: "Montserrat-Regular" },
+                    strong: { fontFamily: "Montserrat-Regular" },
+                    span: { fontFamily: "Montserrat-Regular" },
+                  }}
+                  enableExperimentalMarginCollapsing
+                  source={{
+                    html: product.detail,
+                  }}
+                />
               )}
             </Box>
             <Box bgColor="white">
@@ -499,7 +536,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                 <Text underline>đ</Text>
                 {formatNumber(
                   verifyCartItem(methods.getValues()).price * methods.getValues("quantity") ||
-                    product.price
+                    Math.min(...product.productItem?.map((item) => item.price))
                 )}
               </Heading>
             </VStack>
@@ -538,11 +575,9 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
               <FormProvider {...methods}>
                 <ProductAttributeSelect
                   showFilter={showFilter}
-                  handleFilter={(type: any, value: string) => {
+                  handleFilter={(type: any, value: string | number) => {
                     const state = methods.getValues(type)
-                    if (value !== state) {
-                      methods.setValue(type, value, { shouldDirty: true })
-                    }
+                    if (value !== state) methods.setValue(type, value, { shouldDirty: true })
                   }}
                   closeFilter={() =>
                     setShowFilter({
@@ -588,7 +623,6 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
 
 const ProductAttributeSelect = ({ showFilter, handleFilter, closeFilter }: any) => {
   const { type, selectedValue, title, data } = showFilter
-
   return (
     <React.Suspense fallback={<SkeletonLoading />}>
       <FilterAttribute

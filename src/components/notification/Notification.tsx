@@ -1,8 +1,8 @@
 import React from "react"
-import { HStack, Divider, Text, Button, ScrollView } from "native-base"
 import CartIcon from "../shop/cart/CartIcon"
 import NotificationList from "./NotificationList"
 import FooterMenu from "../home/FooterMenu"
+import { HStack, Divider, Text, Button, ScrollView } from "native-base"
 import { useIsFocused } from "@react-navigation/native"
 
 const tabs = [
@@ -10,7 +10,7 @@ const tabs = [
   { value: "voucher", title: "Khuyến mãi" },
 ]
 
-const Notification: React.FC<any> = ({ route, navigation }) => {
+const Notification: React.FC<any> = ({ route }) => {
   const [selected, setSelected] = React.useState<string>(tabs[0].value)
 
   const isFocused = useIsFocused()

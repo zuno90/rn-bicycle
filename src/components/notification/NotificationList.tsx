@@ -43,10 +43,10 @@ const MyNoti: React.FC = () => {
         notifications.length > 0 &&
         notifications.map((noti: any, index) => (
           <HStack key={index} flex={1} justifyContent="space-between" alignItems="center" space={4}>
-            <Image source={require("../../../public/home-banner.jpeg")} size={20} alt="noti-img" />
-            <Box flex={1} gap={2}>
-              <Heading size="sm">{noti.title}</Heading>
-              <Text>{noti.content}</Text>
+            <Image source={require("../../../public/logo.png")} size={20} alt="noti-img" />
+            <Box flex={1} gap={1}>
+              <Heading size="xs">{noti.title}</Heading>
+              <Text fontSize="xs">{noti.content}</Text>
             </Box>
           </HStack>
         ))
@@ -81,7 +81,7 @@ const MyVoucher: React.FC = () => {
         promotionNotifications.map((proNoti: any, index) => (
           <HStack key={index} flex={1} justifyContent="space-between" alignItems="center" space={4}>
             <Image
-              source={require("../../../public/home-banner.jpeg")}
+              source={require("../../../public/logo.png")}
               size={20}
               alignSelf="center"
               alt="noti-img"

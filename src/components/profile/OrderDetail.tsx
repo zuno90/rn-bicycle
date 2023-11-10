@@ -13,7 +13,7 @@ import {
   VStack,
 } from "native-base"
 import { fetchGet, formatNumber } from "../../utils/helper.util"
-import { EHome, EOrderStatus, IOrderResponse } from "../../__types__"
+import { EOrderStatus, IOrderResponse } from "../../__types__"
 import { config } from "../../utils/config.util"
 import { localGet } from "../../utils/storage.util"
 import LoadingBtn from "../useable/LoadingBtn"
@@ -22,17 +22,14 @@ import BackBtn from "../useable/BackBtn"
 const OrderDetail: React.FC<any> = ({ route, navigation }) => {
   const { id } = route.params
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
-  const sizes = JSON.parse(localGet(config.cache.sizelist) as string)
-  const colors = JSON.parse(localGet(config.cache.colorlist) as string)
   const [order, setOrder] = React.useState<IOrderResponse>({})
+
   const getOrder = async () => {
     setIsLoading(true)
     const res = await fetchGet(`${config.endpoint}/order/${id}`, {
       Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
     })
-    if (res.success) {
-      setOrder(res.data.order)
-    }
+    if (res.success) setOrder(res.data.order)
     setIsLoading(false)
   }
 
@@ -119,11 +116,11 @@ const OrderDetail: React.FC<any> = ({ route, navigation }) => {
             </Box>
 
             <Heading fontSize="lg">Thông tin sản phẩm</Heading>
-            {order.orderLines &&
-              order.orderLines.map((odl, idx) => (
+            {order.products &&
+              order.products.map((odl, idx) => (
                 <HStack key={idx} justifyContent="space-between" space={2}>
                   <Image
-                    source={{ uri: odl.productVariant.product.images[0] }}
+                    source={{ uri: odl.image }}
                     size="sm"
                     rounded="xl"
                     alignSelf="center"
@@ -132,19 +129,14 @@ const OrderDetail: React.FC<any> = ({ route, navigation }) => {
                   />
                   <Box flex={1} gap={2}>
                     <Heading fontSize="md" numberOfLines={2} isTruncated>
-                      {odl.productVariant.product.name}
+                      {odl.name}
                     </Heading>
                     <Text>
-                      {sizes.length > 0 &&
-                        sizes.filter((v: any) => v.value === odl.productVariant.size)[0]
-                          ?.title}{" "}
-                      -{" "}
-                      {colors.length > 0 &&
-                        colors.filter((v: any) => v.value === odl.productVariant.color)[0]?.title}
+                      {odl.size} - {odl.color}
                     </Text>
                     <HStack justifyContent="space-between" alignItems="center">
                       <Text color="red.500" fontWeight="semibold">
-                        đ {formatNumber(odl.productVariant.price)}
+                        đ {formatNumber(odl.price)}
                       </Text>
                       <Text>Số lượng: {odl.quantity}</Text>
                     </HStack>
@@ -154,7 +146,12 @@ const OrderDetail: React.FC<any> = ({ route, navigation }) => {
 
             <Heading fontSize="lg">Phương thức thanh toán</Heading>
             <Box p={2} bgColor="#F4F4F4" rounded="md" gap={2}>
-              <Text>Chuyển khoản ngân hàng</Text>
+              <Text>{order.paymentMethod === "coin" ? "Dùng xu" : "Chuyển khoản ngân hàng"}</Text>
+            </Box>
+
+            <Heading fontSize="lg">Ghi chú</Heading>
+            <Box p={2} bgColor="#F4F4F4" rounded="md" gap={2}>
+              <Text>{order.note ?? "Không có ghi chú"}</Text>
             </Box>
 
             <Heading fontSize="lg">Tổng đơn hàng</Heading>

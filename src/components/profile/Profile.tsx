@@ -23,7 +23,7 @@ import {
 } from "../../utils/helper.util"
 import { config } from "../../utils/config.util"
 import { localDel, localGet } from "../../utils/storage.util"
-import { EHome, EScreen, IOrder } from "../../__types__"
+import { EHome, IOrder } from "../../__types__"
 import LinearGradient from "react-native-linear-gradient"
 import AntIcon from "react-native-vector-icons/AntDesign"
 import FeaIcon from "react-native-vector-icons/Feather"
@@ -36,6 +36,7 @@ import useAuth from "../../context/AuthProvider"
 import CartIcon from "../shop/cart/CartIcon"
 import FooterMenu from "../home/FooterMenu"
 import PhoneCallBtn from "../useable/PhoneCallBtn"
+import { Linking } from "react-native"
 
 const InputModal = React.lazy(() => import("../useable/InputModal"))
 const ConfirmModal = React.lazy(() => import("../useable/ConfirmModal"))
@@ -44,12 +45,15 @@ type TTopup = { topupAmount: string }
 
 const Profile: React.FC<any> = ({ route, navigation }) => {
   const {
-    auth: { user },
+    auth: { user, isAuth },
     checkAuth,
   } = useAuth()
 
   const [isShowPopup, setIsShowPopup] = React.useState<boolean>(false)
   const [isShowPopupInput, setIsShowPopupInput] = React.useState<boolean>(false)
+
+  // xoá
+  const [isFakeDeleteAccount, setIsFakeDeleteAccount] = React.useState<boolean>(false)
 
   const [orders, setOrders] = React.useState<IOrder[]>([])
   const getOrders = async () => {
@@ -69,8 +73,7 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
       localDel(config.cache.refreshToken)
       localDel(config.cache.cartList)
       localDel(config.cache.searchHistory)
-      await checkAuth()
-      return navigation.replace(EScreen.Auth)
+      await checkAuth("logout")
     }
   }
 
@@ -299,10 +302,19 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
               </HStack>
             </Box>
           </Stack>
+
+          <Button mx={5} rounded="full" onPress={() => setIsFakeDeleteAccount(true)}>
+            Xoá tài khoản
+          </Button>
+
           <VStack alignItems="center" space={2}>
-            <Text color="blue.500" underline>
-              Điều khoản & điều kiện
-            </Text>
+            <Pressable
+              onPress={() => Linking.openURL("https://sites.google.com/view/nhaphanphoixedap")}
+            >
+              <Text color="blue.500" underline>
+                Điều khoản & điều kiện
+              </Text>
+            </Pressable>
             <Text>version: 1.0.0</Text>
           </VStack>
         </Stack>
@@ -365,6 +377,19 @@ const Profile: React.FC<any> = ({ route, navigation }) => {
               )}
             </FormControl>
           }
+        />
+      )}
+
+      {/* xoá */}
+      {isFakeDeleteAccount && (
+        <ConfirmModal
+          isOpen={isFakeDeleteAccount}
+          onClose={() => setIsFakeDeleteAccount(false)}
+          action={() => {
+            setIsFakeDeleteAccount(false)
+          }}
+          title="Yêu cầu xoá tài khoản"
+          confirm="Bạn có muốn gửi yêu cầu xoá tài khoản?"
         />
       )}
     </>

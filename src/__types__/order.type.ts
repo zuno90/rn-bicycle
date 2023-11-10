@@ -1,5 +1,3 @@
-import { IProduct } from "./product.type"
-
 export enum EOrderStatus {
   waiting_payment = "Chờ thanh toán",
   pending = "Đang xử lí",
@@ -9,21 +7,16 @@ export enum EOrderStatus {
 }
 
 interface IOrderLine {
-  id: number
-  quantity: number
-  sizeValue: string
-  colorValue: string
-  orderId: number
+  productId: number
   productVariantId: number
-  productVariant: {
-    id: number
-    color: string
-    size: string
-    inventory: number
-    price: number
-    productId: number
-    product: IProduct
-  }
+  size: string
+  color: string
+  quantity: number
+  price: number
+  image: string
+  name: string
+  slug: string
+  totalPrice: number
 }
 
 export interface IOrder {
@@ -53,12 +46,12 @@ export interface IOrder {
 
 export interface IOrderResponse {
   id: number
-  orderCode: string
   codeOrder: string
+  products: IOrderLine[]
   status: string
   userId: number
-  shippingUnitId: number
-  voucherId: number
+  shippingUnitId?: number
+  voucherId?: number
   information: {
     name: string
     phoneNumber: string
@@ -68,13 +61,11 @@ export interface IOrderResponse {
     address: string
   }
   note: string
-  totalPrice: number
   priceDelivery: number
-  pricePromotion:number
+  pricePromotion: number
+  totalPrice: number
   finalPrice: number
-  typePayment: string
-  cancelReason: string
-  orderLines: IOrderLine[]
+  paymentMethod: string
   createAt: Date
   updateAt: Date
 }

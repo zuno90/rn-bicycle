@@ -22,12 +22,18 @@ import MateIcon from "react-native-vector-icons/MaterialIcons"
 import { HEIGHT, fetchPost, formatNumber, removeCartItem } from "../../../utils/helper.util"
 import Svg, { Path } from "react-native-svg"
 import LinearGradient from "react-native-linear-gradient"
-import { EHome, EToastType, IProductCart, TInputInformation } from "../../../__types__"
+import {
+  EHome,
+  EToastType,
+  IColor,
+  IProductCart,
+  ISize,
+  TInputInformation,
+} from "../../../__types__"
 import { Controller, FormProvider, SubmitHandler, useForm } from "react-hook-form"
 import { localGet } from "../../../utils/storage.util"
 import { config } from "../../../utils/config.util"
 import { KeyboardAvoidingView } from "react-native"
-import { CommonActions, useIsFocused } from "@react-navigation/native"
 import LoadingBtn from "../../useable/LoadingBtn"
 import Clipboard from "@react-native-clipboard/clipboard"
 import Toast from "../../useable/Toast"
@@ -53,9 +59,11 @@ interface IOrder {
 const currentTime = new Date().getTime()
 
 const Order: React.FC<any> = ({ route, navigation }) => {
-  const { selectItems } = route.params
+  const { from, id, slug, selectItems } = route.params
+  console.log(route.params, 444)
+
   const {
-    auth: { user },
+    auth: { isAuth, user },
   } = useAuth()
   const sizes = JSON.parse(localGet(config.cache.sizelist) as string)
   const colors = JSON.parse(localGet(config.cache.colorlist) as string)
@@ -183,11 +191,10 @@ const Order: React.FC<any> = ({ route, navigation }) => {
                     {order.name}
                   </Heading>
                   <Text>
-                    {sizes.length > 0 &&
-                      sizes.filter((v: any) => v.value === order.sizes)[0]?.title}{" "}
+                    {sizes.length > 0 && sizes.filter((v: ISize) => v.id === order.sizes)[0]?.title}{" "}
                     -{" "}
                     {colors.length > 0 &&
-                      colors.filter((v: any) => v.value === order.colors)[0]?.title}
+                      colors.filter((v: IColor) => v.value === order.colors)[0]?.value}
                   </Text>
                   <HStack justifyContent="space-between" alignItems="center">
                     <Text color="red.500" fontWeight="semibold">

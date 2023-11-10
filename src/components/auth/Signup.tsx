@@ -11,8 +11,9 @@ import {
   HStack,
   ScrollView,
   Pressable,
+  useToast,
 } from "native-base"
-import { EAuth } from "../../__types__"
+import { EAuth, EToastType } from "../../__types__"
 import LinearGradient from "react-native-linear-gradient"
 import { useForm, Controller, SubmitHandler } from "react-hook-form"
 import AntIcon from "react-native-vector-icons/AntDesign"
@@ -31,6 +32,7 @@ import { config } from "../../utils/config.util"
 import { HideOnKeyboard } from "react-native-hide-onkeyboard"
 import { localGet } from "../../utils/storage.util"
 import BackBtn from "../useable/BackBtn"
+import Toast from "../useable/Toast"
 
 type TSignup = {
   phoneNumber: string
@@ -39,6 +41,7 @@ type TSignup = {
 }
 
 const Signup: React.FC = ({ navigation }: any) => {
+  const toast = useToast()
   const [showPass, setShowPass] = React.useState(false)
 
   const {
@@ -47,6 +50,16 @@ const Signup: React.FC = ({ navigation }: any) => {
     handleSubmit,
     formState: { isSubmitting, errors },
   } = useForm<TSignup>({ defaultValues: { deviceToken: localGet(config.cache.deviceToken) } })
+
+  const showToast = (type: EToastType, msg: string) => {
+    if (!toast.isActive("err-signup"))
+      toast.show({
+        id: "err-signup",
+        placement: "top",
+        duration: 1500,
+        render: () => <Toast type={type} content={msg} close={() => toast.close("err-login")} />,
+      })
+  }
 
   const onSignup: SubmitHandler<TSignup> = async (data) => {
     const res = await fetchPost(`${config.endpoint}/signup`, JSON.stringify(data))
@@ -57,6 +70,7 @@ const Signup: React.FC = ({ navigation }: any) => {
         phone: data.phoneNumber,
         mockOtp: res.message.substr(res.message.length - 4),
       })
+    showToast(EToastType.err, res.message)
   }
 
   return (

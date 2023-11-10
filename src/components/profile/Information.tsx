@@ -360,10 +360,10 @@ const Information: React.FC<any> = ({ navigation }) => {
       </KeyboardAvoidingView>
 
       <Box
-        h={HEIGHT / 3.3}
+        h={HEIGHT / (10 / 3)}
         position="absolute"
         bottom={0}
-        px={5}
+        p={5}
         bgColor="white"
         w="full"
         justifyContent="flex-end"

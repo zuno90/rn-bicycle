@@ -20,7 +20,7 @@ import {
 import CartIcon from "./CartIcon"
 import { localGet, localSet } from "../../../utils/storage.util"
 import { config } from "../../../utils/config.util"
-import { EHome, EToastType, IProductCart } from "../../../__types__"
+import { EHome, EToastType, IColor, IProductCart, IProductItem, ISize } from "../../../__types__"
 import LinearGradient from "react-native-linear-gradient"
 import AntIcon from "react-native-vector-icons/AntDesign"
 import FeaIcon from "react-native-vector-icons/Feather"
@@ -37,6 +37,7 @@ import { useForm } from "react-hook-form"
 import { useIsFocused } from "@react-navigation/native"
 import Toast from "../../useable/Toast"
 import BackBtn from "../../useable/BackBtn"
+import useAuth from "../../../context/AuthProvider"
 
 const LoadingScreen = React.lazy(() => import("../../../screens/LoadingScreen"))
 const BestSelling = React.lazy(() => import("../../home/BestSelling"))
@@ -46,11 +47,14 @@ type TFilterModal = {
   isOpen: boolean
   type: string
   title: string
-  productAttr: { unit: string; value: string }
-  data: any[]
+  productAttr: { unit: string; value: string | number }
+  data: any
 }
 
 const Cart: React.FC<any> = ({ navigation }) => {
+  const {
+    auth: { isAuth },
+  } = useAuth()
   const [isLoading, setIsLoading] = React.useState<boolean>(true)
   const [carts, setCarts] = React.useState<IProductCart[]>([])
   const [selectItems, setSelectItems] = React.useState<string[]>([])
@@ -61,8 +65,6 @@ const Cart: React.FC<any> = ({ navigation }) => {
   const toast = useToast()
 
   const getCartList = async () => {
-    // const c: IProductCart[] =
-    //   localCart && localCart.length > 0 ? localCart : await getCartsFromServer()
     setCarts(localCart)
     setIsLoading(false)
   }
@@ -81,19 +83,39 @@ const Cart: React.FC<any> = ({ navigation }) => {
     data: [],
   })
 
-  const setFilterByProduct = async (type: any, value: string, unit: string, slug: string) => {
+  const setFilterByProduct = async (
+    type: string,
+    value: string | number,
+    unit: string,
+    slug: string
+  ) => {
     const res = await fetchGet(`${config.endpoint}/product/${slug}`, {
       Authorization: `Bearer ${localGet(config.cache.accessToken)}`,
     })
     if (res.success) {
-      const fType = type === "sizes" ? "size" : "color"
-      const tempData = res.data.product.productItem
-        ? deduplicateArray(res.data.product.productItem, fType).map((v) => v[fType])
-        : [] // ["s","l","xl"]
-      const fCollection = type === "sizes" ? sizes : colors
-      const fData = fCollection.map((item: any) => ({ title: item.title, value: item.value }))
-      let data: any = []
-      tempData.forEach((v) => data.push(...fData.filter((item: any) => item.value === v)))
+      let data
+      switch (type) {
+        case "sizes":
+          data =
+            deduplicateArray(
+              res.data.product?.productItem
+                .map((prodItem: IProductItem) => prodItem.size)
+                .map((s: ISize) => ({ title: s.title, value: s.id }))!,
+              "value"
+            ) || []
+          break
+        case "colors":
+          data =
+            deduplicateArray(
+              res.data.product?.productItem
+                .map((prodItem: IProductItem) => prodItem.color)
+                .map((c: IColor) => ({ title: c.value, value: c.value }))!,
+              "value"
+            ) || []
+          break
+        default:
+          break
+      }
       setShowFilter({
         isOpen: true,
         type,
@@ -248,7 +270,7 @@ const Cart: React.FC<any> = ({ navigation }) => {
                             >
                               <Text color="white" fontSize="xs" fontWeight="bold" isTruncated>
                                 {sizes.length > 0 &&
-                                  sizes.filter((v: any) => v.value === cart.sizes)[0]?.title}
+                                  sizes.filter((v: ISize) => v.id === Number(cart.sizes))[0]?.title}
                               </Text>
                             </Button>
                             <Button
@@ -263,7 +285,7 @@ const Cart: React.FC<any> = ({ navigation }) => {
                             >
                               <Text color="white" fontSize="xs" fontWeight="bold" isTruncated>
                                 {colors.length > 0 &&
-                                  colors.filter((v: any) => v.value === cart.colors)[0]?.title}
+                                  colors.filter((v: IColor) => v.value === cart.colors)[0]?.value}
                               </Text>
                             </Button>
                             <Button.Group isAttached rounded="full" size={8}>
@@ -408,19 +430,19 @@ const ProductAttributeSelect: React.FC<any> = ({ showFilter, closeFilter, carts,
     defaultValues: { id: productAttr.id, value: productAttr.value },
   })
 
-  const toggleAttr = (value: string) => {
+  const toggleAttr = (value: string | number) => {
     if (getValues("value") === value) return
     setValue("value", value, { shouldDirty: true })
   }
 
-  const handeSetAttr = (value: string) => {
+  const handeSetAttr = (value: string | number) => {
     if (productAttr.value === value) return closeFilter()
     const newCart = carts.map((item: IProductCart) => {
       if (item.unit === productAttr.unit) {
         switch (type) {
           case "sizes":
             const newItemBySize = item.productItem.filter(
-              (i: any) => i.color === item.colors && i.size === value
+              (i: IProductItem) => i.size.id === value && i.color.value === item.colors
             )[0]
             return {
               ...item,
@@ -430,7 +452,7 @@ const ProductAttributeSelect: React.FC<any> = ({ showFilter, closeFilter, carts,
             }
           case "colors":
             const newItemByColor = item.productItem.filter(
-              (i: any) => i.size === item.sizes && i.color === value
+              (i: IProductItem) => i.size.id === item.sizes && i.color.value === value
             )[0]
             return {
               ...item,

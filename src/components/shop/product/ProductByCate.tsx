@@ -10,9 +10,7 @@ import { localGet } from "../../../utils/storage.util"
 const SkeletonLoading = React.lazy(() => import("../../useable/SkeletonLoading"))
 const Product = React.lazy(() => import("./Product"))
 
-type TProductByCate = {
-  cateSlug: string
-}
+type TProductByCate = { cateSlug: string }
 
 const ProductByCate: React.FC<TProductByCate> = ({ cateSlug }) => {
   const navigation = useNavigation<any>()
@@ -35,7 +33,6 @@ const ProductByCate: React.FC<TProductByCate> = ({ cateSlug }) => {
   React.useEffect(() => {
     if (isFocused) {
       getProducts()
-      console.log(12312312)
     }
   }, [isFocused, cateSlug])
 

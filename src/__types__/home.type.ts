@@ -1,11 +1,10 @@
 export enum EHome {
   InitHome = "InitHome",
-  Shop = "Shop",
   Category = "Category",
   ProductList = "ProductList",
   ProductDetail = "ProductDetail",
-  Voucher = "Voucher",
   Cart = "Cart",
+  Voucher = "Voucher",
   Order = "Order",
   Rank = "Rank",
   Chat = "Chat",
