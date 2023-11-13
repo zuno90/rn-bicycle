@@ -3,15 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { EHome } from "../__types__"
 import { useIsFocused } from "@react-navigation/native"
 
-import {
-  Stack as NativeBaseStack,
-  VStack,
-  Heading,
-  Box,
-  ScrollView,
-  Button,
-  Image,
-} from "native-base"
+import { Stack as NativeBaseStack, VStack, Heading, Box, ScrollView, Image } from "native-base"
 import FooterMenu from "../components/home/FooterMenu"
 import LoadingBtn from "../components/useable/LoadingBtn"
 import PhoneCallBtn from "../components/useable/PhoneCallBtn"
@@ -19,6 +11,7 @@ import useAuth from "../context/AuthProvider"
 import { fetchGet, WIDTH } from "../utils/helper.util"
 import { localSet } from "../utils/storage.util"
 import { config } from "../utils/config.util"
+import ChatBtn from "../components/useable/ChatBtn"
 
 const SkeletonLoading = React.lazy(() => import("../components/useable/SkeletonLoading"))
 
@@ -97,9 +90,9 @@ const InitHome: React.FC<any> = ({ route, navigation }) => {
           <Heading size="md" mx={{ base: 5 }}>
             Danh mục sản phẩm
           </Heading>
-          <ScrollView mx={2} horizontal>
+          <Box mx={2}>
             <CategoryBlock />
-          </ScrollView>
+          </Box>
         </VStack>
         <Box mx={1} pt={{ base: 3 }} pb={5}>
           <React.Suspense fallback={<SkeletonLoading />}>
@@ -109,7 +102,8 @@ const InitHome: React.FC<any> = ({ route, navigation }) => {
           {isScrollEnd && <LoadingBtn />}
         </Box>
       </ScrollView>
-      <Box position="absolute" right={2} bottom={24} opacity={90}>
+      <Box position="absolute" right={2} bottom={24} opacity={90} gap={2} safeAreaBottom>
+        <ChatBtn />
         <PhoneCallBtn />
       </Box>
       <FooterMenu currentScreen={route.name} />

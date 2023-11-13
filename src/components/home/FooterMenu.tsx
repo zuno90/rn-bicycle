@@ -68,7 +68,7 @@ const FooterMenu: React.FC<TCurrentScreen> = ({ currentScreen }) => {
               as={FatherIcon}
               name="home"
               color={currentScreen === EHome.InitHome ? "#966216" : "gray.900"}
-              size="lg"
+              size="2xl"
             />
           </Center>
         </Pressable>
@@ -83,7 +83,7 @@ const FooterMenu: React.FC<TCurrentScreen> = ({ currentScreen }) => {
               as={MateComIcon}
               name="facebook-messenger"
               color={currentScreen === EHome.PrivateChat ? "#966216" : "gray.900"}
-              size="lg"
+              size="2xl"
             />
           </Center>
         </Pressable>
@@ -96,7 +96,7 @@ const FooterMenu: React.FC<TCurrentScreen> = ({ currentScreen }) => {
           <Center>
             <Icon
               as={() => (currentScreen === EHome.Rank ? MedalIcon(true) : MedalIcon(false))}
-              size="lg"
+              size="2xl"
             />
           </Center>
         </Pressable>
@@ -130,7 +130,7 @@ const FooterMenu: React.FC<TCurrentScreen> = ({ currentScreen }) => {
               as={InoIcon}
               name="notifications-outline"
               color={currentScreen === EHome.Notification ? "#966216" : "gray.900"}
-              size="lg"
+              size="2xl"
             />
           </Center>
         </Pressable>
@@ -145,7 +145,7 @@ const FooterMenu: React.FC<TCurrentScreen> = ({ currentScreen }) => {
               as={() => (currentScreen === EHome.Profile ? ProfileIcon(true) : ProfileIcon(false))}
               name="profile"
               color={currentScreen === EHome.Profile ? "#966216" : "gray.900"}
-              size="lg"
+              size="2xl"
             />
           </Center>
         </Pressable>
@@ -156,7 +156,7 @@ const FooterMenu: React.FC<TCurrentScreen> = ({ currentScreen }) => {
 
 const MedalIcon = (isCurrent: boolean): React.JSX.Element => {
   return (
-    <Svg width="22" height="28" viewBox="0 0 22 28">
+    <Svg width={30} height={34} viewBox="0 0 22 28">
       <Path
         d="M9.09473 16.6636L11.7657 18.2056L6.34185 27.6L4.7851 24.1281L9.09473 16.6636Z"
         fill={isCurrent ? "#966216" : "#0e0e0e"}
@@ -237,7 +237,7 @@ const MedalIcon = (isCurrent: boolean): React.JSX.Element => {
 
 const ProfileIcon = (isCurrent: boolean): React.JSX.Element => {
   return (
-    <Svg width="18" height="24" viewBox="0 0 18 24" fill="#0e0e0e">
+    <Svg width={24} height={30} viewBox="0 0 18 24" fill="#0e0e0e">
       <Path
         d="M9 10.75C9.98891 10.75 10.9556 10.4568 11.7779 9.90735C12.6001 9.35794 13.241 8.57705 13.6194 7.66342C13.9978 6.74979 14.0969 5.74446 13.9039 4.77455C13.711 3.80465 13.2348 2.91373 12.5355 2.21447C11.8363 1.51521 10.9454 1.039 9.97545 0.846076C9.00555 0.65315 8.00021 0.752166 7.08658 1.1306C6.17295 1.50904 5.39206 2.14991 4.84265 2.97215C4.29325 3.7944 4 4.7611 4 5.75C4 7.07609 4.52678 8.34785 5.46447 9.28554C6.40215 10.2232 7.67392 10.75 9 10.75Z"
         fill={isCurrent ? "#966216" : "#0e0e0e"}

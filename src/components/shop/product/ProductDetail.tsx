@@ -45,7 +45,6 @@ import { SwiperFlatList } from "react-native-swiper-flatlist"
 import { ImageGallery, ImageObject } from "@georstat/react-native-image-gallery"
 import PhoneCallBtn from "../../useable/PhoneCallBtn"
 import Toast from "../../useable/Toast"
-import ChatBtn from "../../useable/ChatBtn"
 import LoadingScreen from "../../../screens/LoadingScreen"
 import RenderHtml, { defaultSystemFonts } from "react-native-render-html"
 
@@ -69,7 +68,7 @@ type TProductAttr = {
 
 const ProductDetail: React.FC<any> = ({ route, navigation }) => {
   const { id, slug } = route.params
-  
+
   const toast = useToast()
 
   const [isLoading, setIsLoading] = React.useState<boolean>(true)
@@ -592,8 +591,7 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
             </Slide>
           )}
           {/* button */}
-          <Box position="absolute" right={5} bottom={24} opacity={90} gap={2} safeAreaBottom>
-            <ChatBtn />
+          <Box position="absolute" right={5} bottom={24} opacity={90} safeAreaBottom>
             <PhoneCallBtn />
           </Box>
         </>

@@ -43,15 +43,15 @@ const Product: React.FC<{ data: IProduct }> = ({ data }) => {
       )}
       <Box px={2} py={4} flexDir="column" justifyContent="flex-end" gap={1.5}>
         <Text
-          h={(WIDTH * 0.97) / 6}
+          h={(WIDTH * 0.97) / 5}
           fontWeight="semibold"
-          numberOfLines={3}
+          numberOfLines={2}
           ellipsizeMode="tail"
           onPress={() => navigation.push(EHome.ProductDetail, { id: data.id, slug: data.slug })}
         >
           {data.name}
         </Text>
-        <Heading fontSize="sm" color="red.500">
+        <Heading fontSize="md" color="red.500">
           <Text underline>đ</Text>
           {formatNumber(Math.min(...data.productItem?.map((item) => item.price)))}
         </Heading>
@@ -65,7 +65,7 @@ const Product: React.FC<{ data: IProduct }> = ({ data }) => {
                 )}`
               : ""}
           </Text>
-          <Text fontSize={8} color="yellow.700">
+          <Text fontSize="2xs" color="yellow.700">
             Đã bán {data.sold}
           </Text>
         </HStack>

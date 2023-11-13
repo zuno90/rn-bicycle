@@ -67,20 +67,20 @@ const Category: React.FC<any> = ({ route }) => {
       >
         <Stack mx={2} py={5} space={4}>
           <Heading size="md">{title}</Heading>
-          <Box flexDir="row" flexWrap="wrap" justifyContent="space-between" alignItems="center">
+          <Box flexDir="row" flexWrap="wrap" alignItems="center" gap={1.5}>
             {subCates.length > 0 && (
               <>
                 <Box
                   flexDir="column"
                   maxW="24.5%"
-                  overflow="hidden"
                   alignItems="center"
                   my={2}
                   gap={2}
+                  overflow="hidden"
                 >
                   <Pressable onPress={() => setCurrentBrand("")}>
                     <Box
-                      size={WIDTH * 0.22}
+                      size={WIDTH * 0.23}
                       bgColor="zuno"
                       justifyContent="center"
                       alignItems="center"
@@ -133,21 +133,14 @@ const Category: React.FC<any> = ({ route }) => {
                   </Text>
                 </Box>
                 {subCates.map((item, index) => (
-                  <Box
-                    key={index}
-                    flexDir="column"
-                    maxW="24.5%"
-                    overflow="hidden"
-                    alignItems="center"
-                    my={2}
-                    gap={2}
-                  >
+                  <Box key={index} flexDir="column" maxW="24.5%" alignItems="center" my={2} gap={2}>
                     <Pressable onPress={() => setCurrentBrand(item.slug)}>
                       <Box
                         size={WIDTH * 0.22}
                         borderWidth={currentBrand === item.slug ? 2 : 1}
                         borderColor={currentBrand === item.slug ? "yellow.400" : "muted.400"}
                         rounded="lg"
+                        overflow="hidden"
                       >
                         <AspectRatio ratio={1 / 1}>
                           <Image

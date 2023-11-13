@@ -539,13 +539,13 @@
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 79RF53F62V;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = bicycle/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Nhà Phân Phối";
+				INFOPLIST_KEY_CFBundleDisplayName = "NhàPhânPhối";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.2;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -572,13 +572,13 @@
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 79RF53F62V;
 				INFOPLIST_FILE = bicycle/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Nhà Phân Phối";
+				INFOPLIST_KEY_CFBundleDisplayName = "NhàPhânPhối";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.2;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
