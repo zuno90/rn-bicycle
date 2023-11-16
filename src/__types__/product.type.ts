@@ -12,6 +12,7 @@ export interface IProduct {
   sold: number
   detail: string
   images: string[]
+  video: string
   categoryId: number
   subCategoryId: number
   category: ICategory

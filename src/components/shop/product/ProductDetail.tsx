@@ -13,6 +13,7 @@ import {
   Stack,
   Text,
   VStack,
+  View,
   useToast,
 } from "native-base"
 import CartIcon from "../cart/CartIcon"
@@ -47,6 +48,7 @@ import PhoneCallBtn from "../../useable/PhoneCallBtn"
 import Toast from "../../useable/Toast"
 import LoadingScreen from "../../../screens/LoadingScreen"
 import RenderHtml, { defaultSystemFonts } from "react-native-render-html"
+import WebView from "react-native-webview"
 
 const Grid = React.lazy(() => import("../../useable/Grid"))
 const Product = React.lazy(() => import("./Product"))
@@ -307,16 +309,27 @@ const ProductDetail: React.FC<any> = ({ route, navigation }) => {
                         }}
                       >
                         <Image
+                          size={WIDTH / 5}
                           source={{ uri: item }}
                           resizeMode="contain"
                           rounded="lg"
                           borderWidth={productImgIndex === index ? 2 : 1}
                           borderColor={productImgIndex === index ? "zuno" : "gray.300"}
                           alt="top-image"
-                          size={WIDTH / 5}
                         />
                       </Pressable>
                     ))}
+                    {product.video && (
+                      <Box size={WIDTH / 5}>
+                        <WebView
+                          style={{ flex: 1, borderRadius: 10 }}
+                          source={{ uri: product.video }}
+                          javaScriptEnabled
+                          mediaPlaybackRequiresUserAction
+                          allowsFullscreenVideo
+                        />
+                      </Box>
+                    )}
                   </HStack>
                 </ScrollView>
               )}
