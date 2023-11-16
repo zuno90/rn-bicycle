@@ -49,11 +49,11 @@
 		</dict>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Access to take a photo by camera</string>
+	<string>$(PRODUCT_NAME) cần truy cập vào camera của bạn để chụp ảnh gửi cho admin</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Access location</string>
+	<string>$(PRODUCT_NAME) cần truy cập vào vị trí của bạn</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Access to photo</string>
+	<string>$(PRODUCT_NAME) cần truy cập vào hình ảnh của bạn để gửi ảnh cho admin</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>

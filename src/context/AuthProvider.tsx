@@ -1,5 +1,5 @@
 import React, { createContext } from "react"
-import { localGet, localSet } from "../utils/storage.util"
+import { localClearAll, localGet, localSet } from "../utils/storage.util"
 import { config } from "../utils/config.util"
 import { fetchGet, fetchPost } from "../utils/helper.util"
 import { useToast } from "native-base"
@@ -55,6 +55,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
       setAuth({ isAuth: true, user: data.user })
     } catch (error: any) {
+      localClearAll()
       setAuth({ isAuth: false, user: null })
       showToast(EToastType.err, error.message)
     } finally {

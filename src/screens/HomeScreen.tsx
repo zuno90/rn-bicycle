@@ -2,7 +2,6 @@ import React from "react"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { EHome } from "../__types__"
 import { useIsFocused } from "@react-navigation/native"
-
 import { Stack as NativeBaseStack, VStack, Heading, Box, ScrollView, Image } from "native-base"
 import FooterMenu from "../components/home/FooterMenu"
 import LoadingBtn from "../components/useable/LoadingBtn"

@@ -28,6 +28,7 @@ import PhoneCallBtn from "../components/useable/PhoneCallBtn"
 import FooterMenu from "../components/home/FooterMenu"
 import LoadingBtn from "../components/useable/LoadingBtn"
 import { useIsFocused } from "@react-navigation/native"
+import ChatBtn from "../components/useable/ChatBtn"
 
 const SkeletonLoading = React.lazy(() => import("../components/useable/SkeletonLoading"))
 
@@ -118,7 +119,8 @@ const InitHome: React.FC<any> = ({ route, navigation }) => {
           {isScrollEnd && <LoadingBtn />}
         </Box>
       </ScrollView>
-      <Box position="absolute" right={2} bottom={24} opacity={90}>
+      <Box position="absolute" right={2} bottom={24} opacity={90} gap={2} safeAreaBottom>
+        <ChatBtn />
         <PhoneCallBtn />
       </Box>
       <FooterMenu currentScreen={route.name} />
